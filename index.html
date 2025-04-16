@@ -1,43 +1,135 @@
 
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>IBD 可视化导航</title>
+  <meta charset="UTF-8" />
+  <title>Wang Lab - Visualization</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 2em;
-      background-color: #f9f9f9;
+      margin: 0;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background-color: #f7f9fc;
       color: #333;
     }
-    h1 {
-      color: #006699;
+    header {
+      background: #002b45;
+      color: white;
+      padding: 1.5em 2em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
     }
-    ul {
-      line-height: 2;
-      list-style-type: none;
-      padding-left: 0;
+    header h1 {
+      font-size: 1.6em;
+      margin: 0;
     }
-    li {
-      margin: 1em 0;
+    header .tagline {
+      font-size: 1.1em;
+      font-weight: 300;
+      opacity: 0.85;
     }
-    a {
-      font-size: 1.2em;
+    .section {
+      max-width: 1100px;
+      margin: 2em auto;
+      padding: 0 2em;
+    }
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2em;
+      margin-top: 2em;
+    }
+    .card {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+      padding: 1.5em;
+      text-align: center;
+      width: 300px;
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+    .card h2 {
+      color: #005fa3;
+      margin-bottom: 0.5em;
+    }
+    .card a {
+      display: inline-block;
+      margin-top: 1em;
+      padding: 0.5em 1.2em;
+      background: #007acc;
+      color: white;
       text-decoration: none;
-      color: #0077cc;
+      border-radius: 4px;
     }
-    a:hover {
-      text-decoration: underline;
+    .card a:hover {
+      background: #005fa3;
+    }
+    .interests {
+      margin-top: 3em;
+      background: white;
+      padding: 2em;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    }
+    .interests h2 {
+      color: #005fa3;
+      margin-bottom: 1em;
+    }
+    .interests ul {
+      line-height: 1.8;
+      padding-left: 1.5em;
+    }
+    footer {
+      text-align: center;
+      color: #aaa;
+      font-size: 0.9em;
+      margin-top: 4em;
+      padding-bottom: 2em;
     }
   </style>
 </head>
 <body>
-  <h1>🔬 IBD 图表可视化导航页</h1>
-  <p>点击下方链接查看不同类型的图表展示：</p>
-  <ul>
-    <li><a href="3D_Barplot_Fixed_Symbols.html" target="_blank">📊 3D 柱状图：文献颜色 + 菌种形状</a></li>
-    <li><a href="3D_Boxplot_Reference_Legend.html" target="_blank">📦 3D 点状图：文献为图例</a></li>
-  </ul>
+
+  <header>
+    <h1>Wang Lab · 907</h1>
+    <div class="tagline">B Cell / Immunity / IgA</div>
+  </header>
+
+  <div class="section">
+    <h2 style="text-align:center; color:#003366;">🔬 Interactive Visualization Portal</h2>
+    <div class="cards">
+      <div class="card">
+        <h2>📊 3D Bar Plot</h2>
+        <p>Color-coded by reference, shape-coded by microbe.</p>
+        <a href="3D_Barplot_Fixed_Symbols.html" target="_blank">View Plot</a>
+      </div>
+      <div class="card">
+        <h2>📦 3D Dot Plot</h2>
+        <p>Grouped by reference showing microbial relevance distribution.</p>
+        <a href="3D_Boxplot_Reference_Legend.html" target="_blank">View Plot</a>
+      </div>
+    </div>
+
+    <div class="interests">
+      <h2>Research Interests</h2>
+      <ul>
+        <li>Intestinal B cell responses and mucosal immunity</li>
+        <li>IgA antibody secretion and regulatory mechanisms</li>
+        <li>Germinal center formation and memory B cell differentiation</li>
+        <li>Fc receptor function in plasma cell development</li>
+        <li>Immunoglobulin diversity in infection and inflammation</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    Wang Lab @ Fudan University · Room 907 · Last updated 2024
+  </footer>
 </body>
 </html>
