@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratory Mouse Housing Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .main-container {
+            display: flex;
+            gap: 20px;
+        }
+        .grids-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        .info-panel {
+            width: 450px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+        .area {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            text-align: center;
+        }
+        .area-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.4em;
+            color: #222;
+        }
+        /* Grid structure for area 1 */
+        #grid1-container {
+            margin: 0 auto;
+            display: inline-block;
+        }
+        .grid1-row {
+            display: flex;
+        }
+        .grid1-cell {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ccc;
+            background-color: #e9e9e9;
+            position: relative;
+        }
+        .grid1-header {
+            background-color: transparent;
+            border: none;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .grid1-row-label {
+            width: 30px;
+            background-color: transparent;
+            border: none;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        /* Grid structure for areas 2 and 3 */
+        .grid {
+            display: grid;
+            grid-template-columns: 30px repeat(8, 45px);
+            grid-gap: 3px;
+        }
+        .cell {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e9e9e9;
+            border: 1px solid #ccc;
+            font-size: 0.9em;
+            cursor: default;
+            position: relative;
+        }
+        .row-label {
+            width: 30px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .col-label {
+            background-color: transparent;
+            border: none;
+            font-weight: bold;
+        }
+        
+        /* Common styles for all areas */
+        .occupied {
+            cursor: pointer;
+            color: white;
+            position: relative;
+            border: 2px solid #333;
+            transition: all 0.2s ease;
+        }
+        .occupied:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .occupied.selected {
+            border: 3px solid #FFD700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        .occupied::before {
+            content: "●";
+            font-size: 20px;
+        }
+        .tooltip {
+            visibility: hidden;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            white-space: nowrap;
+            z-index: 100;
+            font-size: 0.85em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .occupied:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 40px;
+            padding: 15px 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+        .legend-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        /* Genotype colors */
+        .s100a8xc2c { background-color: #FF5733; }
+        .ly6gxc2c { background-color: #33A1FF; }
+        .lyz2xc2c { background-color: #33FF57; }
+        .c2c { background-color: #FF6B9D; }
+        .umt { background-color: #D433FF; }
+        .mzb1 { background-color: #FFD700; }
+        .wt { background-color: #96CEB4; }
+        
+        /* Info panel styles */
+        .info-panel h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .cage-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .cage-info h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        .cage-description {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            border-radius: 4px;
+        }
+        .mouse-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.85em;
+        }
+        .mouse-table th {
+            background-color: #007bff;
+            color: white;
+            padding: 6px;
+            text-align: left;
+            border: 1px solid #ddd;
+            font-size: 0.8em;
+        }
+        .mouse-table td {
+            padding: 4px 6px;
+            border: 1px solid #ddd;
+            background-color: white;
+        }
+        .mouse-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .mouse-table tbody tr:hover {
+            background-color: #e9ecef;
+        }
+        .genotype-badge {
+            padding: 2px 4px;
+            border-radius: 3px;
+            color: white;
+            font-size: 0.7em;
+            font-weight: bold;
+        }
+        .no-selection {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            margin: 50px 0;
+        }
+        .mouse-count {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .cage-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        .status-normal { background-color: #d4edda; color: #155724; }
+        .status-breeding { background-color: #fff3cd; color: #856404; }
+        .status-experimental { background-color: #d1ecf1; color: #0c5460; }
+        .status-pending { background-color: #ffeaa7; color: #856404; }
+        .treatment-info {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Laboratory Mouse Housing Management System (C57/B6 Background)</h1>
+    
+    <div class="main-container">
+        <div class="grids-container">
+            <div class="area">
+                <div class="area-title">Area 1: A-G × 9-1</div>
+                <div id="grid1-container"></div>
+            </div>
+            
+            <div class="area">
+                <div class="area-title">Area 2: A-H × 9-1</div>
+                <div class="grid" id="grid2"></div>
+            </div>
+            
+            <div class="area">
+                <div class="area-title">Area 3: A-H × 9-1</div>
+                <div class="grid" id="grid3"></div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h3>Cage Information</h3>
+            <div id="cage-details">
+                <div class="no-selection">
+                    Click on any occupied cage to view detailed mouse information
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-title">Mouse Genotype Legend</div>
+        <div class="legend-item">
+            <div class="legend-color s100a8xc2c"></div>
+            <span>S100a8 x c2c</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color ly6gxc2c"></div>
+            <span>Ly6g x c2c</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color lyz2xc2c"></div>
+            <span>Lyz2 x c2c</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color c2c"></div>
+            <span>c2c</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color umt"></div>
+            <span>umt</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color mzb1"></div>
+            <span>mzb1</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color wt"></div>
+            <span>WT (C57/B6)</span>
+        </div>
+    </div>
+
+    <script>
+        // Complete cage data - colors based on genotype
+        const cageData = {
+            // Area 1 cages - UPDATED based on user info
+            "1-5A": {
+                genotype: "s100a8xc2c",
+                description: "S100a8 x c2c、c2c x DTR 杂交后代，等待基因型鉴定",
+                status: "Pending Genotyping",
+                mice: [
+                    { id: "1-5A-01", genotype: "待鉴定 (S100a8xc2c/c2cxDTR后代)", sex: "Male", age: "4周", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-5A-02", genotype: "待鉴定 (S100a8xc2c/c2cxDTR后代)", sex: "Female", age: "4周", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-5A-03", genotype: "待鉴定 (S100a8xc2c/c2cxDTR后代)", sex: "Male", age: "4周", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-5A-04", genotype: "待鉴定 (S100a8xc2c/c2cxDTR后代)", sex: "Female", age: "4周", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-5A-05", genotype: "待鉴定 (S100a8xc2c/c2cxDTR后代)", sex: "Male", age: "4周", treatment: "无", notes: "杂交F1代" }
+                ]
+            },
+            "1-8F": {
+                genotype: "ly6gxc2c",
+                description: "Ly6g x c2c、c2c x DTR 原笼种鼠",
+                status: "Breeding Colony",
+                mice: [
+                    { id: "1-8F-01", genotype: "c2c x DTR", sex: "Male", age: "15周", treatment: "无", notes: "种鼠" },
+                    { id: "1-8F-02", genotype: "c2c x DTR", sex: "Male", age: "16周", treatment: "无", notes: "种鼠" },
+                    { id: "1-8F-03", genotype: "c2c x DTR", sex: "Male", age: "15周", treatment: "无", notes: "种鼠" },
+                    { id: "1-8F-04", genotype: "Ly6g x c2c", sex: "Female", age: "14周", treatment: "无", notes: "种鼠" }
+                ]
+            },
+            "1-2F": {
+                genotype: "lyz2xc2c",
+                description: "Lyz2 x c2c、c2c x DTR 原笼种鼠",
+                status: "Breeding Colony",
+                mice: [
+                    { id: "1-2F-01", genotype: "c2c x DTR", sex: "Female", age: "16周", treatment: "无", notes: "种鼠" },
+                    { id: "1-2F-02", genotype: "Lyz2 x c2c", sex: "Male", age: "15周", treatment: "无", notes: "种鼠" },
+                    { id: "1-2F-03", genotype: "Lyz2 x c2c", sex: "Male", age: "16周", treatment: "无", notes: "种鼠" }
+                ]
+            },
+            // RETAINED from original - corrected genotype to c2c
+            "1-6B": {
+                genotype: "c2c",
+                description: "c2c 保种繁殖群",
+                status: "Breeding Colony",
+                mice: [
+                    { id: "1-6B-01", genotype: "c2c", sex: "Male", age: "16周", treatment: "无", notes: "保种种鼠" },
+                    { id: "1-6B-02", genotype: "c2c", sex: "Female", age: "15周", treatment: "无", notes: "保种种鼠" },
+                    { id: "1-6B-03", genotype: "c2c", sex: "Female", age: "14周", treatment: "无", notes: "保种种鼠" },
+                    { id: "1-6B-04", genotype: "c2c", sex: "Male", age: "16周", treatment: "无", notes: "保种种鼠" },
+                    { id: "1-6B-05", genotype: "c2c", sex: "Female", age: "15周", treatment: "无", notes: "保种种鼠" },
+                    { id: "1-6B-06", genotype: "c2c", sex: "Male", age: "15周", treatment: "无", notes: "保种种鼠" }
+                ]
+            },
+            "1-3B": {
+                genotype: "ly6gxc2c",
+                description: "Ly6g x c2c、c2c x DTR 杂交后代，等待基因型鉴定",
+                status: "Pending Genotyping",
+                mice: [
+                    { id: "1-3B-01", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Male", age: "4周", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-3B-02", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Female", age: "4周", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-3B-03", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Male", age: "4周", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-3B-04", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Female", age: "4周", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-3B-05", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Male", age: "4周", treatment: "无", notes: "杂交F1代" }
+                ]
+            },
+            "1-8C": {
+                genotype: "c2c",
+                description: "c2c雄性小鼠，接受CL处理，目前剩余3只",
+                status: "CL Treatment (Survival)",
+                mice: [
+                    { id: "1-8C-01", genotype: "c2c", sex: "Male", age: "11周", treatment: "CL", notes: "存活个体" },
+                    { id: "1-8C-02", genotype: "c2c", sex: "Male", age: "11周", treatment: "CL", notes: "存活个体" },
+                    { id: "1-8C-03", genotype: "c2c", sex: "Male", age: "11周", treatment: "CL", notes: "存活个体" }
+                ]
+            },
+            "1-2C": {
+                genotype: "s100a8xc2c",
+                description: "S100a8 x c2c、c2c x DTR 杂交后代，等待基因型鉴定",
+                status: "Pending Genotyping",
+                mice: [
+                    { id: "1-2C-01", genotype: "待鉴定 (S100a8xc2c/c2cxDTR后代)", sex: "Female", age: "4周", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-2C-02", genotype: "待鉴定 (S100a8xc2c/c2cxDTR后代)", sex: "Male", age: "4周", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-2C-03", genotype: "待鉴定 (S100a8xc2c/c2cxDTR后代)", sex: "Female", age: "4周", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-2C-04", genotype: "待鉴定 (S100a8xc2c/c2cxDTR后代)", sex: "Male", age: "4周", treatment: "无", notes: "杂交F1代" }
+                ]
+            },
+            // RETAINED from original - corrected to match 1-3B
+            "1-5D": {
+                genotype: "ly6gxc2c",
+                description: "Ly6g x c2c、c2c x DTR 杂交后代，等待基因型鉴定",
+                status: "Pending Genotyping",
+                mice: [
+                    { id: "1-5D-01", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Male", age: "14周", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-5D-02", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Female", age: "13周", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-5D-03", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Male", age: "14周", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-5D-04", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Female", age: "13周", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-5D-05", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Male", age: "14周", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-5D-06", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Female", age: "13周", treatment: "无", notes: "杂交F1代" }
+                ]
+            },
+            // RETAINED from original - not mentioned in update
+            "1-1D": {
+                genotype: "umt",
+                description: "umt 小鼠群",
+                status: "UMT Group",
+                mice: [
+                    { id: "1-1D-01", genotype: "umt", sex: "Male", age: "9周", treatment: "无", notes: "健康" },
+                    { id: "1-1D-02", genotype: "umt", sex: "Female", age: "9周", treatment: "无", notes: "健康" },
+                    { id: "1-1D-03", genotype: "umt", sex: "Male", age: "9周", treatment: "无", notes: "健康" },
+                    { id: "1-1D-04", genotype: "umt", sex: "Female", age: "8周", treatment: "无", notes: "健康" }
+                ]
+            },
+            "1-2G": {
+                genotype: "c2c",
+                description: "c2c雄性小鼠，已接受PBS处理",
+                status: "PBS Treatment Group",
+                mice: [
+                    { id: "1-2G-01", genotype: "c2c", sex: "Male", age: "10周", treatment: "PBS", notes: "对照组" },
+                    { id: "1-2G-02", genotype: "c2c", sex: "Male", age: "10周", treatment: "PBS", notes: "对照组" },
+                    { id: "1-2G-03", genotype: "c2c", sex: "Male", age: "10周", treatment: "PBS", notes: "对照组" },
+                    { id: "1-2G-04", genotype: "c2c", sex: "Male", age: "10周", treatment: "PBS", notes: "对照组" },
+                    { id: "1-2G-05", genotype: "c2c", sex: "Male", age: "10周", treatment: "PBS", notes: "对照组" },
+                    { id: "1-2G-06", genotype: "c2c", sex: "Male", age: "10周", treatment: "PBS", notes: "对照组" }
+                ]
+            },
+            // NEW cage mentioned by user
+            "1-3G": {
+                genotype: "c2c",
+                description: "c2c雌性小鼠，PBS处理组，2025-06-16补充2只用于保种",
+                status: "PBS Treated + Breeding",
+                mice: [
+                    { id: "1-3G-01", genotype: "c2c", sex: "Female", age: "12周", treatment: "PBS", notes: "处理组" },
+                    { id: "1-3G-02", genotype: "c2c", sex: "Female", age: "12周", treatment: "PBS", notes: "处理组" },
+                    { id: "1-3G-03", genotype: "c2c", sex: "Female", age: "12周", treatment: "PBS", notes: "处理组" },
+                    { id: "1-3G-04", genotype: "c2c", sex: "Female", age: "12周", treatment: "PBS", notes: "处理组" },
+                    { id: "1-3G-05", genotype: "c2c", sex: "Female", age: "8周", treatment: "无", notes: "20250616补充-保种" },
+                    { id: "1-3G-06", genotype: "c2c", sex: "Female", age: "8周", treatment: "无", notes: "20250616补充-保种" }
+                ]
+            },
+            
+            // Area 2 cages - UPDATED and RETAINED
+            "2-1A": {
+                genotype: "ly6gxc2c",
+                description: "Ly6g x c2c、c2c x DTR 杂交后代，等待基因型鉴定",
+                status: "Pending Genotyping",
+                mice: [
+                    { id: "2-1A-01", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Male", age: "4周", treatment: "无", notes: "杂交F1代" },
+                    { id: "2-1A-02", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Female", age: "4周", treatment: "无", notes: "杂交F1代" },
+                    { id: "2-1A-03", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Male", age: "4周", treatment: "无", notes: "杂交F1代" }
+                ]
+            },
+            "2-9B": {
+                genotype: "lyz2xc2c",
+                description: "1-2F 后代，等待基因型鉴定",
+                status: "Pending Genotyping",
+                mice: [
+                    { id: "2-9B-01", genotype: "待鉴定 (1-2F后代)", sex: "Male", age: "4周", treatment: "无", notes: "F1代" },
+                    { id: "2-9B-02", genotype: "待鉴定 (1-2F后代)", sex: "Female", age: "4周", treatment: "无", notes: "F1代" },
+                    { id: "2-9B-03", genotype: "待鉴定 (1-2F后代)", sex: "Male", age: "4周", treatment: "无", notes: "F1代" },
+                    { id: "2-9B-04", genotype: "待鉴定 (1-2F后代)", sex: "Female", age: "4周", treatment: "无", notes: "F1代" },
+                    { id: "2-9B-05", genotype: "待鉴定 (1-2F后代)", sex: "Male", age: "4周", treatment: "无", notes: "F1代" }
+                ]
+            },
+            "2-7B": {
+                genotype: "s100a8xc2c",
+                description: "S100a8 x c2c、c2c x DTR 原笼，用于继续繁殖",
+                status: "Breeding Colony",
+                mice: [
+                    { id: "2-7B-01", genotype: "c2c x DTR", sex: "Male", age: "16周", treatment: "无", notes: "种鼠" },
+                    { id: "2-7B-02", genotype: "c2c x DTR", sex: "Male", age: "15周", treatment: "无", notes: "种鼠" },
+                    { id: "2-7B-03", genotype: "S100a8 x c2c", sex: "Female", age: "14周", treatment: "无", notes: "种鼠" },
+                    { id: "2-7B-04", genotype: "S100a8 x c2c", sex: "Female", age: "15周", treatment: "无", notes: "种鼠" },
+                    { id: "2-7B-05", genotype: "S100a8 x c2c", sex: "Female", age: "14周", treatment: "无", notes: "种鼠" }
+                ]
+            },
+            "2-9C": {
+                genotype: "ly6gxc2c",
+                description: "Ly6g x c2c、c2c x DTR 杂交后代，等待基因型鉴定",
+                status: "Pending Genotyping",
+                mice: [
+                    { id: "2-9C-01", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Female", age: "4周", treatment: "无", notes: "杂交F1代" },
+                    { id: "2-9C-02", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Male", age: "4周", treatment: "无", notes: "杂交F1代" },
+                    { id: "2-9C-03", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Female", age: "4周", treatment: "无", notes: "杂交F1代" },
+                    { id: "2-9C-04", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Male", age: "4周", treatment: "无", notes: "杂交F1代" }
+                ]
+            },
+            "2-4E": {
+                genotype: "lyz2xc2c",
+                description: "1-2F 后代，等待基因型鉴定",
+                status: "Pending Genotyping",
+                mice: [
+                    { id: "2-4E-01", genotype: "待鉴定 (1-2F后代)", sex: "Female", age: "4周", treatment: "无", notes: "F1代" },
+                    { id: "2-4E-02", genotype: "待鉴定 (1-2F后代)", sex: "Male", age: "4周", treatment: "无", notes: "F1代" },
+                    { id: "2-4E-03", genotype: "待鉴定 (1-2F后代)", sex: "Female", age: "4周", treatment: "无", notes: "F1代" },
+                    { id: "2-4E-04", genotype: "待鉴定 (1-2F后代)", sex: "Male", age: "4周", treatment: "无", notes: "F1代" }
+                ]
+            },
+            "2-8E": {
+                genotype: "lyz2xc2c",
+                description: "1-2F 后代，等待基因型鉴定",
+                status: "Pending Genotyping",
+                mice: [
+                    { id: "2-8E-01", genotype: "待鉴定 (1-2F后代)", sex: "Male", age: "4周", treatment: "无", notes: "F1代" },
+                    { id: "2-8E-02", genotype: "待鉴定 (1-2F后代)", sex: "Female", age: "4周", treatment: "无", notes: "F1代" },
+                    { id: "2-8E-03", genotype: "待鉴定 (1-2F后代)", sex: "Male", age: "4周", treatment: "无", notes: "F1代" }
+                ]
+            },
+            
+            // Area 3 cages - UPDATED and RETAINED
+            // RETAINED from original - not mentioned in update
+            "3-8D": {
+                genotype: "mzb1",
+                description: "mzb1 实验小鼠",
+                status: "MZB1 Experimental",
+                mice: [
+                    { id: "3-8D-01", genotype: "mzb1", sex: "Male", age: "13周", treatment: "无", notes: "实验组" },
+                    { id: "3-8D-02", genotype: "mzb1", sex: "Female", age: "12周", treatment: "无", notes: "实验组" },
+                    { id: "3-8D-03", genotype: "mzb1", sex: "Male", age: "13周", treatment: "无", notes: "实验组" },
+                    { id: "3-8D-04", genotype: "mzb1", sex: "Female", age: "12周", treatment: "无", notes: "实验组" },
+                    { id: "3-8D-05", genotype: "mzb1", sex: "Male", age: "13周", treatment: "无", notes: "实验组" }
+                ]
+            },
+            // NEW cage mentioned by user
+            "3-6C": {
+                genotype: "wt",
+                description: "C57/B6 野生型小鼠",
+                status: "Wild Type Control",
+                mice: [
+                    { id: "3-6C-01", genotype: "WT (C57/B6)", sex: "Male", age: "12周", treatment: "无", notes: "野生型对照" },
+                    { id: "3-6C-02", genotype: "WT (C57/B6)", sex: "Female", age: "12周", treatment: "无", notes: "野生型对照" },
+                    { id: "3-6C-03", genotype: "WT (C57/B6)", sex: "Male", age: "12周", treatment: "无", notes: "野生型对照" },
+                    { id: "3-6C-04", genotype: "WT (C57/B6)", sex: "Female", age: "12周", treatment: "无", notes: "野生型对照" },
+                    { id: "3-6C-05", genotype: "WT (C57/B6)", sex: "Male", age: "12周", treatment: "无", notes: "野生型对照" }
+                ]
+            }
+        };
+
+        let selectedCage = null;
+
+        // Create Area 1 grid manually with a new approach
+        function createGrid1() {
+            const container = document.getElementById('grid1-container');
+            const columns = ['', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
+            const rows = ['9', '8', '7', '6', '5', '4', '3', '2', '1'];
+            
+            // Create header row
+            const headerRow = document.createElement('div');
+            headerRow.className = 'grid1-row';
+            
+            columns.forEach(col => {
+                const cell = document.createElement('div');
+                cell.className = 'grid1-cell grid1-header';
+                cell.textContent = col;
+                headerRow.appendChild(cell);
+            });
+            
+            container.appendChild(headerRow);
+            
+            // Create data rows
+            rows.forEach(row => {
+                const dataRow = document.createElement('div');
+                dataRow.className = 'grid1-row';
+                
+                // Row label first
+                const rowLabel = document.createElement('div');
+                rowLabel.className = 'grid1-cell grid1-row-label';
+                rowLabel.textContent = row;
+                dataRow.appendChild(rowLabel);
+                
+                // Then cells for each column
+                for (let col = 1; col < columns.length; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid1-cell';
+                    
+                    // Check if this cell has a mouse
+                    const cellId = `1-${row}${columns[col]}`;
+                    
+                    if (cellId in cageData) {
+                        cell.className = `grid1-cell occupied ${cageData[cellId].genotype}`;
+                        cell.setAttribute('data-cage-id', cellId);
+                        cell.addEventListener('click', () => selectCage(cellId));
+                        
+                        // Add tooltip
+                        const tooltip = document.createElement('div');
+                        tooltip.className = 'tooltip';
+                        const mouseCount = cageData[cellId].mice.length;
+                        tooltip.textContent = `${cellId}: ${mouseCount}只 (${cageData[cellId].status})`;
+                        cell.appendChild(tooltip);
+                    }
+                    
+                    dataRow.appendChild(cell);
+                }
+                
+                container.appendChild(dataRow);
+            });
+        }
+
+        // Create the grids for areas 2 and 3
+        function createGridStandard(gridId, cols, rows) {
+            const grid = document.getElementById(gridId);
+            
+            // Create column labels (A, B, C, etc.)
+            grid.appendChild(document.createElement("div")); // Empty cell for top-left corner
+            for (let col = 0; col < cols.length; col++) {
+                const colLabel = document.createElement("div");
+                colLabel.className = "cell col-label";
+                colLabel.textContent = cols[col];
+                grid.appendChild(colLabel);
+            }
+            
+            // Create rows with labels and cells
+            for (let row = 0; row < rows.length; row++) {
+                // Row label
+                const rowLabel = document.createElement("div");
+                rowLabel.className = "row-label";
+                rowLabel.textContent = rows[row];
+                grid.appendChild(rowLabel);
+                
+                // Cells in the row
+                for (let col = 0; col < cols.length; col++) {
+                    const cell = document.createElement("div");
+                    cell.className = "cell";
+                    
+                    // Check if this cell has a mouse
+                    const areaNumber = gridId.replace("grid", "");
+                    const cellId = `${areaNumber}-${rows[row]}${cols[col]}`;
+                    
+                    if (cellId in cageData) {
+                        cell.className = `cell occupied ${cageData[cellId].genotype}`;
+                        cell.setAttribute('data-cage-id', cellId);
+                        cell.addEventListener('click', () => selectCage(cellId));
+                        
+                        // Add tooltip
+                        const tooltip = document.createElement("div");
+                        tooltip.className = "tooltip";
+                        const mouseCount = cageData[cellId].mice.length;
+                        tooltip.textContent = `${cellId}: ${mouseCount}只 (${cageData[cellId].status})`;
+                        cell.appendChild(tooltip);
+                    }
+                    
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function selectCage(cageId) {
+            // Remove previous selection
+            if (selectedCage) {
+                const prevSelected = document.querySelector(`[data-cage-id="${selectedCage}"]`);
+                if (prevSelected) {
+                    prevSelected.classList.remove('selected');
+                }
+            }
+            
+            // Add new selection
+            selectedCage = cageId;
+            const newSelected = document.querySelector(`[data-cage-id="${cageId}"]`);
+            if (newSelected) {
+                newSelected.classList.add('selected');
+            }
+            
+            // Update info panel
+            displayCageInfo(cageId);
+        }
+
+        function displayCageInfo(cageId) {
+            const cage = cageData[cageId];
+            const detailsContainer = document.getElementById('cage-details');
+            
+            if (!cage) {
+                detailsContainer.innerHTML = '<div class="no-selection">No data available for this cage</div>';
+                return;
+            }
+            
+            const mouseCount = cage.mice.length;
+            let statusClass = 'status-normal';
+            
+            if (cage.status.includes('Breeding')) {
+                statusClass = 'status-breeding';
+            } else if (cage.status.includes('Experimental') || cage.status.includes('Treatment')) {
+                statusClass = 'status-experimental';
+            } else if (cage.status.includes('Pending')) {
+                statusClass = 'status-pending';
+            }
+            
+            const html = `
+                <div class="cage-info">
+                    <h4>笼位编号: ${cageId}</h4>
+                    <p><strong>小鼠数量:</strong> <span class="mouse-count">${mouseCount}只</span></p>
+                    <p><strong>状态:</strong> <span class="cage-status ${statusClass}">${cage.status}</span></p>
+                </div>
+                
+                <div class="cage-description">
+                    <strong>笼位描述:</strong><br>
+                    ${cage.description}
+                </div>
+                
+                ${cage.mice.some(mouse => mouse.treatment !== '无') ? 
+                    `<div class="treatment-info">
+                        <strong>⚠️ 处理信息:</strong> 该笼位包含已处理小鼠
+                    </div>` : ''
+                }
+                
+                <table class="mouse-table">
+                    <thead>
+                        <tr>
+                            <th>小鼠编号</th>
+                            <th>基因型</th>
+                            <th>性别</th>
+                            <th>年龄</th>
+                            <th>处理</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${cage.mice.map(mouse => `
+                            <tr>
+                                <td><strong>${mouse.id}</strong></td>
+                                <td><span class="genotype-badge ${cage.genotype}">${mouse.genotype}</span></td>
+                                <td>${mouse.sex === 'Male' ? '雄' : '雌'}</td>
+                                <td>${mouse.age}</td>
+                                <td>${mouse.treatment}</td>
+                                <td>${mouse.notes}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            detailsContainer.innerHTML = html;
+        }
+
+        // Define the grids for areas 2 and 3
+        const colsArea2 = ["A", "B", "C", "D", "E", "F", "G", "H"];
+        const colsArea3 = ["A", "B", "C", "D", "E", "F", "G", "H"];
+        const rows = ["9", "8", "7", "6", "5", "4", "3", "2", "1"];
+
+        // Create all three grids
+        createGrid1();
+        createGridStandard("grid2", colsArea2, rows);
+        createGridStandard("grid3", colsArea3, rows);
+    </script>
+</body>
+</html>
