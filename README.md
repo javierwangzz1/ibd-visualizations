@@ -8,13 +8,32 @@ This repository contains interactive visualizations, mouse management systems, a
 
 **Research Areas**: B Cell / Immunity / IgA / Mucosal Immunity
 
+## 📚 Documentation
+
+- **[README.md](README.md)** - This file, project overview
+- **[VIDEO_DEPLOYMENT_GUIDE.md](VIDEO_DEPLOYMENT_GUIDE.md)** - Complete video deployment workflow
+- **[PROJECT_REORGANIZATION.md](PROJECT_REORGANIZATION.md)** - Project restructuring documentation
+- **[BACKGROUND_SETUP.md](BACKGROUND_SETUP.md)** - Background image configuration guide
+
 ## 📁 Directory Structure
 
 ```
 ibd-visualizations/
 ├── index.html                          # Main portal page
+├── animal-room-videos.html             # Animal room video documentation
 ├── README.md                           # This file
+├── VIDEO_DEPLOYMENT_GUIDE.md           # Video deployment SOP
 ├── PROJECT_REORGANIZATION.md           # Reorganization documentation
+├── BACKGROUND_SETUP.md                 # Background configuration guide
+│
+├── videos/                             # Video subtitles (VTT format)
+│   ├── VID_20251021114245.vtt
+│   └── ... (8 subtitle files)
+│
+├── frames/                             # Video keyframes (270 total)
+│   ├── VID_20251021114245/             # 35 frames
+│   ├── VID_20251021114422/             # 45 frames
+│   └── ... (8 video directories)
 │
 ├── pages/                              # All HTML pages
 │   ├── visualizations/                 # Data visualization pages
@@ -45,6 +64,8 @@ ibd-visualizations/
 │
 ├── assets/                             # All resources
 │   ├── images/                         # Images
+│   │   ├── haystacks-monet.jpg         # Main page background (Monet)
+│   │   ├── poppy-field-monet.jpg       # Video page background (Monet)
 │   │   ├── slides/                     # Presentation slides
 │   │   │   ├── version1/               # 6 slides (from images2)
 │   │   │   └── version2/               # 8 slides (from image)
@@ -128,6 +149,14 @@ For deployment to a web server:
 
 ## 🔄 Recent Updates
 
+**2025-10-23** - Animal room video deployment
+- ✅ Added 8 videos with Chinese subtitles (VTT format)
+- ✅ 270 keyframes for timeline preview
+- ✅ Monet impressionist backgrounds (haystacks & poppy field)
+- ✅ Red rolling timestamp overlay
+- ✅ GitHub Pages + Releases hybrid architecture
+- ✅ Comprehensive deployment guide created
+
 **2025-10-22** - Major reorganization
 - ✅ Restructured entire project for better organization
 - ✅ Standardized file naming conventions
@@ -135,7 +164,7 @@ For deployment to a web server:
 - ✅ Created comprehensive navigation portal
 - ✅ Separated source files from web assets
 
-See `PROJECT_REORGANIZATION.md` for detailed reorganization plan and execution steps.
+See `PROJECT_REORGANIZATION.md` for detailed reorganization plan and `VIDEO_DEPLOYMENT_GUIDE.md` for video deployment workflows.
 
 ## 📝 Research Interests
 
@@ -158,5 +187,5 @@ For research and educational purposes.
 
 ---
 
-**Last Updated**: 2025-10-22
-**Reorganization**: Completed successfully ✅
+**Last Updated**: 2025-10-23
+**Latest Feature**: Animal Room Video Documentation ✅
