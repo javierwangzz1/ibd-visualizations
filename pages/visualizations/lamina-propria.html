@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小鼠小肠固有层细胞分离与流式细胞术分析可视化协议</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.1) 10px,
+                rgba(255,255,255,0.1) 20px
+            );
+            animation: headerPattern 20s linear infinite;
+        }
+        
+        @keyframes headerPattern {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 300;
+        }
+        
+        .header .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: 600;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .workflow-overview {
+            padding: 40px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+        }
+        
+        .timeline-visual {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            z-index: 1;
+        }
+        
+        .timeline-step {
+            background: white;
+            border: 4px solid #667eea;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-step:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .step-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .step-text {
+            font-size: 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .step-duration {
+            position: absolute;
+            bottom: -30px;
+            font-size: 12px;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .main-content {
+            padding: 0 40px 40px;
+        }
+        
+        .section {
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        
+        .section:nth-child(1) { animation-delay: 0.1s; }
+        .section:nth-child(2) { animation-delay: 0.2s; }
+        .section:nth-child(3) { animation-delay: 0.3s; }
+        .section:nth-child(4) { animation-delay: 0.4s; }
+        .section:nth-child(5) { animation-delay: 0.5s; }
+        .section:nth-child(6) { animation-delay: 0.6s; }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e3e8ff 100%);
+            border-radius: 15px;
+            border-left: 6px solid #667eea;
+        }
+        
+        .section-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+        
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .section-description {
+            font-size: 14px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        
+        .procedure-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .procedure-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 2px solid #f1f3f4;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .procedure-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+        }
+        
+        .procedure-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            margin-right: 15px;
+        }
+        
+        .card-title {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        
+        .card-content {
+            color: #5a6c7d;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .parameters-visual {
+            background: linear-gradient(135deg, #f1f8ff, #e3f2fd);
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .param-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .param-item {
+            text-align: center;
+            padding: 8px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e3f2fd;
+        }
+        
+        .param-value {
+            font-weight: 600;
+            color: #1976d2;
+            font-size: 14px;
+        }
+        
+        .param-label {
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+        }
+        
+        .reagent-formula {
+            background: linear-gradient(135deg, #fff8e1, #ffecb3);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            border-left: 6px solid #ff9800;
+            position: relative;
+        }
+        
+        .formula-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .formula-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            margin-right: 15px;
+        }
+        
+        .formula-title {
+            font-weight: 600;
+            color: #e65100;
+            font-size: 18px;
+        }
+        
+        .formula-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .formula-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #ffcc02;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .antibody-panel-visual {
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 2px solid #9c27b0;
+        }
+        
+        .panel-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .panel-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #4a148c;
+            margin-bottom: 10px;
+        }
+        
+        .antibody-wheel {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        .center-circle {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #9c27b0, #673ab7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
+        
+        .antibody-item {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #9c27b0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .antibody-item:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(156, 39, 176, 0.3);
+        }
+        
+        .antibody-name {
+            font-weight: 600;
+            color: #4a148c;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .antibody-channel {
+            font-size: 10px;
+            color: #7b1fa2;
+            margin-top: 2px;
+        }
+        
+        .quality-dashboard {
+            background: linear-gradient(135deg, #e8f5e8, #c8e6c8);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 2px solid #4caf50;
+        }
+        
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .dashboard-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1b5e20;
+            margin-bottom: 10px;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #81c784;
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(76, 175, 80, 0.2);
+        }
+        
+        .metric-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #4caf50, #388e3c);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            margin: 0 auto 15px;
+        }
+        
+        .metric-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1b5e20;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: #388e3c;
+            font-weight: 500;
+        }
+        
+        .process-diagram {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 2px solid #ff9800;
+        }
+        
+        .diagram-title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 600;
+            color: #e65100;
+            margin-bottom: 30px;
+        }
+        
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .flow-step {
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .flow-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+            margin: 0 auto 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .flow-icon:hover {
+            transform: rotate(10deg) scale(1.1);
+        }
+        
+        .flow-label {
+            font-weight: 600;
+            color: #e65100;
+            font-size: 14px;
+        }
+        
+        .flow-arrow {
+            font-size: 24px;
+            color: #ff9800;
+            margin: 0 10px;
+        }
+        
+        .critical-alert {
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            border-left: 6px solid #f44336;
+            position: relative;
+        }
+        
+        .alert-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            margin-right: 15px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .alert-title {
+            font-weight: 600;
+            color: #c62828;
+            font-size: 18px;
+        }
+        
+        .alert-content {
+            color: #d32f2f;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .timeline-visual {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .timeline-line {
+                display: none;
+            }
+            
+            .procedure-flow,
+            .formula-content,
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .flow-diagram {
+                flex-direction: column;
+            }
+            
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+            
+            .antibody-wheel {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .antibody-item {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>小鼠小肠固有层细胞分离与流式细胞术分析</h1>
+                <p>标准化可视化操作协议</p>
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-number">4</span>
+                        <span class="stat-label">小时总时长</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">4</span>
+                        <span class="stat-label">可处理小鼠数量</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">7</span>
+                        <span class="stat-label">色流式检测通道</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">80%</span>
+                        <span class="stat-label">预期细胞存活率</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="workflow-overview">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50; font-size: 24px;">实验流程时间线</h2>
+            <div class="timeline-visual">
+                <div class="timeline-line"></div>
+                <div class="timeline-step" data-step="1">
+                    <div class="step-icon">🔬</div>
+                    <div class="step-text">组织收集</div>
+                    <div class="step-duration">45min</div>
+                </div>
+                <div class="timeline-step" data-step="2">
+                    <div class="step-icon">🧪</div>
+                    <div class="step-text">上皮去除</div>
+                    <div class="step-duration">45min</div>
+                </div>
+                <div class="timeline-step" data-step="3">
+                    <div class="step-icon">⚗️</div>
+                    <div class="step-text">酶消化</div>
+                    <div class="step-duration">30min</div>
+                </div>
+                <div class="timeline-step" data-step="4">
+                    <div class="step-icon">🌊</div>
+                    <div class="step-text">密度分离</div>
+                    <div class="step-duration">60min</div>
+                </div>
+                <div class="timeline-step" data-step="5">
+                    <div class="step-icon">🎨</div>
+                    <div class="step-text">免疫染色</div>
+                    <div class="step-duration">45min</div>
+                </div>
+                <div class="timeline-step" data-step="6">
+                    <div class="step-icon">📊</div>
+                    <div class="step-text">流式分析</div>
+                    <div class="step-duration">15min</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- 第一阶段：组织收集 -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">1</div>
+                    <div>
+                        <div class="section-title">组织收集与预处理</div>
+                        <div class="section-description">建立无菌操作环境，确保组织完整性和细胞活性</div>
+                    </div>
+                </div>
+
+                <div class="procedure-flow">
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">🐭</div>
+                            <div class="card-title">实验动物处理</div>
+                        </div>
+                        <div class="card-content">
+                            CO₂窒息法处死6-8周龄C57BL/6小鼠，70%乙醇消毒腹部，无菌开腹手术暴露小肠组织。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">操作参数</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">15min</div>
+                                    <div class="param-label">处理时间</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">20-25°C</div>
+                                    <div class="param-label">环境温度</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">无菌</div>
+                                    <div class="param-label">操作要求</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">✂️</div>
+                            <div class="card-title">小肠分离</div>
+                        </div>
+                        <div class="card-content">
+                            幽门处切断，钝性剥离肠系膜脂肪，回盲部切断，完整取出小肠并置于预冷PBS中。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">操作参数</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">20min</div>
+                                    <div class="param-label">分离时间</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">4°C</div>
+                                    <div class="param-label">保存温度</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">pH 7.2</div>
+                                    <div class="param-label">PBS缓冲液</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">🧽</div>
+                            <div class="card-title">组织清洁</div>
+                        </div>
+                        <div class="card-content">
+                            冰冷PBS冲洗肠腔，纵向切开，切成10mm片段，三次PBS清洗去除肠道内容物。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">操作参数</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">10min</div>
+                                    <div class="param-label">清洗时间</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">3次</div>
+                                    <div class="param-label">清洗次数</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">10mm</div>
+                                    <div class="param-label">片段大小</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reagent-formula">
+                    <div class="formula-header">
+                        <div class="formula-icon">⚗️</div>
+                        <div class="formula-title">磷酸盐缓冲盐水(PBS)配制</div>
+                    </div>
+                    <div class="formula-content">
+                        <div class="formula-item">
+                            <strong>KH₂PO₄:</strong> 0.385 g/L
+                        </div>
+                        <div class="formula-item">
+                            <strong>K₂HPO₄:</strong> 1.249 g/L
+                        </div>
+                        <div class="formula-item">
+                            <strong>NaCl:</strong> 8.49 g/L
+                        </div>
+                        <div class="formula-item">
+                            <strong>去离子水:</strong> 定容至1000 mL
+                        </div>
+                        <div class="formula-item">
+                            <strong>pH调节:</strong> 7.2
+                        </div>
+                        <div class="formula-item">
+                            <strong>渗透压:</strong> 290-310 mOsm
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第二阶段：上皮细胞去除 -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">2</div>
+                    <div>
+                        <div class="section-title">上皮细胞层去除</div>
+                        <div class="section-description">化学螯合与机械分离结合，选择性去除肠道上皮细胞层</div>
+                    </div>
+                </div>
+
+                <div class="process-diagram">
+                    <div class="diagram-title">EDTA-DTT处理流程图</div>
+                    <div class="flow-diagram">
+                        <div class="flow-step">
+                            <div class="flow-icon">🧪</div>
+                            <div class="flow-label">EDTA螯合</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="flow-icon">🔄</div>
+                            <div class="flow-label">DTT还原</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="flow-icon">🌊</div>
+                            <div class="flow-label">机械振荡</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="flow-icon">🔍</div>
+                            <div class="flow-label">显微验证</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="procedure-flow">
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">🧲</div>
+                            <div class="card-title">EDTA-DTT螯合处理</div>
+                        </div>
+                        <div class="card-content">
+                            25mL EDTA-DTT缓冲液中孵育组织片段，EDTA螯合钙离子破坏细胞连接，DTT降解粘液二硫键。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">孵育条件</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">4°C</div>
+                                    <div class="param-label">温度</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">30min</div>
+                                    <div class="param-label">时间</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">20rpm</div>
+                                    <div class="param-label">旋转速度</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">⚡</div>
+                            <div class="card-title">机械分离</div>
+                        </div>
+                        <div class="card-content">
+                            间歇性振荡促进上皮细胞分离，每2分钟剧烈摇动15秒，总计4次循环，避免过度损伤。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">振荡参数</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">2min</div>
+                                    <div class="param-label">间隔时间</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">15s</div>
+                                    <div class="param-label">振荡时长</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">4次</div>
+                                    <div class="param-label">循环次数</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">🔬</div>
+                            <div class="card-title">去除效果验证</div>
+                        </div>
+                        <div class="card-content">
+                            显微镜观察评估上皮细胞去除完整性，观察隐窝基底结构，确认无完整上皮细胞层覆盖。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">质控标准</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">100×</div>
+                                    <div class="param-label">显微倍数</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">隐窝结构</div>
+                                    <div class="param-label">观察指标</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">完全去除</div>
+                                    <div class="param-label">合格标准</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reagent-formula">
+                    <div class="formula-header">
+                        <div class="formula-icon">🧪</div>
+                        <div class="formula-title">EDTA-DTT缓冲液配制</div>
+                    </div>
+                    <div class="formula-content">
+                        <div class="formula-item">
+                            <strong>基础缓冲液:</strong> PBS (pH 7.2)
+                        </div>
+                        <div class="formula-item">
+                            <strong>EDTA:</strong> 1.5 mM (最终浓度)
+                        </div>
+                        <div class="formula-item">
+                            <strong>DTT:</strong> 0.5 mM (现用现配)
+                        </div>
+                        <div class="formula-item">
+                            <strong>储存条件:</strong> EDTA储液4°C一周
+                        </div>
+                        <div class="formula-item">
+                            <strong>注意事项:</strong> DTT使用前新鲜添加
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第三阶段：酶消化 -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">3</div>
+                    <div>
+                        <div class="section-title">酶解消化阶段</div>
+                        <div class="section-description">胶原酶和分散酶协同作用，温和彻底解离固有层细胞外基质</div>
+                    </div>
+                </div>
+
+                <div class="procedure-flow">
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">✂️</div>
+                            <div class="card-title">组织细化处理</div>
+                        </div>
+                        <div class="card-content">
+                            切割至1.5cm规格，锋利解剖剪快速细化切割，增加酶与基质接触表面积。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">切割规格</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">1.5×1.0cm</div>
+                                    <div class="param-label">片段尺寸</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">10-20s</div>
+                                    <div class="param-label">切割时间</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">达固有层</div>
+                                    <div class="param-label">切割深度</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">🔥</div>
+                            <div class="card-title">胶原酶消化</div>
+                        </div>
+                        <div class="card-content">
+                            预温消化液含II型胶原酶和分散酶优化组合，37°C恒温摇床200rpm消化。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">消化条件</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">37°C</div>
+                                    <div class="param-label">温度</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">200rpm</div>
+                                    <div class="param-label">振荡速度</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">15min</div>
+                                    <div class="param-label">标准时间</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">🌪️</div>
+                            <div class="card-title">单细胞悬液制备</div>
+                        </div>
+                        <div class="card-content">
+                            剧烈涡旋确保完全解离，100μm滤网过滤，300×g离心收集细胞沉淀。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">分离参数</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">5-10s</div>
+                                    <div class="param-label">涡旋时间</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">100μm</div>
+                                    <div class="param-label">滤网规格</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">300×g</div>
+                                    <div class="param-label">离心条件</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reagent-formula">
+                    <div class="formula-header">
+                        <div class="formula-icon">⚗️</div>
+                        <div class="formula-title">胶原酶消化液配制 (每个小肠)</div>
+                    </div>
+                    <div class="formula-content">
+                        <div class="formula-item">
+                            <strong>RPMI-1640:</strong> 25 mL
+                        </div>
+                        <div class="formula-item">
+                            <strong>分散酶:</strong> 12.5 mg (0.5 mg/mL)
+                        </div>
+                        <div class="formula-item">
+                            <strong>II型胶原酶:</strong> 37.5 mg (1.5 mg/mL)
+                        </div>
+                        <div class="formula-item">
+                            <strong>胎牛血清:</strong> 300 μL (1.2%)
+                        </div>
+                        <div class="formula-item">
+                            <strong>预温温度:</strong> 37°C
+                        </div>
+                        <div class="formula-item">
+                            <strong>注意:</strong> 酶类使用前立即添加
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第四阶段：Percoll梯度分离 -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">4</div>
+                    <div>
+                        <div class="section-title">密度梯度离心分离</div>
+                        <div class="section-description">基于细胞密度差异，不连续Percoll梯度实现淋巴细胞选择性富集</div>
+                    </div>
+                </div>
+
+                <div class="process-diagram">
+                    <div class="diagram-title">Percoll梯度分离示意图</div>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <div style="display: inline-block; position: relative; width: 200px; height: 300px; border: 3px solid #333; border-radius: 10px; background: linear-gradient(to bottom, #e3f2fd 0%, #e3f2fd 30%, #bbdefb 30%, #bbdefb 40%, #90caf9 40%, #90caf9 60%, #64b5f6 60%, #64b5f6 100%);">
+                            <div style="position: absolute; top: 10px; left: -80px; font-size: 12px; color: #333;">细胞悬液</div>
+                            <div style="position: absolute; top: 100px; left: -80px; font-size: 12px; color: #333;">40% Percoll</div>
+                            <div style="position: absolute; top: 180px; left: -120px; font-size: 12px; color: #f44336; font-weight: 600;">淋巴细胞富集层</div>
+                            <div style="position: absolute; top: 250px; left: -80px; font-size: 12px; color: #333;">80% Percoll</div>
+                            <div style="position: absolute; top: 90px; right: -60px; width: 10px; height: 10px; background: #4caf50; border-radius: 50%;"></div>
+                            <div style="position: absolute; top: 110px; right: -60px; width: 10px; height: 10px; background: #4caf50; border-radius: 50%;"></div>
+                            <div style="position: absolute; top: 130px; right: -60px; width: 10px; height: 10px; background: #4caf50; border-radius: 50%;"></div>
+                            <div style="position: absolute; top: 150px; right: -60px; width: 10px; height: 10px; background: #4caf50; border-radius: 50%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="procedure-flow">
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">🏗️</div>
+                            <div class="card-title">密度梯度构建</div>
+                        </div>
+                        <div class="card-content">
+                            15mL锥形管中构建两层不连续Percoll梯度，玻璃吸管缓慢加载避免层间混合。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">梯度规格</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">2.5mL</div>
+                                    <div class="param-label">80% Percoll</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">4.0mL</div>
+                                    <div class="param-label">40% Percoll</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">45°</div>
+                                    <div class="param-label">层叠角度</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">🌪️</div>
+                            <div class="card-title">样品上样与离心</div>
+                        </div>
+                        <div class="card-content">
+                            细胞重悬于1mL 40% Percoll，小心加载至梯度顶层，关闭制动系统离心。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">离心条件</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">400×g</div>
+                                    <div class="param-label">离心力</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">20°C</div>
+                                    <div class="param-label">温度</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">25min</div>
+                                    <div class="param-label">时间</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">🎯</div>
+                            <div class="card-title">淋巴细胞收集</div>
+                        </div>
+                        <div class="card-content">
+                            40%/80%界面处收集淋巴细胞富集层，完全培养基清洗两次去除残留Percoll。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">收集参数</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">界面层</div>
+                                    <div class="param-label">收集位置</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">2次</div>
+                                    <div class="param-label">清洗次数</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">300×g</div>
+                                    <div class="param-label">清洗条件</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="critical-alert">
+                    <div class="alert-header">
+                        <div class="alert-icon">⚠️</div>
+                        <div class="alert-title">关键技术要点</div>
+                    </div>
+                    <div class="alert-content">
+                        Percoll溶液必须使用等渗盐溶液稀释以维持细胞生理状态。梯度层叠操作精度直接影响分离效果，任何界面扰动都可能导致细胞群体交叉污染。离心参数的精确控制对获得高纯度淋巴细胞至关重要，过高离心力会压缩梯度并影响分离分辨率。
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第五阶段：流式细胞术染色 -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">5</div>
+                    <div>
+                        <div class="section-title">流式细胞术免疫标记</div>
+                        <div class="section-description">多色荧光抗体panel实现肠道固有层免疫细胞亚群精确表型分析</div>
+                    </div>
+                </div>
+
+                <div class="antibody-panel-visual">
+                    <div class="panel-header">
+                        <div class="panel-title">七色抗体Panel配置</div>
+                        <div style="text-align: center; color: #7b1fa2; font-size: 16px;">B细胞亚群和髓系细胞深度分析</div>
+                    </div>
+
+                    <div class="antibody-wheel">
+                        <div class="center-circle">
+                            流式细胞术<br>7色检测
+                        </div>
+                        
+                        <div class="antibody-item" style="top: -50px; left: 50%; transform: translateX(-50%);">
+                            <div class="antibody-name">Live/Dead</div>
+                            <div class="antibody-channel">eFluor 780</div>
+                        </div>
+                        
+                        <div class="antibody-item" style="top: 20px; right: -50px;">
+                            <div class="antibody-name">CD45</div>
+                            <div class="antibody-channel">APC-Cy7</div>
+                        </div>
+                        
+                        <div class="antibody-item" style="bottom: 20px; right: -50px;">
+                            <div class="antibody-name">B220</div>
+                            <div class="antibody-channel">PE-Cy7</div>
+                        </div>
+                        
+                        <div class="antibody-item" style="bottom: -50px; left: 50%; transform: translateX(-50%);">
+                            <div class="antibody-name">CD138</div>
+                            <div class="antibody-channel">PE</div>
+                        </div>
+                        
+                        <div class="antibody-item" style="bottom: 20px; left: -50px;">
+                            <div class="antibody-name">CD5</div>
+                            <div class="antibody-channel">FITC</div>
+                        </div>
+                        
+                        <div class="antibody-item" style="top: 20px; left: -50px;">
+                            <div class="antibody-name">CD11b</div>
+                            <div class="antibody-channel">APC</div>
+                        </div>
+                        
+                        <div class="antibody-item" style="top: 80px; left: 10px;">
+                            <div class="antibody-name">CD23</div>
+                            <div class="antibody-channel">PerCP-Cy5.5</div>
+                        </div>
+                    </div>
+
+                    <div style="background: white; border-radius: 15px; padding: 20px; margin-top: 30px;">
+                        <div style="font-weight: 600; color: #4a148c; margin-bottom: 15px; text-align: center;">细胞群体识别策略</div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div style="background: #f3e5f5; padding: 10px; border-radius: 8px; border-left: 4px solid #9c27b0;">
+                                <strong>B细胞总群:</strong><br>CD45⁺B220⁺
+                            </div>
+                            <div style="background: #f3e5f5; padding: 10px; border-radius: 8px; border-left: 4px solid #9c27b0;">
+                                <strong>浆细胞:</strong><br>CD45⁺B220⁻/lowCD138⁺
+                            </div>
+                            <div style="background: #f3e5f5; padding: 10px; border-radius: 8px; border-left: 4px solid #9c27b0;">
+                                <strong>B-1细胞:</strong><br>CD45⁺B220⁺CD5⁺
+                            </div>
+                            <div style="background: #f3e5f5; padding: 10px; border-radius: 8px; border-left: 4px solid #9c27b0;">
+                                <strong>髓系细胞:</strong><br>CD45⁺CD11b⁺B220⁻
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="procedure-flow">
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">📊</div>
+                            <div class="card-title">细胞浓度标准化</div>
+                        </div>
+                        <div class="card-content">
+                            血细胞计数板结合台盼蓝染色准确计数，调整至标准密度，制备完整对照panel。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">标准化参数</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">1×10⁶</div>
+                                    <div class="param-label">细胞密度/100μL</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">台盼蓝</div>
+                                    <div class="param-label">活性检测</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">完整</div>
+                                    <div class="param-label">对照设置</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">🎨</div>
+                            <div class="card-title">表面抗原标记</div>
+                        </div>
+                        <div class="card-content">
+                            HBSS中配制7种荧光抗体主混合液，预实验滴定确定最优工作浓度，4°C避光孵育。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">标记条件</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">4°C</div>
+                                    <div class="param-label">温度</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">30min</div>
+                                    <div class="param-label">孵育时间</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">避光</div>
+                                    <div class="param-label">光照条件</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">🔬</div>
+                            <div class="card-title">样品准备检测</div>
+                        </div>
+                        <div class="card-content">
+                            含2%FBS的PBS清洗两次，重悬于400μL染色缓冲液，40μm滤网过滤去除聚集物。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">检测准备</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">2次</div>
+                                    <div class="param-label">清洗次数</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">40μm</div>
+                                    <div class="param-label">滤网规格</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">2小时</div>
+                                    <div class="param-label">检测时限</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第六阶段：数据分析 -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">6</div>
+                    <div>
+                        <div class="section-title">数据获取与分析</div>
+                        <div class="section-description">标准化门控策略实现细胞亚群精确识别和定量分析</div>
+                    </div>
+                </div>
+
+                <div class="process-diagram">
+                    <div class="diagram-title">层次化门控分析流程</div>
+                    <div class="flow-diagram">
+                        <div class="flow-step">
+                            <div class="flow-icon">📐</div>
+                            <div class="flow-label">FSC/SSC门控</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="flow-icon">🎯</div>
+                            <div class="flow-label">单细胞选择</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="flow-icon">💚</div>
+                            <div class="flow-label">活细胞筛选</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="flow-icon">🧬</div>
+                            <div class="flow-label">造血细胞识别</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="flow-icon">🔬</div>
+                            <div class="flow-label">亚群定量分析</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="procedure-flow">
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">⚙️</div>
+                            <div class="card-title">仪器校准与补偿</div>
+                        </div>
+                        <div class="card-content">
+                            LSR II流式细胞仪PMT电压优化，抗体捕获磁珠制备补偿对照，标准化激光功率设置。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">仪器设置</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">LSR II</div>
+                                    <div class="param-label">流式仪型号</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">磁珠补偿</div>
+                                    <div class="param-label">补偿方式</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">标准化</div>
+                                    <div class="param-label">激光功率</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">🎯</div>
+                            <div class="card-title">层次化门控分析</div>
+                        </div>
+                        <div class="card-content">
+                            标准化层次门控策略识别细胞群体，前后向散射排除粘连，活死染料选择活细胞群体。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">门控序列</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">FSC/SSC</div>
+                                    <div class="param-label">细胞群体</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">FSC-H/W</div>
+                                    <div class="param-label">单细胞</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">CD45+</div>
+                                    <div class="param-label">造血细胞</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="procedure-card">
+                        <div class="card-header">
+                            <div class="card-icon">📊</div>
+                            <div class="card-title">细胞亚群定量</div>
+                        </div>
+                        <div class="card-content">
+                            根据表达模式识别功能亚群，B细胞、浆细胞、B-1细胞、髓系细胞百分比和绝对计数。
+                        </div>
+                        <div class="parameters-visual">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">定量指标</div>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <div class="param-value">CD45⁺B220⁺</div>
+                                    <div class="param-label">B细胞总群</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">CD138⁺</div>
+                                    <div class="param-label">浆细胞</div>
+                                </div>
+                                <div class="param-item">
+                                    <div class="param-value">CD5⁺</div>
+                                    <div class="param-label">B-1细胞</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 质量控制指标 -->
+            <div class="quality-dashboard">
+                <div class="dashboard-header">
+                    <div class="dashboard-title">实验质量控制标准</div>
+                    <div style="text-align: center; color: #388e3c; font-size: 16px;">关键性能指标监控</div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">💚</div>
+                        <div class="metric-value">≥80%</div>
+                        <div class="metric-label">细胞存活率</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🔢</div>
+                        <div class="metric-value">1-5×10⁶</div>
+                        <div class="metric-label">每只小鼠细胞产量</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🎯</div>
+                        <div class="metric-value">≥95%</div>
+                        <div class="metric-label">CD45阳性细胞纯度</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🧬</div>
+                        <div class="metric-value">15-25%</div>
+                        <div class="metric-label">B细胞预期比例</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">⚡</div>
+                        <div class="metric-value">≤5%</div>
+                        <div class="metric-label">细胞聚集率</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">⏱️</div>
+                        <div class="metric-value">4小时</div>
+                        <div class="metric-label">总实验时长</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="critical-alert">
+                <div class="alert-header">
+                    <div class="alert-icon">🚨</div>
+                    <div class="alert-title">实验成功的关键控制要素</div>
+                </div>
+                <div class="alert-content">
+                    实验的重现性和可靠性依赖于多个关键参数的精确控制。温度控制至关重要，组织处理必须严格维持在4°C以保护细胞活性，而酶消化则需精确控制在37°C以确保酶活性。胶原酶的批次间差异要求每个新批次都必须进行浓度优化实验。Percoll梯度的制备质量直接决定细胞分离的纯度，任何操作失误都可能导致细胞群体的交叉污染。流式细胞术检测中，PE-Cy7和PerCP-Cy5.5通道间的光谱补偿精度对B细胞亚群分析的准确性具有决定性影响。维持细胞活性在80%以上是获得可靠实验数据的基本要求。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 添加交互功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 时间线步骤点击效果
+            const timelineSteps = document.querySelectorAll('.timeline-step');
+            timelineSteps.forEach((step, index) => {
+                step.addEventListener('click', function() {
+                    // 移除所有活动状态
+                    timelineSteps.forEach(s => s.classList.remove('active'));
+                    // 添加当前活动状态
+                    this.classList.add('active');
+                    
+                    // 滚动到对应章节
+                    const sections = document.querySelectorAll('.section');
+                    if (sections[index]) {
+                        sections[index].scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+
+            // 抗体panel点击效果
+            const antibodyItems = document.querySelectorAll('.antibody-item');
+            antibodyItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    this.style.transform = 'scale(1.2)';
+                    this.style.backgroundColor = '#f3e5f5';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                        this.style.backgroundColor = 'white';
+                    }, 1000);
+                });
+            });
+
+            // 流程卡片悬停效果增强
+            const procedureCards = document.querySelectorAll('.procedure-card');
+            procedureCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(-5px) scale(1)';
+                });
+            });
+
+            // 指标卡片动画
+            const metricCards = document.querySelectorAll('.metric-card');
+            const observerOptions = {
+                threshold: 0.5,
+                rootMargin: '0px 0px -100px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'bounceIn 0.6s ease';
+                    }
+                });
+            }, observerOptions);
+
+            metricCards.forEach(card => {
+                observer.observe(card);
+            });
+        });
+
+        // 添加CSS动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes bounceIn {
+                0% { opacity: 0; transform: scale(0.3) translateY(-50px); }
+                50% { opacity: 1; transform: scale(1.05) translateY(-25px); }
+                70% { transform: scale(0.95) translateY(-10px); }
+                100% { opacity: 1; transform: scale(1) translateY(0); }
+            }
+            
+            .timeline-step.active {
+                background: linear-gradient(135deg, #667eea, #764ba2) !important;
+                color: white !important;
+                transform: scale(1.2);
+            }
+            
+            .timeline-step.active .step-text {
+                color: white !important;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

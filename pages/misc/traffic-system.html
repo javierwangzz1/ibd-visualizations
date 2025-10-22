@@ -1,0 +1,3717 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基于ArcGIS的交通隐患点管理系统</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        /* 登录页面样式 */
+        .login-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 400px;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+        }
+        
+        /* 主系统样式 */
+        .main-system {
+            display: none;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .navbar-custom {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border: none;
+            height: 60px;
+            padding: 0 20px;
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .nav-link {
+            color: white !important;
+            padding: 8px 16px !important;
+            margin: 0 5px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white !important;
+        }
+        
+        .content-area {
+            height: calc(100vh - 60px);
+            display: flex;
+        }
+        
+        .left-panel {
+            width: 320px;
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            overflow-y: auto;
+            transition: all 0.3s;
+        }
+        
+        .left-panel.collapsed {
+            width: 0;
+            overflow: hidden;
+        }
+        
+        .map-container {
+            flex: 1;
+            position: relative;
+            background: #e8e8e8;
+        }
+        
+        .right-panel {
+            width: 380px;
+            background: #f8f9fa;
+            border-left: 1px solid #dee2e6;
+            overflow-y: auto;
+            transition: all 0.3s;
+        }
+        
+        .right-panel.collapsed {
+            width: 0;
+            overflow: hidden;
+        }
+        
+        .status-bar {
+            height: 30px;
+            background: #343a40;
+            color: white;
+            padding: 5px 15px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        /* 面板内容样式 */
+        .panel-header {
+            background: #007bff;
+            color: white;
+            padding: 10px 15px;
+            font-weight: bold;
+        }
+        
+        .panel-content {
+            padding: 15px;
+        }
+        
+        .tool-group {
+            margin-bottom: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+        
+        .tool-group-header {
+            background: #e9ecef;
+            padding: 10px 15px;
+            font-weight: bold;
+            cursor: pointer;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .tool-group-content {
+            padding: 15px;
+            display: none;
+        }
+        
+        .tool-group.active .tool-group-content {
+            display: block;
+        }
+        
+        .tool-group.active .tool-group-header .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+        
+        /* 地图样式 */
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .map-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+        
+        .map-control-btn {
+            background: white;
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+            margin: 2px;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .map-control-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        /* 图表样式 */
+        .chart-container {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .chart-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        /* 数据表格样式 */
+        .data-table {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .table th {
+            background: #f8f9fa;
+            border-top: none;
+        }
+        
+        /* 模态框样式 */
+        .modal-header {
+            background: #007bff;
+            color: white;
+        }
+        
+        /* 风险等级样式 */
+        .risk-high { 
+            background-color: #dc3545; 
+            color: white; 
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .risk-medium { 
+            background-color: #ffc107; 
+            color: black; 
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .risk-low { 
+            background-color: #28a745; 
+            color: white; 
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        /* 分析结果样式 */
+        .analysis-result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .analysis-result h6 {
+            color: #495057;
+            margin-bottom: 5px;
+        }
+        
+        /* 进度条样式 */
+        .progress-container {
+            margin: 15px 0;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        /* 统计卡片样式 */
+        .stat-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        /* 视频播放器样式 */
+        .video-player {
+            position: relative;
+            background: #000;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 10;
+        }
+        
+        /* 设计工具样式 */
+        .design-toolbar {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .design-tool-btn {
+            margin: 2px;
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .design-tool-btn:hover {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .design-tool-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .left-panel, .right-panel {
+                position: absolute;
+                height: calc(100vh - 60px);
+                z-index: 1000;
+                box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            }
+            
+            .left-panel {
+                left: -320px;
+            }
+            
+            .right-panel {
+                right: -380px;
+            }
+            
+            .left-panel.show {
+                left: 0;
+            }
+            
+            .right-panel.show {
+                right: 0;
+            }
+        }
+        
+        /* 动画效果 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* 加载动画 */
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 滑块样式 */
+        .weight-slider {
+            margin-bottom: 15px;
+        }
+        
+        .weight-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .weight-value {
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        /* 标签样式 */
+        .hazard-type-tag {
+            display: inline-block;
+            background: #e9ecef;
+            color: #495057;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin: 2px;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        
+        .status-online { background-color: #28a745; }
+        .status-offline { background-color: #dc3545; }
+        .status-warning { background-color: #ffc107; }
+    </style>
+</head>
+<body>
+    <!-- 登录页面 -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-logo">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <h4>交通隐患点管理系统</h4>
+                <p class="text-muted">基于ArcGIS的智能交通安全平台</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        </div>
+                        <input type="text" class="form-control" id="username" placeholder="请输入用户名" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        </div>
+                        <input type="password" class="form-control" id="password" placeholder="请输入密码" required>
+                    </div>
+                </div>
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" id="rememberMe">
+                    <label class="form-check-label" for="rememberMe">记住密码</label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-lg">登录系统</button>
+                <div class="text-center mt-3">
+                    <small class="text-muted">演示账号：admin / 123456</small>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 主系统界面 -->
+    <div id="mainSystem" class="main-system">
+        <!-- 顶部导航栏 -->
+        <nav class="navbar navbar-expand-lg navbar-custom">
+            <a class="navbar-brand" href="#"><i class="fas fa-map-marked-alt"></i> 交通隐患点管理系统</a>
+            <div class="navbar-nav ml-auto">
+                <a class="nav-link active" href="#" data-module="dataManagement">数据管理</a>
+                <a class="nav-link" href="#" data-module="hazardIdentification">隐患识别</a>
+                <a class="nav-link" href="#" data-module="riskAssessment">风险评估</a>
+                <a class="nav-link" href="#" data-module="treatmentDesign">治理设计</a>
+                <a class="nav-link" href="#" data-module="statisticalAnalysis">统计分析</a>
+                <a class="nav-link" href="#" data-module="systemManagement">系统管理</a>
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+                        <i class="fas fa-user"></i> 管理员
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#"><i class="fas fa-user-cog"></i> 个人设置</a>
+                        <a class="dropdown-item" href="#"><i class="fas fa-question-circle"></i> 帮助</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 退出系统</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 主内容区域 -->
+        <div class="content-area">
+            <!-- 左侧工具面板 -->
+            <div id="leftPanel" class="left-panel">
+                <div class="panel-header">
+                    <i class="fas fa-tools"></i> 工具面板
+                    <button class="btn btn-sm btn-outline-light float-right" onclick="togglePanel('left')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="panel-content" id="leftPanelContent">
+                    <!-- 动态内容 -->
+                </div>
+            </div>
+
+            <!-- 地图显示区 -->
+            <div class="map-container">
+                <div id="map"></div>
+                <div class="map-controls">
+                    <button class="map-control-btn" onclick="togglePanel('left')" title="切换左面板">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <button class="map-control-btn" onclick="togglePanel('right')" title="切换右面板">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                    <button class="map-control-btn" onclick="resetMapView()" title="重置视图">
+                        <i class="fas fa-home"></i>
+                    </button>
+                    <button class="map-control-btn" onclick="toggleFullscreen()" title="全屏显示">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 右侧属性面板 -->
+            <div id="rightPanel" class="right-panel">
+                <div class="panel-header">
+                    <i class="fas fa-info-circle"></i> 属性信息
+                    <button class="btn btn-sm btn-outline-light float-right" onclick="togglePanel('right')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="panel-content" id="rightPanelContent">
+                    <!-- 默认概览信息 -->
+                    <div class="chart-container">
+                        <div class="chart-title">系统概览</div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="stat-card">
+                                    <div class="stat-number text-danger">125</div>
+                                    <div class="stat-label">高风险隐患点</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-card">
+                                    <div class="stat-number text-warning">256</div>
+                                    <div class="stat-label">中风险隐患点</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="stat-card">
+                                    <div class="stat-number text-success">189</div>
+                                    <div class="stat-label">低风险隐患点</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-card">
+                                    <div class="stat-number text-info">78</div>
+                                    <div class="stat-label">已治理完成</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">月度事故统计</div>
+                        <canvas id="overviewChart" width="300" height="150"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">最近活动</div>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                                    新增隐患点
+                                </div>
+                                <span class="badge badge-primary badge-pill">12</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    完成治理
+                                </div>
+                                <span class="badge badge-success badge-pill">5</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-arrow-up text-danger"></i>
+                                    风险升级
+                                </div>
+                                <span class="badge badge-warning badge-pill">3</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div>
+                <span id="statusText">系统就绪</span>
+                <span class="ml-3">坐标: <span id="coordinates">N/A</span></span>
+                <span class="ml-3">比例尺: <span id="scale">1:50000</span></span>
+            </div>
+            <div>
+                <span>用户: 管理员</span>
+                <span class="ml-3">时间: <span id="currentTime"></span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：数据导入 -->
+    <div class="modal fade" id="dataImportModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">数据导入</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="dataImportForm">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label>数据类型</label>
+                                    <select class="form-control" id="dataType">
+                                        <option value="accident">事故数据</option>
+                                        <option value="road">道路网络</option>
+                                        <option value="video">视频数据</option>
+                                        <option value="traffic">交通流量</option>
+                                        <option value="facilities">交通设施</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label>坐标系统</label>
+                                    <select class="form-control" id="coordinateSystem">
+                                        <option value="wgs84">WGS84 (EPSG:4326)</option>
+                                        <option value="gcj02">GCJ-02 (火星坐标)</option>
+                                        <option value="bd09">BD-09 (百度坐标)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>选择文件</label>
+                            <input type="file" class="form-control-file" id="dataFile" accept=".csv,.xlsx,.shp,.json">
+                            <small class="form-text text-muted">支持CSV、Excel、Shapefile、GeoJSON格式</small>
+                        </div>
+                        <div class="form-group">
+                            <label>数据预览</label>
+                            <div id="dataPreview" class="border p-3" style="height: 200px; overflow-y: auto; background: #f8f9fa;">
+                                <div class="text-muted text-center mt-5">请选择文件进行预览</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="validateData" checked>
+                                <label class="form-check-label" for="validateData">导入前验证数据完整性</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="importData()">导入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：事故数据管理 -->
+    <div class="modal fade" id="accidentDataModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">事故数据管理</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-3">
+                            <label>时间范围</label>
+                            <select class="form-control form-control-sm" id="accidentTimeRange">
+                                <option value="30">最近30天</option>
+                                <option value="90">最近3个月</option>
+                                <option value="365">最近1年</option>
+                                <option value="custom">自定义</option>
+                            </select>
+                        </div>
+                        <div class="col-3">
+                            <label>事故类型</label>
+                            <select class="form-control form-control-sm" id="accidentType">
+                                <option value="all">全部类型</option>
+                                <option value="rear">追尾事故</option>
+                                <option value="side">侧面碰撞</option>
+                                <option value="pedestrian">行人事故</option>
+                                <option value="rollover">翻车事故</option>
+                            </select>
+                        </div>
+                        <div class="col-3">
+                            <label>严重程度</label>
+                            <select class="form-control form-control-sm" id="accidentSeverity">
+                                <option value="all">全部等级</option>
+                                <option value="fatal">死亡事故</option>
+                                <option value="injury">伤人事故</option>
+                                <option value="property">财产损失</option>
+                            </select>
+                        </div>
+                        <div class="col-3">
+                            <button class="btn btn-primary btn-sm btn-block mt-4" onclick="filterAccidentData()">
+                                <i class="fas fa-filter"></i> 筛选
+                            </button>
+                        </div>
+                    </div>
+                    <div class="data-table">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>事故编号</th>
+                                    <th>发生时间</th>
+                                    <th>事故类型</th>
+                                    <th>严重程度</th>
+                                    <th>位置</th>
+                                    <th>伤亡人数</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accidentDataTable">
+                                <tr>
+                                    <td>AC20240101001</td>
+                                    <td>2024-01-01 08:30</td>
+                                    <td>追尾事故</td>
+                                    <td><span class="risk-high">死亡事故</span></td>
+                                    <td>解放路与人民路交叉口</td>
+                                    <td>1死2伤</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info" onclick="viewAccidentDetail('AC20240101001')">详情</button>
+                                        <button class="btn btn-sm btn-warning" onclick="editAccidentData('AC20240101001')">编辑</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>AC20240102001</td>
+                                    <td>2024-01-02 14:15</td>
+                                    <td>侧面碰撞</td>
+                                    <td><span class="risk-medium">伤人事故</span></td>
+                                    <td>八一大道弯道路段</td>
+                                    <td>0死3伤</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info" onclick="viewAccidentDetail('AC20240102001')">详情</button>
+                                        <button class="btn btn-sm btn-warning" onclick="editAccidentData('AC20240102001')">编辑</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-success" onclick="exportAccidentData()">导出数据</button>
+                    <button type="button" class="btn btn-primary" onclick="addAccidentData()">新增事故</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：视频分析 -->
+    <div class="modal fade" id="videoAnalysisModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">视频冲突分析</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="video-player">
+                                <div class="embed-responsive embed-responsive-16by9">
+                                    <div class="embed-responsive-item bg-dark d-flex align-items-center justify-content-center">
+                                        <div class="text-white text-center">
+                                            <i class="fas fa-video fa-3x mb-3"></i>
+                                            <p>点击选择视频源进行分析</p>
+                                            <button class="btn btn-primary" onclick="selectVideoSource()">选择视频源</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="video-controls mt-2">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="playVideo()">
+                                        <i class="fas fa-play"></i> 播放
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="pauseVideo()">
+                                        <i class="fas fa-pause"></i> 暂停
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info" onclick="analyzeCurrentFrame()">
+                                        <i class="fas fa-search"></i> 分析当前帧
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <h6>分析参数设置</h6>
+                            <form>
+                                <div class="form-group">
+                                    <label>视频源</label>
+                                    <select class="form-control form-control-sm" id="videoSource">
+                                        <option value="">请选择视频源</option>
+                                        <option value="camera1">解放路监控点1</option>
+                                        <option value="camera2">人民路监控点2</option>
+                                        <option value="camera3">八一大道监控点3</option>
+                                        <option value="upload">上传本地视频</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>冲突类型</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="rearEnd" checked>
+                                        <label class="form-check-label" for="rearEnd">追尾冲突</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="intersection" checked>
+                                        <label class="form-check-label" for="intersection">交叉冲突</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="pedestrian" checked>
+                                        <label class="form-check-label" for="pedestrian">行人冲突</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="laneChange">
+                                        <label class="form-check-label" for="laneChange">变道冲突</label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>TTC阈值 (秒)</label>
+                                    <input type="range" class="custom-range" id="ttcThreshold" min="0.5" max="5" step="0.1" value="3.0">
+                                    <div class="d-flex justify-content-between">
+                                        <small>0.5</small>
+                                        <small id="ttcValue">3.0</small>
+                                        <small>5.0</small>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>PET阈值 (秒)</label>
+                                    <input type="range" class="custom-range" id="petThreshold" min="0.1" max="3" step="0.1" value="1.5">
+                                    <div class="d-flex justify-content-between">
+                                        <small>0.1</small>
+                                        <small id="petValue">1.5</small>
+                                        <small>3.0</small>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-block" onclick="startVideoAnalysis()">
+                                    <i class="fas fa-play"></i> 开始分析
+                                </button>
+                            </form>
+                            
+                            <hr>
+                            <h6>分析结果</h6>
+                            <div id="analysisResults">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> 请先选择视频源并开始分析
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-success" onclick="exportVideoResults()">导出结果</button>
+                    <button type="button" class="btn btn-primary" onclick="generateVideoReport()">生成报告</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：热点分析 -->
+    <div class="modal fade" id="hotspotAnalysisModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">事故热点分析</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <h6>分析参数</h6>
+                            <form>
+                                <div class="form-group">
+                                    <label>分析方法</label>
+                                    <select class="form-control" id="hotspotMethod">
+                                        <option value="kde">核密度估计 (KDE)</option>
+                                        <option value="getis">Getis-Ord Gi*</option>
+                                        <option value="moran">局部Moran's I</option>
+                                        <option value="spatial_scan">空间扫描统计</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>搜索半径 (米)</label>
+                                    <input type="range" class="custom-range" id="searchRadius" min="100" max="2000" step="50" value="500">
+                                    <div class="d-flex justify-content-between">
+                                        <small>100m</small>
+                                        <small id="radiusValue">500m</small>
+                                        <small>2000m</small>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>置信度</label>
+                                    <select class="form-control" id="confidenceLevel">
+                                        <option value="90">90%</option>
+                                        <option value="95" selected>95%</option>
+                                        <option value="99">99%</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>分析范围</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="analysisRange" value="current" checked>
+                                        <label class="form-check-label">当前视图范围</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="analysisRange" value="selected">
+                                        <label class="form-check-label">选定区域</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="analysisRange" value="all">
+                                        <label class="form-check-label">整个路网</label>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-danger btn-block" onclick="runHotspotAnalysis()">
+                                    <i class="fas fa-fire"></i> 运行热点分析
+                                </button>
+                            </form>
+                        </div>
+                        <div class="col-6">
+                            <h6>分析进度</h6>
+                            <div id="analysisProgress" class="mb-3" style="display: none;">
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                         role="progressbar" style="width: 0%" id="progressBar"></div>
+                                </div>
+                                <small class="text-muted" id="progressText">准备开始分析...</small>
+                            </div>
+                            
+                            <h6>分析结果</h6>
+                            <div id="hotspotResults">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> 点击"运行热点分析"开始分析
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-success" onclick="exportHotspotResults()" disabled id="exportHotspotBtn">导出结果</button>
+                    <button type="button" class="btn btn-primary" onclick="saveHotspotAnalysis()" disabled id="saveHotspotBtn">保存分析</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：风险评估 -->
+    <div class="modal fade" id="riskAssessmentModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">综合风险评估</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-4">
+                            <h6>评估范围</h6>
+                            <div class="form-group">
+                                <select class="form-control" id="assessmentRange">
+                                    <option value="current">当前视图范围</option>
+                                    <option value="selected">选定区域</option>
+                                    <option value="all">整个路网</option>
+                                    <option value="admin">按行政区划</option>
+                                </select>
+                            </div>
+                            
+                            <h6>权重设置</h6>
+                            <div class="weight-slider">
+                                <div class="weight-label">
+                                    <span>事故风险</span>
+                                    <span class="weight-value" id="accidentWeight">30%</span>
+                                </div>
+                                <input type="range" class="custom-range" id="accidentSlider" min="0" max="100" value="30">
+                            </div>
+                            
+                            <div class="weight-slider">
+                                <div class="weight-label">
+                                    <span>冲突风险</span>
+                                    <span class="weight-value" id="conflictWeight">25%</span>
+                                </div>
+                                <input type="range" class="custom-range" id="conflictSlider" min="0" max="100" value="25">
+                            </div>
+                            
+                            <div class="weight-slider">
+                                <div class="weight-label">
+                                    <span>设计风险</span>
+                                    <span class="weight-value" id="designWeight">25%</span>
+                                </div>
+                                <input type="range" class="custom-range" id="designSlider" min="0" max="100" value="25">
+                            </div>
+                            
+                            <div class="weight-slider">
+                                <div class="weight-label">
+                                    <span>运行风险</span>
+                                    <span class="weight-value" id="operationWeight">20%</span>
+                                </div>
+                                <input type="range" class="custom-range" id="operationSlider" min="0" max="100" value="20">
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <small>权重总和: <span id="totalWeight">100%</span></small>
+                            </div>
+                            
+                            <button type="button" class="btn btn-danger btn-block" onclick="runRiskAssessment()">
+                                <i class="fas fa-calculator"></i> 开始评估
+                            </button>
+                        </div>
+                        <div class="col-8">
+                            <h6>评估结果</h6>
+                            <div id="riskAssessmentResults">
+                                <div class="row">
+                                    <div class="col-3">
+                                        <div class="stat-card">
+                                            <div class="stat-number text-danger" id="highRiskCount">0</div>
+                                            <div class="stat-label">高风险点</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="stat-card">
+                                            <div class="stat-number text-warning" id="mediumRiskCount">0</div>
+                                            <div class="stat-label">中风险点</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="stat-card">
+                                            <div class="stat-number text-success" id="lowRiskCount">0</div>
+                                            <div class="stat-label">低风险点</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="stat-card">
+                                            <div class="stat-number text-info" id="totalRiskCount">0</div>
+                                            <div class="stat-label">总数</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="chart-container">
+                                    <div class="chart-title">风险分布图</div>
+                                    <canvas id="riskDistributionChart" width="400" height="200"></canvas>
+                                </div>
+                                
+                                <div class="data-table">
+                                    <table class="table table-sm table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>隐患点ID</th>
+                                                <th>位置</th>
+                                                <th>风险等级</th>
+                                                <th>综合评分</th>
+                                                <th>主要风险因子</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="riskResultsTable">
+                                            <!-- 动态填充 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-info" onclick="generatePriorityList()">生成优先级</button>
+                    <button type="button" class="btn btn-success" onclick="exportRiskResults()">导出结果</button>
+                    <button type="button" class="btn btn-primary" onclick="generateRiskReport()">生成报告</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：渠化设计 -->
+    <div class="modal fade" id="channelizationModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">交叉口渠化设计</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-3">
+                            <h6>基本参数</h6>
+                            <form>
+                                <div class="form-group">
+                                    <label>设计车辆</label>
+                                    <select class="form-control form-control-sm" id="designVehicle">
+                                        <option value="car">小客车</option>
+                                        <option value="bus">公交车</option>
+                                        <option value="truck">货车</option>
+                                        <option value="mixed" selected>混合交通</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>设计速度 (km/h)</label>
+                                    <input type="number" class="form-control form-control-sm" id="designSpeed" value="50" min="20" max="80">
+                                </div>
+                                <div class="form-group">
+                                    <label>车道宽度 (m)</label>
+                                    <input type="number" class="form-control form-control-sm" id="laneWidth" value="3.5" min="3.0" max="4.0" step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label>左转半径 (m)</label>
+                                    <input type="number" class="form-control form-control-sm" id="leftTurnRadius" value="15" min="10" max="25" step="0.5">
+                                </div>
+                                <div class="form-group">
+                                    <label>右转半径 (m)</label>
+                                    <input type="number" class="form-control form-control-sm" id="rightTurnRadius" value="12" min="8" max="20" step="0.5">
+                                </div>
+                                <div class="form-group">
+                                    <label>导向岛面积 (m²)</label>
+                                    <input type="number" class="form-control form-control-sm" id="islandArea" value="25" min="5" max="50" step="1">
+                                </div>
+                            </form>
+                            
+                            <h6 class="mt-4">车道配置</h6>
+                            <div class="form-group">
+                                <label>北向</label>
+                                <div class="row">
+                                    <div class="col-4">
+                                        <select class="form-control form-control-sm">
+                                            <option value="0">0</option>
+                                            <option value="1" selected>1</option>
+                                            <option value="2">2</option>
+                                        </select>
+                                        <small>左转</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <select class="form-control form-control-sm">
+                                            <option value="1">1</option>
+                                            <option value="2" selected>2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                        <small>直行</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <select class="form-control form-control-sm">
+                                            <option value="0">0</option>
+                                            <option value="1" selected>1</option>
+                                            <option value="2">2</option>
+                                        </select>
+                                        <small>右转</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="button" class="btn btn-primary btn-block" onclick="generateDesign()">
+                                <i class="fas fa-drafting-compass"></i> 生成设计
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <h6>设计预览</h6>
+                            <div id="designPreview" style="height: 450px; border: 1px solid #ddd; background: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                                <div class="text-muted text-center">
+                                    <i class="fas fa-drafting-compass fa-3x"></i>
+                                    <p class="mt-2">点击"生成设计"查看预览</p>
+                                </div>
+                            </div>
+                            
+                            <div class="design-toolbar mt-3">
+                                <h6>设计工具</h6>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="design-tool-btn" onclick="selectTool('lane')" title="车道设计">
+                                        <i class="fas fa-road"></i> 车道
+                                    </button>
+                                    <button class="design-tool-btn" onclick="selectTool('island')" title="导向岛">
+                                        <i class="fas fa-circle"></i> 导向岛
+                                    </button>
+                                    <button class="design-tool-btn" onclick="selectTool('marking')" title="标线">
+                                        <i class="fas fa-minus"></i> 标线
+                                    </button>
+                                    <button class="design-tool-btn" onclick="selectTool('sign')" title="标志">
+                                        <i class="fas fa-sign"></i> 标志
+                                    </button>
+                                    <button class="design-tool-btn" onclick="selectTool('measure')" title="测量">
+                                        <i class="fas fa-ruler"></i> 测量
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <h6>交通流量输入</h6>
+                            <div class="form-group">
+                                <label>北向进口道 (pcu/h)</label>
+                                <div class="row">
+                                    <div class="col-4">
+                                        <input type="number" class="form-control form-control-sm" placeholder="左转" value="285">
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="number" class="form-control form-control-sm" placeholder="直行" value="720">
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="number" class="form-control form-control-sm" placeholder="右转" value="190">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>东向进口道 (pcu/h)</label>
+                                <div class="row">
+                                    <div class="col-4">
+                                        <input type="number" class="form-control form-control-sm" placeholder="左转" value="220">
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="number" class="form-control form-control-sm" placeholder="直行" value="490">
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="number" class="form-control form-control-sm" placeholder="右转" value="160">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>南向进口道 (pcu/h)</label>
+                                <div class="row">
+                                    <div class="col-4">
+                                        <input type="number" class="form-control form-control-sm" placeholder="左转" value="310">
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="number" class="form-control form-control-sm" placeholder="直行" value="680">
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="number" class="form-control form-control-sm" placeholder="右转" value="225">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>西向进口道 (pcu/h)</label>
+                                <div class="row">
+                                    <div class="col-4">
+                                        <input type="number" class="form-control form-control-sm" placeholder="左转" value="245">
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="number" class="form-control form-control-sm" placeholder="直行" value="520">
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="number" class="form-control form-control-sm" placeholder="右转" value="175">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h6 class="mt-4">设计输出</h6>
+                            <div class="list-group list-group-flush">
+                                <button class="list-group-item list-group-item-action" onclick="generateBillOfQuantities()">
+                                    <i class="fas fa-list"></i> 工程量清单
+                                </button>
+                                <button class="list-group-item list-group-item-action" onclick="exportCADDrawing()">
+                                    <i class="fas fa-file-alt"></i> CAD图纸
+                                </button>
+                                <button class="list-group-item list-group-item-action" onclick="estimateCost()">
+                                    <i class="fas fa-calculator"></i> 成本估算
+                                </button>
+                                <button class="list-group-item list-group-item-action" onclick="generateImplementationPlan()">
+                                    <i class="fas fa-tasks"></i> 实施方案
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-info" onclick="previewDesign3D()">3D预览</button>
+                    <button type="button" class="btn btn-success" onclick="saveDesign()">保存设计</button>
+                    <button type="button" class="btn btn-primary" onclick="exportDesign()">导出设计</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：信号配时优化 -->
+    <div class="modal fade" id="signalOptimizationModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">信号配时优化</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-4">
+                            <h6>优化参数</h6>
+                            <form>
+                                <div class="form-group">
+                                    <label>优化方法</label>
+                                    <select class="form-control" id="optimizationMethod">
+                                        <option value="webster">Webster方法</option>
+                                        <option value="genetic">遗传算法</option>
+                                        <option value="fuzzy">模糊控制</option>
+                                        <option value="adaptive">自适应控制</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>优化目标</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="objective" value="delay" checked>
+                                        <label class="form-check-label">最小延误</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="objective" value="capacity">
+                                        <label class="form-check-label">最大通行能力</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="objective" value="comprehensive">
+                                        <label class="form-check-label">综合优化</label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>相位方案</label>
+                                    <select class="form-control" id="phaseScheme">
+                                        <option value="2">2相位</option>
+                                        <option value="4" selected>4相位</option>
+                                        <option value="6">6相位</option>
+                                        <option value="8">8相位</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>最小绿灯时间 (秒)</label>
+                                    <input type="number" class="form-control" id="minGreen" value="7" min="5" max="15">
+                                </div>
+                                <div class="form-group">
+                                    <label>最大绿灯时间 (秒)</label>
+                                    <input type="number" class="form-control" id="maxGreen" value="60" min="30" max="120">
+                                </div>
+                                <div class="form-group">
+                                    <label>黄灯时间 (秒)</label>
+                                    <input type="number" class="form-control" id="yellowTime" value="3" min="3" max="5">
+                                </div>
+                                <div class="form-group">
+                                    <label>全红时间 (秒)</label>
+                                    <input type="number" class="form-control" id="allRedTime" value="2" min="1" max="5">
+                                </div>
+                                <button type="button" class="btn btn-warning btn-block" onclick="optimizeSignalTiming()">
+                                    <i class="fas fa-stopwatch"></i> 开始优化
+                                </button>
+                            </form>
+                        </div>
+                        <div class="col-8">
+                            <h6>配时方案</h6>
+                            <div id="timingPlan">
+                                <div class="row mb-3">
+                                    <div class="col-3">
+                                        <div class="stat-card">
+                                            <div class="stat-number" id="cycleTime">120</div>
+                                            <div class="stat-label">周期时长(秒)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="stat-card">
+                                            <div class="stat-number" id="intersectionDelay">45.6</div>
+                                            <div class="stat-label">平均延误(秒)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="stat-card">
+                                            <div class="stat-number" id="intersectionLOS">C</div>
+                                            <div class="stat-label">服务水平</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="stat-card">
+                                            <div class="stat-number" id="intersectionCapacity">0.85</div>
+                                            <div class="stat-label">饱和度</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="chart-container">
+                                    <div class="chart-title">信号时间图</div>
+                                    <canvas id="timingChart" width="600" height="300"></canvas>
+                                </div>
+                                
+                                <div class="data-table">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>相位</th>
+                                                <th>方向</th>
+                                                <th>绿灯时间</th>
+                                                <th>黄灯时间</th>
+                                                <th>全红时间</th>
+                                                <th>流量比</th>
+                                                <th>饱和度</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="phaseTable">
+                                            <tr>
+                                                <td>1</td>
+                                                <td>南北直行</td>
+                                                <td>35</td>
+                                                <td>3</td>
+                                                <td>2</td>
+                                                <td>0.42</td>
+                                                <td>0.78</td>
+                                            </tr>
+                                            <tr>
+                                                <td>2</td>
+                                                <td>南北左转</td>
+                                                <td>20</td>
+                                                <td>3</td>
+                                                <td>2</td>
+                                                <td>0.28</td>
+                                                <td>0.85</td>
+                                            </tr>
+                                            <tr>
+                                                <td>3</td>
+                                                <td>东西直行</td>
+                                                <td>25</td>
+                                                <td>3</td>
+                                                <td>2</td>
+                                                <td>0.35</td>
+                                                <td>0.82</td>
+                                            </tr>
+                                            <tr>
+                                                <td>4</td>
+                                                <td>东西左转</td>
+                                                <td>16</td>
+                                                <td>3</td>
+                                                <td>2</td>
+                                                <td>0.22</td>
+                                                <td>0.79</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-info" onclick="simulateTraffic()">仿真验证</button>
+                    <button type="button" class="btn btn-success" onclick="exportTimingPlan()">导出配时</button>
+                    <button type="button" class="btn btn-primary" onclick="implementTiming()">实施配时</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+    <script>
+        // 全局变量
+        let map;
+        let currentModule = 'dataManagement';
+        let hazardPoints = [];
+        let analysisResults = {};
+        let chartInstances = {};
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            updateTime();
+            setInterval(updateTime, 1000);
+        });
+
+        // 初始化事件监听器
+        function initializeEventListeners() {
+            // 登录表单事件
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                login();
+            });
+
+            // 导航菜单事件
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const module = this.getAttribute('data-module');
+                    if (module) {
+                        switchModule(module);
+                    }
+                });
+            });
+
+            // 滑块事件监听器
+            $(document).on('input', '#ttcThreshold', function() {
+                $('#ttcValue').text($(this).val());
+            });
+
+            $(document).on('input', '#petThreshold', function() {
+                $('#petValue').text($(this).val());
+            });
+
+            $(document).on('input', '#searchRadius', function() {
+                $('#radiusValue').text($(this).val() + 'm');
+            });
+
+            // 权重滑块事件监听器
+            $(document).on('input', '.weight-slider input[type="range"]', function() {
+                updateWeights();
+            });
+        }
+
+        // 登录功能
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // 模拟登录验证
+            if (username === 'admin' && password === '123456') {
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('mainSystem').style.display = 'block';
+                initializeMap();
+                switchModule('dataManagement');
+                initializeOverviewChart();
+                updateStatus('登录成功，系统初始化完成');
+            } else {
+                alert('用户名或密码错误！\n演示账号：admin / 123456');
+            }
+        }
+
+        // 退出系统
+        function logout() {
+            if (confirm('确定要退出系统吗？')) {
+                document.getElementById('loginPage').style.display = 'flex';
+                document.getElementById('mainSystem').style.display = 'none';
+                // 清理数据
+                if (map) {
+                    map.remove();
+                    map = null;
+                }
+                Object.values(chartInstances).forEach(chart => chart.destroy());
+                chartInstances = {};
+            }
+        }
+
+        // 初始化地图
+        function initializeMap() {
+            map = L.map('map').setView([28.676493, 115.892151], 13);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // 添加示例隐患点
+            addSampleHazardPoints();
+
+            // 地图事件
+            map.on('mousemove', function(e) {
+                document.getElementById('coordinates').textContent = 
+                    `${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+            });
+
+            map.on('zoomend', function() {
+                const zoom = map.getZoom();
+                const scale = Math.round(591657527.591555 / Math.pow(2, zoom));
+                document.getElementById('scale').textContent = `1:${scale}`;
+            });
+        }
+
+        // 初始化概览图表
+        function initializeOverviewChart() {
+            const ctx = document.getElementById('overviewChart').getContext('2d');
+            chartInstances.overview = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    datasets: [{
+                        label: '事故数量',
+                        data: [12, 19, 8, 15, 9, 7],
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // 添加示例隐患点
+        function addSampleHazardPoints() {
+            const samplePoints = [
+                {lat: 28.676493, lng: 115.892151, risk: 'high', type: '交叉口冲突', description: '解放路与人民路交叉口', score: 85.2},
+                {lat: 28.683528, lng: 115.858861, risk: 'medium', type: '视距不良', description: '八一大道弯道路段', score: 67.8},
+                {lat: 28.691201, lng: 115.904251, risk: 'low', type: '标线不清', description: '北京东路路段', score: 45.3},
+                {lat: 28.668234, lng: 115.916334, risk: 'high', type: '信号故障', description: '青山湖大道交叉口', score: 92.1},
+                {lat: 28.702341, lng: 115.878945, risk: 'medium', type: '行人冲突', description: '中山路商业区', score: 73.5},
+                {lat: 28.658123, lng: 115.903456, risk: 'low', type: '护栏缺失', description: '赣江大桥引桥', score: 38.9},
+                {lat: 28.695678, lng: 115.889234, risk: 'high', type: '急弯道', description: '梅岭大道山区段', score: 88.7},
+                {lat: 28.672345, lng: 115.925678, risk: 'medium', type: '照明不足', description: '昌南大道夜间路段', score: 61.4}
+            ];
+
+            samplePoints.forEach((point, index) => {
+                const color = point.risk === 'high' ? 'red' : point.risk === 'medium' ? 'orange' : 'green';
+                const marker = L.circleMarker([point.lat, point.lng], {
+                    color: color,
+                    fillColor: color,
+                    fillOpacity: 0.7,
+                    radius: 8
+                }).addTo(map);
+
+                marker.bindPopup(`
+                    <div class="popup-content">
+                        <h6>${point.description}</h6>
+                        <p><strong>隐患类型：</strong>${point.type}</p>
+                        <p><strong>风险等级：</strong><span class="risk-${point.risk}">${point.risk === 'high' ? '高风险' : point.risk === 'medium' ? '中风险' : '低风险'}</span></p>
+                        <p><strong>风险评分：</strong>${point.score}</p>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-primary" onclick="viewDetails(${index})">详情</button>
+                            <button class="btn btn-success" onclick="designTreatment(${index})">治理设计</button>
+                        </div>
+                    </div>
+                `);
+
+                hazardPoints.push({...point, marker: marker, id: `HP${String(index + 1).padStart(3, '0')}`});
+            });
+        }
+
+        // 切换模块
+        function switchModule(module) {
+            currentModule = module;
+            
+            // 更新导航状态
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-module="${module}"]`).classList.add('active');
+
+            // 更新左侧面板内容
+            updateLeftPanel(module);
+            updateStatus(`切换到${getModuleName(module)}模块`);
+        }
+
+        // 获取模块名称
+        function getModuleName(module) {
+            const names = {
+                'dataManagement': '数据管理',
+                'hazardIdentification': '隐患识别',
+                'riskAssessment': '风险评估',
+                'treatmentDesign': '治理设计',
+                'statisticalAnalysis': '统计分析',
+                'systemManagement': '系统管理'
+            };
+            return names[module] || '未知模块';
+        }
+
+        // 更新左侧面板内容
+        function updateLeftPanel(module) {
+            const content = document.getElementById('leftPanelContent');
+            
+            switch(module) {
+                case 'dataManagement':
+                    content.innerHTML = getDataManagementContent();
+                    break;
+                case 'hazardIdentification':
+                    content.innerHTML = getHazardIdentificationContent();
+                    break;
+                case 'riskAssessment':
+                    content.innerHTML = getRiskAssessmentContent();
+                    break;
+                case 'treatmentDesign':
+                    content.innerHTML = getTreatmentDesignContent();
+                    break;
+                case 'statisticalAnalysis':
+                    content.innerHTML = getStatisticalAnalysisContent();
+                    break;
+                case 'systemManagement':
+                    content.innerHTML = getSystemManagementContent();
+                    break;
+            }
+
+            // 初始化工具组
+            initializeToolGroups();
+        }
+
+        // 数据管理模块内容
+        function getDataManagementContent() {
+            return `
+                <div class="tool-group active">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-database"></i> 基础数据管理</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <button class="btn btn-primary btn-sm btn-block mb-2" onclick="openDataImport()">
+                            <i class="fas fa-upload"></i> 数据导入
+                        </button>
+                        <button class="btn btn-success btn-sm btn-block" onclick="analyzeSelectedIntersection()">
+                            <i class="fas fa-search"></i> 分析选定交叉口
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-chart-line"></i> 隐患识别结果</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="analysis-result">
+                            <h6>最近分析结果</h6>
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item">
+                                    <small><i class="fas fa-fire text-danger"></i> 发现3个热点区域</small>
+                                </div>
+                                <div class="list-group-item">
+                                    <small><i class="fas fa-video text-info"></i> 识别15个冲突事件</small>
+                                </div>
+                                <div class="list-group-item">
+                                    <small><i class="fas fa-exclamation-triangle text-warning"></i> 新增2个隐患点</small>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-info btn-sm btn-block" onclick="viewAnalysisHistory()">
+                            <i class="fas fa-history"></i> 查看分析历史
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 风险评估模块内容
+        function getRiskAssessmentContent() {
+            return `
+                <div class="tool-group active">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-exclamation-triangle"></i> 综合风险评估</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <button class="btn btn-danger btn-sm btn-block mb-3" onclick="openRiskAssessment()">
+                            <i class="fas fa-calculator"></i> 打开风险评估工具
+                        </button>
+                        <div class="form-group">
+                            <label>快速评估范围</label>
+                            <select class="form-control form-control-sm">
+                                <option value="current">当前视图范围</option>
+                                <option value="selected">选定区域</option>
+                                <option value="all">整个路网</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>评估模式</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="assessMode" value="comprehensive" checked>
+                                <label class="form-check-label">综合评估</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="assessMode" value="accident">
+                                <label class="form-check-label">事故风险</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="assessMode" value="conflict">
+                                <label class="form-check-label">冲突风险</label>
+                            </div>
+                        </div>
+                        <button class="btn btn-warning btn-sm btn-block" onclick="runQuickRiskAssessment()">
+                            <i class="fas fa-bolt"></i> 快速评估
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-sort-amount-down"></i> 优先级排序</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="form-group">
+                            <label>排序标准</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked>
+                                <label class="form-check-label">风险等级</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked>
+                                <label class="form-check-label">改善潜力</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox">
+                                <label class="form-check-label">实施成本</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox">
+                                <label class="form-check-label">社会影响</label>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-sm btn-block" onclick="generatePriorityList()">
+                            <i class="fas fa-list-ol"></i> 生成优先级列表
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-chart-bar"></i> 风险分析报告</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="form-group">
+                            <label>报告类型</label>
+                            <select class="form-control form-control-sm">
+                                <option>综合评估报告</option>
+                                <option>隐患点清单</option>
+                                <option>治理建议书</option>
+                                <option>安全状况分析</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>输出格式</label>
+                            <div class="btn-group btn-group-sm d-flex">
+                                <button class="btn btn-outline-primary active">PDF</button>
+                                <button class="btn btn-outline-success">Excel</button>
+                                <button class="btn btn-outline-info">Word</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-success btn-sm btn-block" onclick="generateRiskReport()">
+                            <i class="fas fa-file-alt"></i> 生成报告
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-chart-pie"></i> 风险统计概览</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <h4 class="text-danger">23%</h4>
+                                    <small>高风险比例</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <h4 class="text-warning">45%</h4>
+                                    <small>中风险比例</small>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-danger" style="width: 23%"></div>
+                            <div class="progress-bar bg-warning" style="width: 45%"></div>
+                            <div class="progress-bar bg-success" style="width: 32%"></div>
+                        </div>
+                        <small class="text-muted">风险等级分布</small>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 治理设计模块内容
+        function getTreatmentDesignContent() {
+            return `
+                <div class="tool-group active">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-road"></i> 交叉口渠化设计</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="alert alert-info">
+                            <small><i class="fas fa-info-circle"></i> 选择交叉口进行渠化设计</small>
+                        </div>
+                        <button class="btn btn-primary btn-sm btn-block mb-2" onclick="selectIntersectionForDesign()">
+                            <i class="fas fa-mouse-pointer"></i> 选择交叉口
+                        </button>
+                        <button class="btn btn-success btn-sm btn-block mb-2" onclick="openChannelizationDesign()">
+                            <i class="fas fa-drafting-compass"></i> 渠化设计工具
+                        </button>
+                        <div class="form-group">
+                            <label>设计模板</label>
+                            <select class="form-control form-control-sm">
+                                <option>四路交叉口</option>
+                                <option>T型交叉口</option>
+                                <option>Y型交叉口</option>
+                                <option>环形交叉口</option>
+                                <option>自定义设计</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>设计参数预设</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <small>车道宽度</small>
+                                    <input type="number" class="form-control form-control-sm" value="3.5" step="0.1">
+                                </div>
+                                <div class="col-6">
+                                    <small>设计速度</small>
+                                    <input type="number" class="form-control form-control-sm" value="50">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-traffic-light"></i> 信号配时优化</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <button class="btn btn-warning btn-sm btn-block mb-2" onclick="openSignalOptimization()">
+                            <i class="fas fa-stopwatch"></i> 配时优化工具
+                        </button>
+                        <div class="form-group">
+                            <label>优化方法</label>
+                            <select class="form-control form-control-sm">
+                                <option>Webster方法</option>
+                                <option>遗传算法</option>
+                                <option>模糊控制</option>
+                                <option>自适应控制</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>优化目标</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="timingObjective" checked>
+                                <label class="form-check-label">最小延误</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="timingObjective">
+                                <label class="form-check-label">最大通行能力</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="timingObjective">
+                                <label class="form-check-label">综合优化</label>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-sm btn-block" onclick="quickTimingOptimization()">
+                            <i class="fas fa-bolt"></i> 快速优化
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-sign"></i> 标志标线设计</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="form-group">
+                            <label>设计类型</label>
+                            <div class="btn-group-vertical btn-group-sm w-100 mb-3">
+                                <button class="btn btn-outline-primary" onclick="addTrafficSign()">
+                                    <i class="fas fa-sign"></i> 交通标志
+                                </button>
+                                <button class="btn btn-outline-success" onclick="addRoadMarking()">
+                                    <i class="fas fa-road"></i> 道路标线
+                                </button>
+                                <button class="btn btn-outline-info" onclick="addGuidanceArrow()">
+                                    <i class="fas fa-arrow-right"></i> 导向箭头
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>标志类型</label>
+                            <select class="form-control form-control-sm">
+                                <option>警告标志</option>
+                                <option>禁令标志</option>
+                                <option>指示标志</option>
+                                <option>指路标志</option>
+                                <option>旅游区标志</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-info btn-sm btn-block" onclick="previewSignDesign()">
+                            <i class="fas fa-eye"></i> 预览设计
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-shield-alt"></i> 安全设施设计</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="form-group">
+                            <label>设施类型</label>
+                            <div class="btn-group-vertical btn-group-sm w-100 mb-3">
+                                <button class="btn btn-outline-warning" onclick="addGuardrail()">
+                                    <i class="fas fa-shield-alt"></i> 护栏设计
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="addSpeedBump()">
+                                    <i class="fas fa-road"></i> 减速设施
+                                </button>
+                                <button class="btn btn-outline-info" onclick="addLighting()">
+                                    <i class="fas fa-lightbulb"></i> 照明设施
+                                </button>
+                                <button class="btn btn-outline-secondary" onclick="addBarrier()">
+                                    <i class="fas fa-minus"></i> 隔离设施
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>护栏类型</label>
+                            <select class="form-control form-control-sm">
+                                <option>波形梁护栏</option>
+                                <option>缆索护栏</option>
+                                <option>混凝土护栏</option>
+                                <option>组合式护栏</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-warning btn-sm btn-block" onclick="calculateCost()">
+                            <i class="fas fa-calculator"></i> 成本估算
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-tasks"></i> 综合治理方案</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="analysis-result">
+                            <h6>方案模板</h6>
+                            <div class="list-group list-group-flush">
+                                <button class="list-group-item list-group-item-action" onclick="loadTemplate('intersection')">
+                                    交叉口综合治理
+                                </button>
+                                <button class="list-group-item list-group-item-action" onclick="loadTemplate('pedestrian')">
+                                    行人安全改善
+                                </button>
+                                <button class="list-group-item list-group-item-action" onclick="loadTemplate('curve')">
+                                    弯道安全治理
+                                </button>
+                            </div>
+                        </div>
+                        <button class="btn btn-success btn-sm btn-block mt-2" onclick="createCustomSolution()">
+                            <i class="fas fa-plus"></i> 自定义方案
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 统计分析模块内容
+        function getStatisticalAnalysisContent() {
+            return `
+                <div class="tool-group active">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-chart-line"></i> 事故统计分析</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="form-group">
+                            <label>统计维度</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked>
+                                <label class="form-check-label">时间维度</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked>
+                                <label class="form-check-label">空间维度</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox">
+                                <label class="form-check-label">类型维度</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox">
+                                <label class="form-check-label">严重程度</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>图表类型</label>
+                            <select class="form-control form-control-sm">
+                                <option>柱状图</option>
+                                <option>折线图</option>
+                                <option>饼图</option>
+                                <option>热力图</option>
+                                <option>散点图</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>统计周期</label>
+                            <select class="form-control form-control-sm">
+                                <option>月度统计</option>
+                                <option>季度统计</option>
+                                <option>年度统计</option>
+                                <option>自定义周期</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary btn-sm btn-block" onclick="generateAccidentChart()">
+                            <i class="fas fa-chart-bar"></i> 生成统计图表
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-map"></i> 隐患分布分析</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="form-group">
+                            <label>分析方法</label>
+                            <select class="form-control form-control-sm">
+                                <option>空间聚类分析</option>
+                                <option>密度分析</option>
+                                <option>趋势分析</option>
+                                <option>相关性分析</option>
+                                <option>空间自相关</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>分析范围</label>
+                            <div class="btn-group btn-group-sm d-flex">
+                                <button class="btn btn-outline-primary active">行政区</button>
+                                <button class="btn btn-outline-success">道路等级</button>
+                                <button class="btn btn-outline-info">路网密度</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>聚类参数</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <small>最小样本数</small>
+                                    <input type="number" class="form-control form-control-sm" value="5">
+                                </div>
+                                <div class="col-6">
+                                    <small>邻域半径</small>
+                                    <input type="number" class="form-control form-control-sm" value="200">
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-success btn-sm btn-block" onclick="analyzeHazardDistribution()">
+                            <i class="fas fa-search"></i> 开始分布分析
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-chart-pie"></i> 治理效果评估</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="form-group">
+                            <label>评估项目</label>
+                            <select class="form-control form-control-sm">
+                                <option>全部治理项目</option>
+                                <option>交叉口改造项目</option>
+                                <option>信号优化项目</option>
+                                <option>标志标线项目</option>
+                                <option>安全设施项目</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>评估期间</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="date" class="form-control form-control-sm" value="2024-01-01">
+                                </div>
+                                <div class="col-6">
+                                    <input type="date" class="form-control form-control-sm" value="2024-06-30">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>评估指标</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked>
+                                <label class="form-check-label">事故减少率</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked>
+                                <label class="form-check-label">冲突减少率</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox">
+                                <label class="form-check-label">延误改善率</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox">
+                                <label class="form-check-label">成本效益比</label>
+                            </div>
+                        </div>
+                        <button class="btn btn-info btn-sm btn-block" onclick="evaluateTreatmentEffect()">
+                            <i class="fas fa-chart-line"></i> 开始效果评估
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-file-export"></i> 报告生成</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="form-group">
+                            <label>报告模板</label>
+                            <select class="form-control form-control-sm">
+                                <option>月度安全报告</option>
+                                <option>季度统计报告</option>
+                                <option>年度分析报告</option>
+                                <option>治理项目报告</option>
+                                <option>专项调研报告</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>报告内容</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked>
+                                <label class="form-check-label">统计图表</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked>
+                                <label class="form-check-label">专题地图</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox">
+                                <label class="form-check-label">详细数据表</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox">
+                                <label class="form-check-label">分析结论</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>输出格式</label>
+                            <div class="btn-group btn-group-sm d-flex">
+                                <button class="btn btn-outline-danger active">PDF</button>
+                                <button class="btn btn-outline-primary">Word</button>
+                                <button class="btn btn-outline-success">PPT</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-success btn-sm btn-block" onclick="generateReport()">
+                            <i class="fas fa-file-pdf"></i> 生成报告
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 系统管理模块内容
+        function getSystemManagementContent() {
+            return `
+                <div class="tool-group active">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-users"></i> 用户管理</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <button class="btn btn-primary btn-sm btn-block mb-2" onclick="addUser()">
+                            <i class="fas fa-user-plus"></i> 添加用户
+                        </button>
+                        <button class="btn btn-info btn-sm btn-block mb-2" onclick="managePermissions()">
+                            <i class="fas fa-key"></i> 权限设置
+                        </button>
+                        <button class="btn btn-warning btn-sm btn-block mb-2" onclick="viewUserLogs()">
+                            <i class="fas fa-history"></i> 操作日志
+                        </button>
+                        <div class="analysis-result">
+                            <h6>在线用户</h6>
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="status-indicator status-online"></span>
+                                        管理员
+                                    </div>
+                                    <small class="text-success">当前</small>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="status-indicator status-online"></span>
+                                        张工程师
+                                    </div>
+                                    <small class="text-muted">5分钟前</small>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="status-indicator status-offline"></span>
+                                        李分析师
+                                    </div>
+                                    <small class="text-muted">离线</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-cog"></i> 系统配置</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="form-group">
+                            <label>系统名称</label>
+                            <input type="text" class="form-control form-control-sm" value="交通隐患点管理系统">
+                        </div>
+                        <div class="form-group">
+                            <label>地图服务</label>
+                            <select class="form-control form-control-sm">
+                                <option>OpenStreetMap</option>
+                                <option>天地图</option>
+                                <option>百度地图</option>
+                                <option>高德地图</option>
+                                <option>Google Maps</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>默认坐标系</label>
+                            <select class="form-control form-control-sm">
+                                <option>WGS84</option>
+                                <option>GCJ-02</option>
+                                <option>BD-09</option>
+                                <option>CGCS2000</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>系统语言</label>
+                            <select class="form-control form-control-sm">
+                                <option>中文简体</option>
+                                <option>中文繁体</option>
+                                <option>English</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-success btn-sm btn-block" onclick="saveSystemConfig()">
+                            <i class="fas fa-save"></i> 保存配置
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-database"></i> 数据备份</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="form-group">
+                            <label>备份策略</label>
+                            <select class="form-control form-control-sm">
+                                <option>每日自动备份</option>
+                                <option>每周自动备份</option>
+                                <option>每月自动备份</option>
+                                <option>仅手动备份</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>备份保留期</label>
+                            <select class="form-control form-control-sm">
+                                <option>30天</option>
+                                <option>90天</option>
+                                <option>180天</option>
+                                <option>永久保留</option>
+                            </select>
+                        </div>
+                        <div class="analysis-result">
+                            <h6>最近备份</h6>
+                            <small class="text-muted">
+                                <i class="fas fa-check-circle text-success"></i> 2024-06-07 02:00:00<br>
+                                备份大小: 1.2GB<br>
+                                状态: 成功
+                            </small>
+                        </div>
+                        <button class="btn btn-warning btn-sm btn-block mb-2" onclick="backupData()">
+                            <i class="fas fa-download"></i> 立即备份
+                        </button>
+                        <button class="btn btn-danger btn-sm btn-block" onclick="restoreData()">
+                            <i class="fas fa-upload"></i> 恢复数据
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-chart-area"></i> 系统监控</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="analysis-result">
+                            <h6>系统状态</h6>
+                            <div class="row">
+                                <div class="col-6">
+                                    <small>CPU使用率</small>
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 45%">45%</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <small>内存使用率</small>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-warning" style="width: 67%">67%</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <small>存储空间</small>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-info" style="width: 34%">34%</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <small>网络流量</small>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" style="width: 23%">23%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-info btn-sm btn-block" onclick="viewSystemMonitor()">
+                            <i class="fas fa-chart-line"></i> 详细监控
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-question-circle"></i> 系统帮助</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="list-group list-group-flush">
+                            <button class="list-group-item list-group-item-action" onclick="showUserManual()">
+                                <i class="fas fa-book"></i> 用户手册
+                            </button>
+                            <button class="list-group-item list-group-item-action" onclick="showVideoTutorial()">
+                                <i class="fas fa-play-circle"></i> 视频教程
+                            </button>
+                            <button class="list-group-item list-group-item-action" onclick="showFAQ()">
+                                <i class="fas fa-question"></i> 常见问题
+                            </button>
+                            <button class="list-group-item list-group-item-action" onclick="contactSupport()">
+                                <i class="fas fa-phone"></i> 技术支持
+                            </button>
+                            <button class="list-group-item list-group-item-action" onclick="checkUpdates()">
+                                <i class="fas fa-sync"></i> 检查更新
+                            </button>
+                        </div>
+                        <div class="text-center mt-3">
+                            <small class="text-muted">版本: v2.1.0</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 初始化工具组
+        function initializeToolGroups() {
+            document.querySelectorAll('.tool-group-header').forEach(header => {
+                header.addEventListener('click', () => toggleToolGroup(header));
+            });
+        }
+
+        // 切换工具组
+        function toggleToolGroup(header) {
+            const toolGroup = header.parentElement;
+            toolGroup.classList.toggle('active');
+        }
+
+        // 更新权重显示
+        function updateWeights() {
+            const sliders = {
+                'accidentSlider': 'accidentWeight',
+                'conflictSlider': 'conflictWeight', 
+                'designSlider': 'designWeight',
+                'operationSlider': 'operationWeight'
+            };
+            
+            let total = 0;
+            Object.keys(sliders).forEach(sliderId => {
+                const slider = document.getElementById(sliderId);
+                const display = document.getElementById(sliders[sliderId]);
+                if (slider && display) {
+                    const value = parseInt(slider.value);
+                    display.textContent = value + '%';
+                    total += value;
+                }
+            });
+            
+            const totalDisplay = document.getElementById('totalWeight');
+            if (totalDisplay) {
+                totalDisplay.textContent = total + '%';
+                totalDisplay.style.color = total === 100 ? 'green' : total > 100 ? 'red' : 'orange';
+            }
+        }
+
+        // 切换面板显示
+        function togglePanel(side) {
+            const panel = document.getElementById(side + 'Panel');
+            if (window.innerWidth <= 768) {
+                panel.classList.toggle('show');
+            } else {
+                panel.classList.toggle('collapsed');
+            }
+        }
+
+        // 重置地图视图
+        function resetMapView() {
+            if (map) {
+                map.setView([28.676493, 115.892151], 13);
+                updateStatus('地图视图已重置');
+            }
+        }
+
+        // 全屏切换
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // 更新状态信息
+        function updateStatus(message) {
+            document.getElementById('statusText').textContent = message;
+        }
+
+        // 更新时间显示
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString();
+        }
+
+        // ============ 数据管理功能 ============
+        
+        // 打开数据导入对话框
+        function openDataImport() {
+            $('#dataImportModal').modal('show');
+        }
+
+        // 打开事故数据管理
+        function openAccidentDataModal() {
+            $('#accidentDataModal').modal('show');
+        }
+
+        // 导入数据
+        function importData() {
+            const dataType = document.getElementById('dataType').value;
+            const file = document.getElementById('dataFile').files[0];
+            
+            if (!file) {
+                alert('请选择要导入的文件');
+                return;
+            }
+            
+            updateStatus('正在导入数据...');
+            
+            // 模拟导入进度
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    $('#dataImportModal').modal('hide');
+                    updateStatus('数据导入完成');
+                    alert(`${getDataTypeName(dataType)}导入成功！共导入${Math.floor(Math.random() * 500 + 100)}条记录。`);
+                }
+            }, 200);
+        }
+
+        function getDataTypeName(type) {
+            const names = {
+                'accident': '事故数据',
+                'road': '道路网络数据',
+                'video': '视频数据',
+                'traffic': '交通流量数据',
+                'facilities': '交通设施数据'
+            };
+            return names[type] || '数据';
+        }
+
+        // 筛选事故数据
+        function filterAccidentData() {
+            const timeRange = document.getElementById('accidentTimeRange').value;
+            const accidentType = document.getElementById('accidentType').value;
+            const severity = document.getElementById('accidentSeverity').value;
+            
+            updateStatus(`正在筛选事故数据：${timeRange}天，类型：${accidentType}，严重程度：${severity}`);
+            
+            // 模拟筛选结果
+            setTimeout(() => {
+                updateStatus('事故数据筛选完成');
+                alert(`筛选完成，找到${Math.floor(Math.random() * 50 + 10)}条符合条件的事故记录。`);
+            }, 1000);
+        }
+
+        // 导出数据
+        function exportData() {
+            updateStatus('正在导出数据...');
+            setTimeout(() => {
+                updateStatus('数据导出完成');
+                alert('数据导出成功！文件已保存到下载目录。');
+            }, 1500);
+        }
+
+        // 刷新数据
+        function refreshData() {
+            updateStatus('正在刷新数据...');
+            setTimeout(() => {
+                updateStatus('数据刷新完成');
+            }, 1000);
+        }
+
+        // 验证数据
+        function validateData() {
+            updateStatus('正在验证数据完整性...');
+            setTimeout(() => {
+                updateStatus('数据验证完成');
+                alert('数据验证完成！发现2个警告，0个错误。');
+            }, 2000);
+        }
+
+        // ============ 隐患识别功能 ============
+        
+        // 打开热点分析
+        function openHotspotAnalysis() {
+            $('#hotspotAnalysisModal').modal('show');
+        }
+
+        // 运行热点分析
+        function runHotspotAnalysis() {
+            const method = document.getElementById('hotspotMethod').value;
+            const radius = document.getElementById('searchRadius').value;
+            const confidence = document.getElementById('confidenceLevel').value;
+            
+            updateStatus('正在进行热点分析...');
+            
+            // 显示进度条
+            document.getElementById('analysisProgress').style.display = 'block';
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 15;
+                progressBar.style.width = progress + '%';
+                
+                if (progress <= 30) {
+                    progressText.textContent = '正在加载数据...';
+                } else if (progress <= 60) {
+                    progressText.textContent = '正在执行空间分析...';
+                } else if (progress <= 90) {
+                    progressText.textContent = '正在生成结果...';
+                } else {
+                    progressText.textContent = '分析完成！';
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // 显示分析结果
+                    const results = document.getElementById('hotspotResults');
+                    results.innerHTML = `
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle"></i> 分析完成</h6>
+                            <p><strong>分析方法：</strong>${getAnalysisMethodName(method)}</p>
+                            <p><strong>识别热点：</strong>3个显著热点区域</p>
+                            <p><strong>置信度：</strong>${confidence}%</p>
+                        </div>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item">
+                                <small><i class="fas fa-fire text-danger"></i> 解放路与人民路交叉口 (Z值: 3.25)</small>
+                            </div>
+                            <div class="list-group-item">
+                                <small><i class="fas fa-fire text-warning"></i> 八一大道弯道路段 (Z值: 2.87)</small>
+                            </div>
+                            <div class="list-group-item">
+                                <small><i class="fas fa-fire text-info"></i> 青山湖大道交叉口 (Z值: 2.15)</small>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 在地图上显示热点
+                    const hotspots = [
+                        [28.676493, 115.892151],
+                        [28.683528, 115.858861], 
+                        [28.668234, 115.916334]
+                    ];
+                    
+                    hotspots.forEach((point, index) => {
+                        L.circle(point, {
+                            color: index === 0 ? 'red' : index === 1 ? 'orange' : 'blue',
+                            fillColor: index === 0 ? 'red' : index === 1 ? 'orange' : 'blue',
+                            fillOpacity: 0.3,
+                            radius: 200
+                        }).addTo(map).bindPopup(`热点区域 ${index + 1}<br>Z值: ${[3.25, 2.87, 2.15][index]}`);
+                    });
+                    
+                    // 启用导出按钮
+                    document.getElementById('exportHotspotBtn').disabled = false;
+                    document.getElementById('saveHotspotBtn').disabled = false;
+                    
+                    updateStatus('热点分析完成');
+                }
+            }, 300);
+        }
+
+        function getAnalysisMethodName(method) {
+            const names = {
+                'kde': '核密度估计',
+                'getis': 'Getis-Ord Gi*',
+                'moran': '局部Moran\'s I',
+                'spatial_scan': '空间扫描统计'
+            };
+            return names[method] || method;
+        }
+
+        // 快速热点分析
+        function runQuickHotspotAnalysis() {
+            const method = document.getElementById('quickAnalysisMethod').value;
+            updateStatus('正在进行快速热点分析...');
+            
+            setTimeout(() => {
+                updateStatus('快速热点分析完成');
+                alert(`使用${getAnalysisMethodName(method)}方法，识别出3个热点区域。`);
+                
+                // 简单地在地图上添加热点标记
+                L.circle([28.676493, 115.892151], {
+                    color: 'red',
+                    fillColor: 'red',
+                    fillOpacity: 0.3,
+                    radius: 150
+                }).addTo(map).bindPopup('快速分析热点');
+            }, 2000);
+        }
+
+        // 打开视频分析
+        function openVideoAnalysis() {
+            $('#videoAnalysisModal').modal('show');
+        }
+
+        // 开始视频分析
+        function startVideoAnalysis() {
+            const videoSource = document.getElementById('videoSource').value;
+            if (!videoSource) {
+                alert('请先选择视频源');
+                return;
+            }
+            
+            const results = document.getElementById('analysisResults');
+            results.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p class="mt-2">正在分析视频...</p>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                results.innerHTML = `
+                    <div class="alert alert-success">
+                        <h6><i class="fas fa-check-circle"></i> 分析完成</h6>
+                        <p><strong>视频源：</strong>${getVideoSourceName(videoSource)}</p>
+                        <p><strong>分析时长：</strong>2小时</p>
+                    </div>
+                    <div class="analysis-result">
+                        <h6>冲突统计</h6>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <h5 class="text-danger">15</h5>
+                                    <small>总冲突数</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <h5 class="text-warning">3</h5>
+                                    <small>严重冲突</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item">
+                            <small><i class="fas fa-exclamation-triangle text-danger"></i> 08:15:23 - 追尾冲突 (TTC: 1.2s)</small>
+                        </div>
+                        <div class="list-group-item">
+                            <small><i class="fas fa-exclamation-triangle text-warning"></i> 09:32:17 - 交叉冲突 (TTC: 2.1s)</small>
+                        </div>
+                        <div class="list-group-item">
+                            <small><i class="fas fa-exclamation-triangle text-info"></i> 10:45:09 - 行人冲突 (PET: 0.8s)</small>
+                        </div>
+                        <div class="list-group-item">
+                            <small><i class="fas fa-exclamation-triangle text-warning"></i> 11:20:45 - 变道冲突 (TTC: 1.8s)</small>
+                        </div>
+                    </div>
+                `;
+                updateStatus('视频冲突分析完成');
+            }, 4000);
+        }
+
+        function getVideoSourceName(source) {
+            const names = {
+                'camera1': '解放路监控点1',
+                'camera2': '人民路监控点2',
+                'camera3': '八一大道监控点3',
+                'upload': '本地上传视频'
+            };
+            return names[source] || source;
+        }
+
+        // ============ 风险评估功能 ============
+        
+        // 打开风险评估
+        function openRiskAssessment() {
+            $('#riskAssessmentModal').modal('show');
+        }
+
+        // 运行风险评估
+        function runRiskAssessment() {
+            const range = document.getElementById('assessmentRange').value;
+            
+            updateStatus('正在进行综合风险评估...');
+            
+            setTimeout(() => {
+                // 更新统计数据
+                document.getElementById('highRiskCount').textContent = '25';
+                document.getElementById('mediumRiskCount').textContent = '48';
+                document.getElementById('lowRiskCount').textContent = '32';
+                document.getElementById('totalRiskCount').textContent = '105';
+                
+                // 生成风险分布图
+                const ctx = document.getElementById('riskDistributionChart').getContext('2d');
+                if (chartInstances.riskDistribution) {
+                    chartInstances.riskDistribution.destroy();
+                }
+                chartInstances.riskDistribution = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['高风险', '中风险', '低风险'],
+                        datasets: [{
+                            data: [25, 48, 32],
+                            backgroundColor: ['#dc3545', '#ffc107', '#28a745'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+                
+                // 填充风险结果表格
+                const tableBody = document.getElementById('riskResultsTable');
+                tableBody.innerHTML = `
+                    <tr>
+                        <td>HP001</td>
+                        <td>解放路与人民路交叉口</td>
+                        <td><span class="risk-high">高风险</span></td>
+                        <td>92.3</td>
+                        <td>事故频发、视距不良</td>
+                        <td><button class="btn btn-sm btn-primary" onclick="viewRiskDetail('HP001')">详情</button></td>
+                    </tr>
+                    <tr>
+                        <td>HP002</td>
+                        <td>八一大道弯道路段</td>
+                        <td><span class="risk-medium">中风险</span></td>
+                        <td>73.8</td>
+                        <td>弯道半径小、标线不清</td>
+                        <td><button class="btn btn-sm btn-primary" onclick="viewRiskDetail('HP002')">详情</button></td>
+                    </tr>
+                    <tr>
+                        <td>HP003</td>
+                        <td>北京东路路段</td>
+                        <td><span class="risk-low">低风险</span></td>
+                        <td>45.2</td>
+                        <td>标线磨损</td>
+                        <td><button class="btn btn-sm btn-primary" onclick="viewRiskDetail('HP003')">详情</button></td>
+                    </tr>
+                `;
+                
+                updateStatus('综合风险评估完成');
+                alert('风险评估完成！已识别105个隐患点，其中高风险25个。');
+            }, 3000);
+        }
+
+        // 快速风险评估
+        function runQuickRiskAssessment() {
+            updateStatus('正在进行快速风险评估...');
+            setTimeout(() => {
+                updateStatus('快速风险评估完成');
+                alert('快速评估完成！发现高风险隐患点3个，中风险8个。');
+            }, 2000);
+        }
+
+        // 生成优先级列表
+        function generatePriorityList() {
+            updateStatus('正在生成治理优先级列表...');
+            setTimeout(() => {
+                updateStatus('优先级列表生成完成');
+                
+                // 更新右侧面板显示优先级列表
+                const rightPanel = document.getElementById('rightPanelContent');
+                rightPanel.innerHTML = `
+                    <div class="chart-container">
+                        <div class="chart-title">治理优先级列表</div>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <strong>1. 解放路与人民路交叉口</strong>
+                                    <span class="risk-high">紧急</span>
+                                </div>
+                                <small class="text-muted">综合评分: 95.2 | 预计效益: 高</small>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <strong>2. 青山湖大道交叉口</strong>
+                                    <span class="risk-high">紧急</span>
+                                </div>
+                                <small class="text-muted">综合评分: 88.7 | 预计效益: 高</small>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <strong>3. 梅岭大道山区段</strong>
+                                    <span class="risk-medium">重要</span>
+                                </div>
+                                <small class="text-muted">综合评分: 76.3 | 预计效益: 中</small>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <strong>4. 八一大道弯道路段</strong>
+                                    <span class="risk-medium">重要</span>
+                                </div>
+                                <small class="text-muted">综合评分: 73.8 | 预计效益: 中</small>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <strong>5. 中山路商业区</strong>
+                                    <span class="risk-medium">一般</span>
+                                </div>
+                                <small class="text-muted">综合评分: 68.4 | 预计效益: 中</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                alert('优先级列表生成完成！已按风险等级和改善潜力排序。');
+            }, 2000);
+        }
+
+        // ============ 治理设计功能 ============
+        
+        // 打开渠化设计
+        function openChannelizationDesign() {
+            $('#channelizationModal').modal('show');
+        }
+
+        // 生成设计方案
+        function generateDesign() {
+            const designVehicle = document.getElementById('designVehicle').value;
+            const designSpeed = document.getElementById('designSpeed').value;
+            const laneWidth = document.getElementById('laneWidth').value;
+            
+            updateStatus('正在生成渠化设计方案...');
+            
+            setTimeout(() => {
+                const preview = document.getElementById('designPreview');
+                preview.innerHTML = generateIntersectionSVG();
+                updateStatus('渠化设计方案生成完成');
+                alert('设计方案生成成功！');
+            }, 2000);
+        }
+
+        // 生成交叉口SVG图形
+        function generateIntersectionSVG() {
+            return `
+                <svg width="100%" height="100%" viewBox="0 0 400 400" style="background: #f8f9fa;">
+                    <!-- 交叉口背景 -->
+                    <rect x="0" y="0" width="400" height="400" fill="#f8f9fa" stroke="#dee2e6"/>
+                    
+                    <!-- 主要道路 -->
+                    <rect x="140" y="0" width="120" height="400" fill="#6c757d"/>
+                    <rect x="0" y="140" width="400" height="120" fill="#6c757d"/>
+                    
+                    <!-- 车道分隔线 -->
+                    <line x1="170" y1="0" x2="170" y2="140" stroke="white" stroke-width="2" stroke-dasharray="10,5"/>
+                    <line x1="200" y1="0" x2="200" y2="140" stroke="white" stroke-width="2"/>
+                    <line x1="230" y1="260" x2="230" y2="400" stroke="white" stroke-width="2" stroke-dasharray="10,5"/>
+                    <line x1="200" y1="260" x2="200" y2="400" stroke="white" stroke-width="2"/>
+                    
+                    <line x1="0" y1="170" x2="140" y2="170" stroke="white" stroke-width="2" stroke-dasharray="10,5"/>
+                    <line x1="0" y1="200" x2="140" y2="200" stroke="white" stroke-width="2"/>
+                    <line x1="260" y1="200" x2="400" y2="200" stroke="white" stroke-width="2"/>
+                    <line x1="260" y1="230" x2="400" y2="230" stroke="white" stroke-width="2" stroke-dasharray="10,5"/>
+                    
+                    <!-- 导向岛 -->
+                    <circle cx="160" cy="160" r="15" fill="#28a745" opacity="0.8" stroke="white" stroke-width="2"/>
+                    <circle cx="240" cy="160" r="15" fill="#28a745" opacity="0.8" stroke="white" stroke-width="2"/>
+                    <circle cx="160" cy="240" r="15" fill="#28a745" opacity="0.8" stroke="white" stroke-width="2"/>
+                    <circle cx="240" cy="240" r="15" fill="#28a745" opacity="0.8" stroke="white" stroke-width="2"/>
+                    
+                    <!-- 转弯半径指示 -->
+                    <path d="M 140 140 Q 160 160 140 180" stroke="#007bff" stroke-width="3" fill="none"/>
+                    <path d="M 260 140 Q 240 160 260 180" stroke="#007bff" stroke-width="3" fill="none"/>
+                    <path d="M 140 220 Q 160 240 140 260" stroke="#007bff" stroke-width="3" fill="none"/>
+                    <path d="M 260 220 Q 240 240 260 260" stroke="#007bff" stroke-width="3" fill="none"/>
+                    
+                    <!-- 人行横道 -->
+                    <g fill="white" opacity="0.9">
+                        <rect x="145" y="130" width="5" height="20"/>
+                        <rect x="155" y="130" width="5" height="20"/>
+                        <rect x="165" y="130" width="5" height="20"/>
+                        <rect x="175" y="130" width="5" height="20"/>
+                        <rect x="185" y="130" width="5" height="20"/>
+                        <rect x="195" y="130" width="5" height="20"/>
+                        <rect x="205" y="130" width="5" height="20"/>
+                        <rect x="215" y="130" width="5" height="20"/>
+                        <rect x="225" y="130" width="5" height="20"/>
+                        <rect x="235" y="130" width="5" height="20"/>
+                        <rect x="245" y="130" width="5" height="20"/>
+                        <rect x="255" y="130" width="5" height="20"/>
+                    </g>
+                    
+                    <!-- 方向箭头 -->
+                    <polygon points="185,80 195,80 190,60" fill="white"/>
+                    <polygon points="185,90 195,90 190,110" fill="white"/>
+                    <polygon points="320,190 320,210 340,200" fill="white"/>
+                    <polygon points="310,190 310,210 290,200" fill="white"/>
+                    
+                    <!-- 文字标注 -->
+                    <text x="200" y="30" text-anchor="middle" font-size="12" fill="#495057" font-weight="bold">北向进口道</text>
+                    <text x="30" y="205" text-anchor="middle" font-size="12" fill="#495057" font-weight="bold">西向</text>
+                    <text x="370" y="205" text-anchor="middle" font-size="12" fill="#495057" font-weight="bold">东向</text>
+                    <text x="200" y="390" text-anchor="middle" font-size="12" fill="#495057" font-weight="bold">南向进口道</text>
+                    
+                    <!-- 尺寸标注 -->
+                    <line x1="120" y1="170" x2="120" y2="200" stroke="#dc3545" stroke-width="1"/>
+                    <line x1="115" y1="170" x2="125" y2="170" stroke="#dc3545" stroke-width="1"/>
+                    <line x1="115" y1="200" x2="125" y2="200" stroke="#dc3545" stroke-width="1"/>
+                    <text x="110" y="190" font-size="10" fill="#dc3545">3.5m</text>
+                </svg>
+            `;
+        }
+
+        // 打开信号配时优化
+        function openSignalOptimization() {
+            $('#signalOptimizationModal').modal('show');
+        }
+
+        // 信号配时优化
+        function optimizeSignalTiming() {
+            const method = document.getElementById('optimizationMethod').value;
+            const objective = document.querySelector('input[name="objective"]:checked').value;
+            
+            updateStatus('正在进行信号配时优化...');
+            
+            setTimeout(() => {
+                // 更新配时结果
+                document.getElementById('cycleTime').textContent = '110';
+                document.getElementById('intersectionDelay').textContent = '32.4';
+                document.getElementById('intersectionLOS').textContent = 'B';
+                document.getElementById('intersectionCapacity').textContent = '0.78';
+                
+                // 生成配时图表
+                const ctx = document.getElementById('timingChart').getContext('2d');
+                if (chartInstances.timing) {
+                    chartInstances.timing.destroy();
+                }
+                chartInstances.timing = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['相位1', '相位2', '相位3', '相位4'],
+                        datasets: [{
+                            label: '绿灯时间',
+                            data: [32, 18, 22, 14],
+                            backgroundColor: '#28a745'
+                        }, {
+                            label: '黄灯时间',
+                            data: [3, 3, 3, 3],
+                            backgroundColor: '#ffc107'
+                        }, {
+                            label: '全红时间',
+                            data: [2, 2, 2, 2],
+                            backgroundColor: '#dc3545'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { stacked: true },
+                            y: { stacked: true }
+                        }
+                    }
+                });
+                
+                updateStatus('信号配时优化完成');
+                alert(`使用${getOptimizationMethodName(method)}优化完成！周期优化为110秒，平均延误降低至32.4秒。`);
+            }, 3000);
+        }
+
+        function getOptimizationMethodName(method) {
+            const names = {
+                'webster': 'Webster方法',
+                'genetic': '遗传算法',
+                'fuzzy': '模糊控制',
+                'adaptive': '自适应控制'
+            };
+            return names[method] || method;
+        }
+
+        // ============ 统计分析功能 ============
+        
+        // 生成事故统计图表
+        function generateAccidentChart() {
+            updateStatus('正在生成事故统计图表...');
+            
+            setTimeout(() => {
+                const rightPanel = document.getElementById('rightPanelContent');
+                rightPanel.innerHTML = `
+                    <div class="chart-container">
+                        <div class="chart-title">月度事故统计分析</div>
+                        <canvas id="monthlyAccidentChart" width="300" height="200"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">事故类型分布</div>
+                        <canvas id="accidentTypeChart" width="300" height="200"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">事故时段分布</div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <h5 class="text-danger">35%</h5>
+                                    <small>早高峰(7-9时)</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <h5 class="text-warning">42%</h5>
+                                    <small>晚高峰(17-19时)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <h5 class="text-info">15%</h5>
+                                    <small>平峰时段</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <h5 class="text-success">8%</h5>
+                                    <small>夜间时段</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // 创建月度事故统计图表
+                const ctx1 = document.getElementById('monthlyAccidentChart').getContext('2d');
+                chartInstances.monthlyAccident = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                        datasets: [{
+                            label: '事故数量',
+                            data: [23, 19, 15, 28, 22, 18],
+                            borderColor: '#dc3545',
+                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                            tension: 0.4
+                        }, {
+                            label: '死亡事故',
+                            data: [2, 1, 1, 3, 2, 1],
+                            borderColor: '#6f42c1',
+                            backgroundColor: 'rgba(111, 66, 193, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+                
+                // 创建事故类型分布图表
+                const ctx2 = document.getElementById('accidentTypeChart').getContext('2d');
+                chartInstances.accidentType = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['追尾事故', '侧面碰撞', '行人事故', '单车事故', '其他'],
+                        datasets: [{
+                            data: [45, 28, 15, 8, 4],
+                            backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#20c997', '#6c757d']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+                
+                updateStatus('事故统计图表生成完成');
+            }, 2000);
+        }
+
+        // 隐患分布分析
+        function analyzeHazardDistribution() {
+            updateStatus('正在进行隐患分布分析...');
+            
+            setTimeout(() => {
+                updateStatus('隐患分布分析完成');
+                
+                const rightPanel = document.getElementById('rightPanelContent');
+                rightPanel.innerHTML = `
+                    <div class="chart-container">
+                        <div class="chart-title">隐患空间分布分析</div>
+                        <div class="analysis-result">
+                            <h6>聚类结果</h6>
+                            <p><strong>识别聚类：</strong>4个主要聚集区域</p>
+                            <p><strong>聚类方法：</strong>DBSCAN空间聚类</p>
+                            <p><strong>聚类参数：</strong>半径200m，最小样本5个</p>
+                        </div>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <span>中心城区聚集区</span>
+                                    <span class="badge badge-danger">28个</span>
+                                </div>
+                                <small class="text-muted">主要为交叉口冲突和交通拥堵相关</small>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <span>商业区聚集区</span>
+                                    <span class="badge badge-warning">15个</span>
+                                </div>
+                                <small class="text-muted">主要为行人冲突和停车相关</small>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <span>山区道路聚集区</span>
+                                    <span class="badge badge-info">12个</span>
+                                </div>
+                                <small class="text-muted">主要为弯道和坡道安全相关</small>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <span>高速出入口区域</span>
+                                    <span class="badge badge-secondary">8个</span>
+                                </div>
+                                <small class="text-muted">主要为速度差和汇流相关</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                alert('隐患分布分析完成！识别出4个主要聚集区域，共63个隐患点。');
+            }, 3000);
+        }
+
+        // 治理效果评估
+        function evaluateTreatmentEffect() {
+            updateStatus('正在进行治理效果评估...');
+            
+            setTimeout(() => {
+                updateStatus('治理效果评估完成');
+                
+                const rightPanel = document.getElementById('rightPanelContent');
+                rightPanel.innerHTML = `
+                    <div class="chart-container">
+                        <div class="chart-title">治理效果评估结果</div>
+                        <canvas id="effectEvaluationChart" width="300" height="200"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">关键指标改善</div>
+                        <div class="progress-container">
+                            <div class="progress-label">
+                                <span>事故减少率</span>
+                                <span class="text-success">75%</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" style="width: 75%"></div>
+                            </div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-label">
+                                <span>冲突减少率</span>
+                                <span class="text-success">82%</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" style="width: 82%"></div>
+                            </div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-label">
+                                <span>延误改善率</span>
+                                <span class="text-info">45%</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-info" style="width: 45%"></div>
+                            </div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-label">
+                                <span>用户满意度</span>
+                                <span class="text-warning">88%</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-warning" style="width: 88%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">投资回报分析</div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <h5 class="text-primary">3.5:1</h5>
+                                    <small>成本效益比</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <h5 class="text-success">1.2年</h5>
+                                    <small>投资回收期</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // 创建效果评估图表
+                const ctx = document.getElementById('effectEvaluationChart').getContext('2d');
+                chartInstances.effectEvaluation = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['治理前', '治理后'],
+                        datasets: [{
+                            label: '月均事故数',
+                            data: [12, 3],
+                            backgroundColor: '#dc3545'
+                        }, {
+                            label: '月均冲突数',
+                            data: [85, 15],
+                            backgroundColor: '#ffc107'
+                        }, {
+                            label: '平均延误(秒)',
+                            data: [78, 43],
+                            backgroundColor: '#007bff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+                
+                alert('治理效果评估完成！整体效果显著，事故减少75%，冲突减少82%。');
+            }, 3000);
+        }
+
+        // 生成报告
+        function generateReport() {
+            updateStatus('正在生成分析报告...');
+            
+            setTimeout(() => {
+                updateStatus('分析报告生成完成');
+                alert('报告生成成功！\n\n报告类型：月度安全分析报告\n页数：25页\n文件大小：3.2MB\n\n已保存到系统下载目录。');
+            }, 2500);
+        }
+
+        // ============ 其他功能函数 ============
+        
+        // 查看隐患点详情
+        function viewDetails(index) {
+            const point = hazardPoints[index];
+            if (point) {
+                updateStatus(`查看隐患点详情：${point.description}`);
+                alert(`隐患点详情：\n\n位置：${point.description}\n类型：${point.type}\n风险等级：${point.risk}\n风险评分：${point.score}\n坐标：${point.lat.toFixed(6)}, ${point.lng.toFixed(6)}`);
+            }
+        }
+
+        // 设计治理方案
+        function designTreatment(index) {
+            const point = hazardPoints[index];
+            if (point) {
+                updateStatus(`为${point.description}设计治理方案`);
+                openChannelizationDesign();
+            }
+        }
+
+        // 响应式处理
+        window.addEventListener('resize', function() {
+            if (map) {
+                setTimeout(() => map.invalidateSize(), 200);
+            }
+        });
+
+        // 未实现功能的占位符
+        function uploadVideo() { alert('视频上传功能开发中...'); }
+        function manageVideoSources() { alert('视频源管理功能开发中...'); }
+        function previewVideo() { alert('视频预览功能开发中...'); }
+        function selectVideoSource() { alert('请选择视频源进行分析'); }
+        function selectIntersectionForDesign() { alert('请在地图上点击选择交叉口'); }
+        function addTrafficSign() { alert('交通标志设计功能开发中...'); }
+        function addRoadMarking() { alert('道路标线设计功能开发中...'); }
+        function addGuidanceArrow() { alert('导向箭头设计功能开发中...'); }
+        function addGuardrail() { alert('护栏设计功能开发中...'); }
+        function addSpeedBump() { alert('减速设施设计功能开发中...'); }
+        function addLighting() { alert('照明设施设计功能开发中...'); }
+        function addBarrier() { alert('隔离设施设计功能开发中...'); }
+        function calculateCost() { alert('成本估算功能开发中...'); }
+        function addUser() { alert('用户管理功能开发中...'); }
+        function managePermissions() { alert('权限管理功能开发中...'); }
+        function viewUserLogs() { alert('操作日志查看功能开发中...'); }
+        function saveSystemConfig() { alert('系统配置已保存'); }
+        function backupData() { alert('数据备份功能开发中...'); }
+        function restoreData() { alert('数据恢复功能开发中...'); }
+        function showUserManual() { alert('用户手册功能开发中...'); }
+        function showVideoTutorial() { alert('视频教程功能开发中...'); }
+        function showFAQ() { alert('常见问题功能开发中...'); }
+        function contactSupport() { alert('技术支持：400-123-4567'); }
+        function checkUpdates() { alert('当前已是最新版本'); }
+
+    </script>
+</body>
+</html> btn-block mb-2" onclick="exportData()">
+                            <i class="fas fa-download"></i> 数据导出
+                        </button>
+                        <button class="btn btn-info btn-sm btn-block mb-2" onclick="refreshData()">
+                            <i class="fas fa-sync"></i> 刷新数据
+                        </button>
+                        <button class="btn btn-warning btn-sm btn-block" onclick="validateData()">
+                            <i class="fas fa-check-circle"></i> 数据验证
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-car-crash"></i> 事故数据管理</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <button class="btn btn-primary btn-sm btn-block mb-2" onclick="openAccidentDataModal()">
+                            <i class="fas fa-table"></i> 事故数据表
+                        </button>
+                        <div class="form-group">
+                            <label>时间范围</label>
+                            <select class="form-control form-control-sm">
+                                <option>最近30天</option>
+                                <option>最近3个月</option>
+                                <option>最近1年</option>
+                                <option>自定义</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>事故类型筛选</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked>
+                                <label class="form-check-label">追尾事故</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked>
+                                <label class="form-check-label">侧面碰撞</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked>
+                                <label class="form-check-label">行人事故</label>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-sm btn-block" onclick="filterAccidentData()">
+                            <i class="fas fa-filter"></i> 应用筛选
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-video"></i> 视频数据管理</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="form-group">
+                            <label>视频源状态</label>
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="status-indicator status-online"></span>
+                                        解放路监控点1
+                                    </div>
+                                    <small class="text-success">在线</small>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="status-indicator status-online"></span>
+                                        人民路监控点2
+                                    </div>
+                                    <small class="text-success">在线</small>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="status-indicator status-offline"></span>
+                                        八一大道监控点3
+                                    </div>
+                                    <small class="text-danger">离线</small>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-sm btn-block mb-2" onclick="uploadVideo()">
+                            <i class="fas fa-cloud-upload-alt"></i> 上传视频
+                        </button>
+                        <button class="btn btn-info btn-sm btn-block mb-2" onclick="manageVideoSources()">
+                            <i class="fas fa-camera"></i> 视频源管理
+                        </button>
+                        <button class="btn btn-success btn-sm btn-block" onclick="previewVideo()">
+                            <i class="fas fa-play"></i> 实时预览
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 隐患识别模块内容
+        function getHazardIdentificationContent() {
+            return `
+                <div class="tool-group active">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-fire"></i> 事故热点分析</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <button class="btn btn-danger btn-sm btn-block mb-3" onclick="openHotspotAnalysis()">
+                            <i class="fas fa-fire"></i> 打开热点分析工具
+                        </button>
+                        <div class="form-group">
+                            <label>快速分析</label>
+                            <select class="form-control form-control-sm" id="quickAnalysisMethod">
+                                <option value="kde">核密度估计</option>
+                                <option value="getis">Getis-Ord Gi*</option>
+                                <option value="moran">局部Moran's I</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>搜索半径</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control form-control-sm" value="500" min="100" max="2000">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">米</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-warning btn-sm btn-block" onclick="runQuickHotspotAnalysis()">
+                            <i class="fas fa-bolt"></i> 快速分析
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-eye"></i> 视频冲突分析</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <button class="btn btn-primary btn-sm btn-block mb-3" onclick="openVideoAnalysis()">
+                            <i class="fas fa-play"></i> 打开视频分析工具
+                        </button>
+                        <div class="form-group">
+                            <label>快速视频源选择</label>
+                            <select class="form-control form-control-sm">
+                                <option value="">选择视频源</option>
+                                <option value="camera1">解放路监控点1</option>
+                                <option value="camera2">人民路监控点2</option>
+                                <option value="camera3">八一大道监控点3</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>分析时段</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="time" class="form-control form-control-sm" value="08:00">
+                                </div>
+                                <div class="col-6">
+                                    <input type="time" class="form-control form-control-sm" value="18:00">
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-success btn-sm btn-block" onclick="startQuickVideoAnalysis()">
+                            <i class="fas fa-search"></i> 快速分析
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-header" onclick="toggleToolGroup(this)">
+                        <span><i class="fas fa-intersection"></i> 交叉口冲突识别</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tool-group-content">
+                        <div class="alert alert-info">
+                            <small><i class="fas fa-info-circle"></i> 点击地图上的交叉口进行分析</small>
+                        </div>
+                        <button class="btn btn-warning btn-sm btn-block mb-2" onclick="enableIntersectionSelection()">
+                            <i class="fas fa-mouse-pointer"></i> 启用选择模式
+                        </button>
+                        <div class="form-group">
+                            <label>冲突类型</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked>
+                                <label class="form-check-label">左转冲突</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked>
+                                <label class="form-check-label">交叉冲突</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked>
+                                <label class="form-check-label">车人冲突</label>
+                            </div>
+                        </div>
+                        <button class="btn btn-success btn-sm

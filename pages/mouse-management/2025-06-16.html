@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratory Mouse Housing Visualization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        .area {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            text-align: center;
+        }
+        .area-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.4em;
+            color: #222;
+        }
+        /* Grid structure for area 1 */
+        #grid1-container {
+            margin: 0 auto;
+            display: inline-block;
+        }
+        .grid1-row {
+            display: flex;
+        }
+        .grid1-cell {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ccc;
+            background-color: #e9e9e9;
+            position: relative;
+        }
+        .grid1-header {
+            background-color: transparent;
+            border: none;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .grid1-row-label {
+            width: 30px;
+            background-color: transparent;
+            border: none;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        /* Grid structure for areas 2 and 3 */
+        .grid {
+            display: grid;
+            grid-template-columns: 30px repeat(8, 50px);
+            grid-gap: 5px;
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e9e9e9;
+            border: 1px solid #ccc;
+            font-size: 0.9em;
+            cursor: default;
+            position: relative;
+        }
+        .row-label {
+            width: 30px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .col-label {
+            background-color: transparent;
+            border: none;
+            font-weight: bold;
+        }
+        
+        /* Common styles for all areas */
+        .occupied {
+            cursor: pointer;
+            color: white;
+            position: relative;
+        }
+        .occupied::before {
+            content: "●";
+            font-size: 24px;
+        }
+        .tooltip {
+            visibility: hidden;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            white-space: nowrap;
+            z-index: 100;
+            font-size: 0.85em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .occupied:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 40px;
+            padding: 15px 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+        .legend-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        /* Genotype colors */
+        .s100a8xdtrxc2c { background-color: #FF5733; }
+        .ly6gxdtrxc2c { background-color: #33A1FF; }
+        .lyz2xdtrxc2c { background-color: #33FF57; }
+        .umt { background-color: #D433FF; }
+        .mzb1 { background-color: #FFD700; }
+        .wt { background-color: #A0A0A0; }
+        .lyz2保种 { background-color: #FF8C00; }
+        .DTR保种 { background-color: #8B4513; }
+        .unknown { background-color: #666666; }
+    </style>
+</head>
+<body>
+    <h1>Laboratory Mouse Housing Visualization</h1>
+    
+    <div class="container">
+        <div class="area">
+            <div class="area-title">Area 1: A-G × 9-1</div>
+            <div id="grid1-container"></div>
+        </div>
+        
+        <div class="area">
+            <div class="area-title">Area 2: A-H × 9-1</div>
+            <div class="grid" id="grid2"></div>
+        </div>
+        
+        <div class="area">
+            <div class="area-title">Area 3: A-H × 9-1</div>
+            <div class="grid" id="grid3"></div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-title">Mouse Genotype Legend</div>
+        <div class="legend-item">
+            <div class="legend-color s100a8xdtrxc2c"></div>
+            <span>s100a8xdtrxc2c</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color ly6gxdtrxc2c"></div>
+            <span>ly6gxdtrxc2c</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color lyz2xdtrxc2c"></div>
+            <span>lyz2xdtrxc2c</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color umt"></div>
+            <span>umt</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color mzb1"></div>
+            <span>mzb1</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color wt"></div>
+            <span>wt</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color lyz2保种"></div>
+            <span>lyz2保种</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color DTR保种"></div>
+            <span>DTR保种</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color unknown"></div>
+            <span>Unspecified Genotype</span>
+        </div>
+    </div>
+
+    <script>
+        // Define the mouse data with their genotypes
+        const mouseData = {
+            // Area 1 mice
+            "1-5A": "s100a8xdtrxc2c",
+            "1-8F": "ly6gxdtrxc2c",
+            "1-2F": "lyz2xdtrxc2c",
+            "1-6B": "lyz2保种",
+            "1-3B": "unknown",
+            "1-8C": "s100a8xdtrxc2c",
+            "1-2C": "unknown",
+            "1-5D": "ly6gxdtrxc2c",
+            "1-1D": "umt",
+            "1-2G": "DTR保种",
+            
+            // Area 2 mice
+            "2-1A": "unknown",
+            "2-9B": "lyz2xdtrxc2c",
+            "2-7B": "s100a8xdtrxc2c",
+            "2-9C": "ly6gxdtrxc2c",
+            "2-4E": "lyz2xdtrxc2c",
+            "2-8E": "unknown",
+            
+            // Area 3 mice
+            "3-8D": "mzb1"
+        };
+
+        // Create Area 1 grid manually with a new approach
+        function createGrid1() {
+            const container = document.getElementById('grid1-container');
+            const columns = ['', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
+            const rows = ['9', '8', '7', '6', '5', '4', '3', '2', '1'];
+            
+            // Create header row
+            const headerRow = document.createElement('div');
+            headerRow.className = 'grid1-row';
+            
+            columns.forEach(col => {
+                const cell = document.createElement('div');
+                cell.className = 'grid1-cell grid1-header';
+                cell.textContent = col;
+                headerRow.appendChild(cell);
+            });
+            
+            container.appendChild(headerRow);
+            
+            // Create data rows
+            rows.forEach(row => {
+                const dataRow = document.createElement('div');
+                dataRow.className = 'grid1-row';
+                
+                // Row label first
+                const rowLabel = document.createElement('div');
+                rowLabel.className = 'grid1-cell grid1-row-label';
+                rowLabel.textContent = row;
+                dataRow.appendChild(rowLabel);
+                
+                // Then cells for each column
+                for (let col = 1; col < columns.length; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid1-cell';
+                    
+                    // Check if this cell has a mouse
+                    const cellId = `1-${row}${columns[col]}`;
+                    
+                    if (cellId in mouseData) {
+                        cell.className = `grid1-cell occupied ${mouseData[cellId]}`;
+                        
+                        // Add tooltip
+                        const tooltip = document.createElement('div');
+                        tooltip.className = 'tooltip';
+                        if (mouseData[cellId] === "unknown") {
+                            tooltip.textContent = `${cellId}: Unspecified Genotype`;
+                        } else {
+                            tooltip.textContent = `${cellId}: ${mouseData[cellId]} genotype`;
+                        }
+                        cell.appendChild(tooltip);
+                    }
+                    
+                    dataRow.appendChild(cell);
+                }
+                
+                container.appendChild(dataRow);
+            });
+        }
+
+        // Create the grids for areas 2 and 3
+        function createGridStandard(gridId, cols, rows) {
+            const grid = document.getElementById(gridId);
+            
+            // Create column labels (A, B, C, etc.)
+            grid.appendChild(document.createElement("div")); // Empty cell for top-left corner
+            for (let col = 0; col < cols.length; col++) {
+                const colLabel = document.createElement("div");
+                colLabel.className = "cell col-label";
+                colLabel.textContent = cols[col];
+                grid.appendChild(colLabel);
+            }
+            
+            // Create rows with labels and cells
+            for (let row = 0; row < rows.length; row++) {
+                // Row label
+                const rowLabel = document.createElement("div");
+                rowLabel.className = "row-label";
+                rowLabel.textContent = rows[row];
+                grid.appendChild(rowLabel);
+                
+                // Cells in the row
+                for (let col = 0; col < cols.length; col++) {
+                    const cell = document.createElement("div");
+                    cell.className = "cell";
+                    
+                    // Check if this cell has a mouse
+                    const areaNumber = gridId.replace("grid", "");
+                    const cellId = `${areaNumber}-${rows[row]}${cols[col]}`;
+                    
+                    if (cellId in mouseData) {
+                        cell.className = `cell occupied ${mouseData[cellId]}`;
+                        
+                        // Add tooltip
+                        const tooltip = document.createElement("div");
+                        tooltip.className = "tooltip";
+                        if (mouseData[cellId] === "unknown") {
+                            tooltip.textContent = `${cellId}: Unspecified Genotype`;
+                        } else {
+                            tooltip.textContent = `${cellId}: ${mouseData[cellId]} genotype`;
+                        }
+                        cell.appendChild(tooltip);
+                    }
+                    
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        // Define the grids for areas 2 and 3
+        const colsArea2 = ["A", "B", "C", "D", "E", "F", "G", "H"];
+        const colsArea3 = ["A", "B", "C", "D", "E", "F", "G", "H"];
+        const rows = ["9", "8", "7", "6", "5", "4", "3", "2", "1"];
+
+        // Create all three grids
+        createGrid1();
+        createGridStandard("grid2", colsArea2, rows);
+        createGridStandard("grid3", colsArea3, rows);
+    </script>
+</body>
+</html>

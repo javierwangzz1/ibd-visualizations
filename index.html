@@ -1,9 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Wang Lab - Visualization</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wang Lab - IBD Research Portal</title>
   <style>
     body {
       margin: 0;
@@ -21,7 +21,7 @@
       flex-wrap: wrap;
     }
     header h1 {
-      font-size: 1.6em;
+      font-size: 1.8em;
       margin: 0;
     }
     header .tagline {
@@ -30,9 +30,20 @@
       opacity: 0.85;
     }
     .section {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 2em auto;
       padding: 0 2em;
+    }
+    .section-title {
+      text-align: center;
+      color: #003366;
+      font-size: 1.8em;
+      margin-bottom: 0.5em;
+    }
+    .section-description {
+      text-align: center;
+      color: #666;
+      margin-bottom: 2em;
     }
     .cards {
       display: flex;
@@ -54,18 +65,34 @@
       transform: translateY(-5px);
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
     }
-    .card h2 {
+    .card h3 {
       color: #005fa3;
       margin-bottom: 0.5em;
+      font-size: 1.2em;
+    }
+    .card p {
+      color: #666;
+      font-size: 0.95em;
+      margin: 0.5em 0;
+    }
+    .card .badge {
+      display: inline-block;
+      background: #e3f2fd;
+      color: #1976d2;
+      padding: 0.3em 0.8em;
+      border-radius: 12px;
+      font-size: 0.85em;
+      margin: 0.5em 0;
     }
     .card a {
       display: inline-block;
       margin-top: 1em;
-      padding: 0.5em 1.2em;
+      padding: 0.6em 1.5em;
       background: #007acc;
       color: white;
       text-decoration: none;
-      border-radius: 4px;
+      border-radius: 5px;
+      font-weight: 500;
     }
     .card a:hover {
       background: #005fa3;
@@ -90,7 +117,14 @@
       color: #aaa;
       font-size: 0.9em;
       margin-top: 4em;
-      padding-bottom: 2em;
+      padding: 2em;
+      background: #f0f0f0;
+    }
+    .divider {
+      height: 2px;
+      background: linear-gradient(to right, transparent, #007acc, transparent);
+      margin: 3em auto;
+      max-width: 200px;
     }
   </style>
 </head>
@@ -101,32 +135,140 @@
     <div class="tagline">B Cell / Immunity / IgA</div>
   </header>
 
+  <!-- Data Visualization Section -->
   <div class="section">
-    <h2 style="text-align:center; color:#003366;">🔬 Interactive Visualization Portal</h2>
+    <h2 class="section-title">🔬 Data Visualizations</h2>
+    <p class="section-description">Interactive 3D plots and scientific workflow visualizations</p>
     <div class="cards">
       <div class="card">
-        <h2>📊 3D Bar Plot</h2>
-        <p>Color-coded by reference, shape-coded by microbe.</p>
-        <a href="3D_Barplot_Fixed_Symbols.html" target="_blank">View Plot</a>
+        <h3>📊 3D Bar Plot</h3>
+        <p>Color-coded by reference, shape-coded by microbe</p>
+        <a href="pages/visualizations/3d-barplot.html" target="_blank">View Plot</a>
       </div>
       <div class="card">
-        <h2>📦 3D Dot Plot</h2>
-        <p>Grouped by reference showing microbial relevance distribution.</p>
-        <a href="3D_Boxplot_Reference_Legend.html" target="_blank">View Plot</a>
-      </div>
-      <!-- PDF Files Section -->
-      <div class="card">
-        <h2>📄 Initial Research Report</h2>
-        <p>Click to view the PDF of the initial research results.</p>
-        <a href="analysis.pdf" target="_blank">View Report</a>
+        <h3>📦 3D Dot Plot</h3>
+        <p>Grouped by reference showing microbial relevance distribution</p>
+        <a href="pages/visualizations/3d-boxplot.html" target="_blank">View Plot</a>
       </div>
       <div class="card">
-        <h2>📄 Research Data Analysis</h2>
-        <p>Click to view the PDF of the research data analysis results.</p>
-        <a href="炎症性肠病相关致病菌的评估与抗体开发靶点分析.pdf" target="_blank">View Report</a>
+        <h3>🔬 Lamina Propria Workflow</h3>
+        <p>Mouse intestinal lamina propria cell separation protocol</p>
+        <a href="pages/visualizations/lamina-propria.html" target="_blank">View Workflow</a>
+      </div>
+      <div class="card">
+        <h3>🫁 IL10 Lung Homeostasis</h3>
+        <p>IL10 and lung homeostasis visualization</p>
+        <a href="pages/visualizations/il10-lung-homeostasis.html" target="_blank">View Analysis</a>
       </div>
     </div>
+  </div>
 
+  <div class="divider"></div>
+
+  <!-- Mouse Management Section -->
+  <div class="section">
+    <h2 class="section-title">🐭 Mouse Housing Management System</h2>
+    <p class="section-description">Laboratory mouse housing and genotype tracking system</p>
+    <div class="cards">
+      <div class="card">
+        <h3>Version 2025-09-30</h3>
+        <span class="badge">Latest</span>
+        <p>Quick reference with image documentation</p>
+        <a href="pages/mouse-management/2025-09-30.html" target="_blank">View</a>
+      </div>
+      <div class="card">
+        <h3>Version 2025-09-17</h3>
+        <p>Post-management updates with all recent changes</p>
+        <a href="pages/mouse-management/2025-09-17.html" target="_blank">View System</a>
+      </div>
+      <div class="card">
+        <h3>Version 2025-08-26</h3>
+        <p>Mid-summer update with research images</p>
+        <a href="pages/mouse-management/2025-08-26.html" target="_blank">View</a>
+      </div>
+      <div class="card">
+        <h3>Version 2025-08-04</h3>
+        <p>August update with presentation slides</p>
+        <a href="pages/mouse-management/2025-08-04.html" target="_blank">View</a>
+      </div>
+      <div class="card">
+        <h3>Version 2025-07-20</h3>
+        <p>Mid-July housing status</p>
+        <a href="pages/mouse-management/2025-07-20.html" target="_blank">View</a>
+      </div>
+      <div class="card">
+        <h3>Version 2025-07-19</h3>
+        <p>Early July update</p>
+        <a href="pages/mouse-management/2025-07-19.html" target="_blank">View</a>
+      </div>
+      <div class="card">
+        <h3>Version 2025-07-09</h3>
+        <p>July management system</p>
+        <a href="pages/mouse-management/2025-07-09.html" target="_blank">View</a>
+      </div>
+      <div class="card">
+        <h3>Version 2025-07-07</h3>
+        <p>Early July snapshot</p>
+        <a href="pages/mouse-management/2025-07-07.html" target="_blank">View</a>
+      </div>
+      <div class="card">
+        <h3>Version 2025-07-04</h3>
+        <p>Summer update (final)</p>
+        <a href="pages/mouse-management/2025-07-04.html" target="_blank">View</a>
+      </div>
+      <div class="card">
+        <h3>Version 2025-06-16</h3>
+        <p>Early summer baseline</p>
+        <a href="pages/mouse-management/2025-06-16.html" target="_blank">View</a>
+      </div>
+      <div class="card">
+        <h3>General Mouse Housing</h3>
+        <p>Standard housing management reference</p>
+        <a href="pages/mouse-management/mouse-housing.html" target="_blank">View</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Events Section -->
+  <div class="section">
+    <h2 class="section-title">🎪 Events & Exhibitions</h2>
+    <p class="section-description">Conference visits and exhibition records</p>
+    <div class="cards">
+      <div class="card">
+        <h3>WAIC 2025</h3>
+        <span class="badge">2025-07-29</span>
+        <p>World Artificial Intelligence Conference visit documentation</p>
+        <a href="pages/events/waic-2025-07-29.html" target="_blank">View Report</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Research Documents Section -->
+  <div class="section">
+    <h2 class="section-title">📚 Research Documents</h2>
+    <p class="section-description">PDF reports and research analysis</p>
+    <div class="cards">
+      <div class="card">
+        <h3>📄 Initial Analysis Report</h3>
+        <p>Initial research results and findings</p>
+        <a href="assets/pdfs/initial-analysis.pdf" target="_blank">Download PDF</a>
+      </div>
+      <div class="card">
+        <h3>📄 IBD Pathogen Assessment</h3>
+        <p>Assessment of IBD-related pathogens and antibody development targets</p>
+        <a href="assets/pdfs/ibd-pathogen-assessment.pdf" target="_blank">Download PDF</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Research Interests Section -->
+  <div class="section">
     <div class="interests">
       <h2>Research Interests</h2>
       <ul>
@@ -140,7 +282,10 @@
   </div>
 
   <footer>
-    Wang Lab @ Fudan University · Room 907 · Last updated 2024
+    <p>Wang Lab @ Fudan University · Room 907</p>
+    <p>IBD Research & B Cell Immunity</p>
+    <p style="margin-top: 1em; font-size: 0.85em;">Last updated: 2025-10-22 · Reorganized Structure</p>
   </footer>
+
 </body>
 </html>

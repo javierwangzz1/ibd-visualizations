@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratory Mouse Housing Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        /* Presentation Section Styles */
+        .presentation-section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .presentation-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .slides-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .slide-item {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid #dee2e6;
+        }
+        .slide-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .slide-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+        .slide-title {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+        .slide-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            cursor: pointer;
+        }
+        .slide-modal img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+        }
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .toggle-presentation {
+            display: block;
+            width: 200px;
+            margin: 0 auto 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        .toggle-presentation:hover {
+            background-color: #0056b3;
+        }
+        
+        .main-container {
+            display: flex;
+            gap: 20px;
+        }
+        .grids-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        .info-panel {
+            width: 500px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+        .area {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            text-align: center;
+        }
+        .area-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.4em;
+            color: #222;
+        }
+        /* Grid structure for area 1 */
+        #grid1-container {
+            margin: 0 auto;
+            display: inline-block;
+        }
+        .grid1-row {
+            display: flex;
+        }
+        .grid1-cell {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ccc;
+            background-color: #e9e9e9;
+            position: relative;
+        }
+        .grid1-header {
+            background-color: transparent;
+            border: none;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .grid1-row-label {
+            width: 30px;
+            background-color: transparent;
+            border: none;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        /* Grid structure for areas 2 and 3 */
+        .grid {
+            display: grid;
+            grid-template-columns: 30px repeat(8, 45px);
+            grid-gap: 3px;
+        }
+        .cell {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e9e9e9;
+            border: 1px solid #ccc;
+            font-size: 0.9em;
+            cursor: default;
+            position: relative;
+        }
+        .row-label {
+            width: 30px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .col-label {
+            background-color: transparent;
+            border: none;
+            font-weight: bold;
+        }
+        
+        /* Common styles for all areas */
+        .occupied {
+            cursor: pointer;
+            color: white;
+            position: relative;
+            border: 2px solid #333;
+            transition: all 0.2s ease;
+        }
+        .occupied:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .occupied.selected {
+            border: 3px solid #FFD700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        .occupied::before {
+            content: "●";
+            font-size: 20px;
+        }
+        .tooltip {
+            visibility: hidden;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            white-space: nowrap;
+            z-index: 100;
+            font-size: 0.85em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .occupied:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 40px;
+            padding: 15px 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+        .legend-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        /* Genotype colors */
+        .s100a8xc2c { background-color: #FF5733; }
+        .ly6gxc2c { background-color: #33A1FF; }
+        .lyz2xc2c { background-color: #33FF57; }
+        .c2c { background-color: #FF6B9D; }
+        .umt { background-color: #D433FF; }
+        .mzb1 { background-color: #FFD700; }
+        .wt { background-color: #96CEB4; }
+        
+        /* Info panel styles */
+        .info-panel h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .cage-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .cage-info h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        .cage-description {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            border-radius: 4px;
+        }
+        .mouse-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.8em;
+        }
+        .mouse-table th {
+            background-color: #007bff;
+            color: white;
+            padding: 4px;
+            text-align: left;
+            border: 1px solid #ddd;
+            font-size: 0.75em;
+        }
+        .mouse-table td {
+            padding: 3px 4px;
+            border: 1px solid #ddd;
+            background-color: white;
+            font-size: 0.75em;
+        }
+        .mouse-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .mouse-table tbody tr:hover {
+            background-color: #e9ecef;
+        }
+        .genotype-badge {
+            padding: 2px 4px;
+            border-radius: 3px;
+            color: white;
+            font-size: 0.65em;
+            font-weight: bold;
+        }
+        .no-selection {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            margin: 50px 0;
+        }
+        .mouse-count {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .cage-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        .status-normal { background-color: #d4edda; color: #155724; }
+        .status-breeding { background-color: #fff3cd; color: #856404; }
+        .status-experimental { background-color: #d1ecf1; color: #0c5460; }
+        .status-pending { background-color: #ffeaa7; color: #856404; }
+        .status-deceased { background-color: #f8d7da; color: #721c24; }
+        .treatment-info {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+        .death-info {
+            background-color: #f5c6cb;
+            color: #721c24;
+            padding: 6px;
+            border-radius: 4px;
+            margin: 4px 0;
+            font-size: 0.8em;
+        }
+        .birth-death-dates {
+            font-size: 0.7em;
+            color: #666;
+        }
+        .date-header {
+            text-align: center;
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <h1>Laboratory Mouse Housing Management System (C57/B6 Background)</h1>
+    
+    <div class="date-header">
+        System Updated: July 9, 2025 | All ages calculated as of today's date
+    </div>
+
+    <!-- Presentation Section -->
+    <div class="presentation-section">
+        <div class="presentation-title">IBD Research Presentation</div>
+        <button class="toggle-presentation" onclick="togglePresentation()">
+            <span id="toggle-text">Show Presentation Slides</span>
+        </button>
+        <div class="slides-container" id="slides-container" style="display: none;">
+            <div class="slide-item" onclick="openModal('slide1')">
+                <img src="../../assets/images/slides/version1/Slide1.png" alt="Slide 1" id="slide1-thumb">
+                <div class="slide-title">Slide 1</div>
+            </div>
+            <div class="slide-item" onclick="openModal('slide2')">
+                <img src="../../assets/images/slides/version1/Slide2.png" alt="Slide 2" id="slide2-thumb">
+                <div class="slide-title">Slide 2</div>
+            </div>
+            <div class="slide-item" onclick="openModal('slide3')">
+                <img src="../../assets/images/slides/version1/Slide3.png" alt="Slide 3" id="slide3-thumb">
+                <div class="slide-title">Slide 3</div>
+            </div>
+            <div class="slide-item" onclick="openModal('slide4')">
+                <img src="../../assets/images/slides/version1/Slide4.png" alt="Slide 4" id="slide4-thumb">
+                <div class="slide-title">Slide 4</div>
+            </div>
+            <div class="slide-item" onclick="openModal('slide5')">
+                <img src="../../assets/images/slides/version1/Slide5.png" alt="Slide 5" id="slide5-thumb">
+                <div class="slide-title">Slide 5</div>
+            </div>
+            <div class="slide-item" onclick="openModal('slide6')">
+                <img src="../../assets/images/slides/version1/Slide6.png" alt="Slide 6" id="slide6-thumb">
+                <div class="slide-title">Slide 6</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for full-size slide viewing -->
+    <div class="slide-modal" id="slideModal" onclick="closeModal()">
+        <span class="close-modal">&times;</span>
+        <img id="modalImg" src="" alt="Full size slide">
+    </div>
+    
+    <div class="main-container">
+        <div class="grids-container">
+            <div class="area">
+                <div class="area-title">Area 1: A-G × 9-1</div>
+                <div id="grid1-container"></div>
+            </div>
+            
+            <div class="area">
+                <div class="area-title">Area 2: A-H × 9-1</div>
+                <div class="grid" id="grid2"></div>
+            </div>
+            
+            <div class="area">
+                <div class="area-title">Area 3: A-H × 9-1</div>
+                <div class="grid" id="grid3"></div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h3>Cage Information</h3>
+            <div id="cage-details">
+                <div class="no-selection">
+                    Click on any occupied cage to view detailed mouse information
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-title">Mouse Genotype Legend</div>
+        <div class="legend-item">
+            <div class="legend-color s100a8xc2c"></div>
+            <span>S100a8 x c2c</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color ly6gxc2c"></div>
+            <span>Ly6g x c2c</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color lyz2xc2c"></div>
+            <span>Lyz2 x c2c</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color c2c"></div>
+            <span>c2c</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color umt"></div>
+            <span>umt</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color mzb1"></div>
+            <span>mzb1</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color wt"></div>
+            <span>WT (C57/B6)</span>
+        </div>
+    </div>
+
+    <script>
+        // Function to calculate age in weeks with 2 decimal precision
+        function calculateAge(birthDate) {
+            const today = new Date('2025-07-09');
+            const birth = new Date(birthDate);
+            const diffTime = today - birth;
+            const ageInWeeks = diffTime / (1000 * 60 * 60 * 24 * 7);
+            return ageInWeeks.toFixed(2);
+        }
+
+        // Presentation functionality
+        function togglePresentation() {
+            const container = document.getElementById('slides-container');
+            const toggleButton = document.getElementById('toggle-text');
+            
+            if (container.style.display === 'none') {
+                container.style.display = 'grid';
+                toggleButton.textContent = 'Hide Presentation Slides';
+            } else {
+                container.style.display = 'none';
+                toggleButton.textContent = 'Show Presentation Slides';
+            }
+        }
+
+        function openModal(slideId) {
+            const modal = document.getElementById('slideModal');
+            const modalImg = document.getElementById('modalImg');
+            const slideNumber = slideId.replace('slide', '');
+            
+            modalImg.src = `images2/Slide${slideNumber}.png`;
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('slideModal');
+            modal.style.display = 'none';
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Updated cage data with dynamic age calculations - July 9, 2025
+        const cageData = {
+            // Area 1 cages - UPDATED
+            "1-5A": {
+                genotype: "s100a8xc2c",
+                description: "鉴定后保留小鼠：成体雄鼠1号、幼体雄鼠3-5号、幼体雌鼠9,15号、从1-2C转入成体雌鼠6号。转入幼鼠：从1-2C转入4只新生，从2-7B转入4只新生",
+                status: "Post-Genotyping Mixed Population",
+                mice: [
+                    { id: "1-5A-01", genotype: "c2c+/+s100a8+/-DTR+/-", sex: "Male", birthDate: "2025-04-25", deathDate: "", treatment: "无", notes: "成体-已鉴定" },
+                    { id: "1-5A-03", genotype: "c2c+/-s100a8+/-DTR+/-", sex: "Male", birthDate: "2025-06-26", deathDate: "", treatment: "无", notes: "幼体-已鉴定" },
+                    { id: "1-5A-04", genotype: "c2c+/+s100a8+/-DTR+/-", sex: "Male", birthDate: "2025-06-25", deathDate: "", treatment: "无", notes: "幼体-已鉴定" },
+                    { id: "1-5A-05", genotype: "c2c+/+s100a8+/-DTR+/-", sex: "Male", birthDate: "2025-06-24", deathDate: "", treatment: "无", notes: "幼体-已鉴定" },
+                    { id: "1-5A-06", genotype: "c2c+/+DTR+/+", sex: "Female", birthDate: "2025-06-03", deathDate: "", treatment: "无", notes: "从1-2C转入的成体雌鼠-已鉴定" },
+                    { id: "1-5A-09", genotype: "c2c+/+s100a8+/-DTR+/-", sex: "Female", birthDate: "2025-06-23", deathDate: "", treatment: "无", notes: "幼体雌鼠-已鉴定" },
+                    { id: "1-5A-15", genotype: "c2c+/+s100a8+/-DTR+/-", sex: "Female", birthDate: "2025-06-20", deathDate: "", treatment: "无", notes: "幼体雌鼠-已鉴定" },
+                    { id: "1-5A-N1", genotype: "待鉴定", sex: "未知", birthDate: "2025-07-01", deathDate: "", treatment: "无", notes: "从1-2C转入新生" },
+                    { id: "1-5A-N2", genotype: "待鉴定", sex: "未知", birthDate: "2025-07-02", deathDate: "", treatment: "无", notes: "从1-2C转入新生" },
+                    { id: "1-5A-N3", genotype: "待鉴定", sex: "未知", birthDate: "2025-07-03", deathDate: "", treatment: "无", notes: "从1-2C转入新生" },
+                    { id: "1-5A-N4", genotype: "待鉴定", sex: "未知", birthDate: "2025-06-30", deathDate: "", treatment: "无", notes: "从1-2C转入新生" },
+                    { id: "1-5A-N5", genotype: "待鉴定", sex: "未知", birthDate: "2025-07-04", deathDate: "", treatment: "无", notes: "从2-7B转入新生" },
+                    { id: "1-5A-N6", genotype: "待鉴定", sex: "未知", birthDate: "2025-07-05", deathDate: "", treatment: "无", notes: "从2-7B转入新生" },
+                    { id: "1-5A-N7", genotype: "待鉴定", sex: "未知", birthDate: "2025-07-06", deathDate: "", treatment: "无", notes: "从2-7B转入新生" },
+                    { id: "1-5A-N8", genotype: "待鉴定", sex: "未知", birthDate: "2025-07-07", deathDate: "", treatment: "无", notes: "从2-7B转入新生" }
+                ],
+                additionalInfo: "目前共15只小鼠，其中雌鼠3只(6,9,15号)，包含转入的新生小鼠8只"
+            },
+            "1-8F": {
+                genotype: "ly6gxc2c",
+                description: "Ly6g x c2c、c2c x DTR 原笼种鼠",
+                status: "Breeding Colony",
+                mice: [
+                    { id: "1-8F-01", genotype: "c2c x DTR", sex: "Male", birthDate: "2024-03-18", deathDate: "", treatment: "无", notes: "种鼠" },
+                    { id: "1-8F-02", genotype: "c2c x DTR", sex: "Male", birthDate: "2024-03-10", deathDate: "", treatment: "无", notes: "种鼠" },
+                    { id: "1-8F-03", genotype: "c2c x DTR", sex: "Male", birthDate: "2024-03-16", deathDate: "", treatment: "无", notes: "种鼠" },
+                    { id: "1-8F-04", genotype: "Ly6g x c2c", sex: "Female", birthDate: "2024-03-22", deathDate: "", treatment: "无", notes: "种鼠" }
+                ]
+            },
+            "1-2F": {
+                genotype: "lyz2xc2c",
+                description: "Lyz2 x c2c 原笼种鼠，全雄性4只",
+                status: "Breeding Colony",
+                mice: [
+                    { id: "1-2F-01", genotype: "Lyz2 x c2c", sex: "Male", birthDate: "2024-03-11", deathDate: "", treatment: "无", notes: "种鼠" },
+                    { id: "1-2F-02", genotype: "Lyz2 x c2c", sex: "Male", birthDate: "2024-03-14", deathDate: "", treatment: "无", notes: "种鼠" },
+                    { id: "1-2F-03", genotype: "Lyz2 x c2c", sex: "Male", birthDate: "2024-03-12", deathDate: "", treatment: "无", notes: "种鼠" },
+                    { id: "1-2F-04", genotype: "Lyz2 x c2c", sex: "Male", birthDate: "2024-03-13", deathDate: "", treatment: "无", notes: "种鼠" }
+                ]
+            },
+            "1-6B": {
+                genotype: "c2c",
+                description: "c2c 保种繁殖群，CL处理组雄性小鼠，原6只现剩3只",
+                status: "CL Treatment Group - Survivors",
+                mice: [
+                    { id: "1-6B-01", genotype: "c2c", sex: "Male", birthDate: "2024-10-18", deathDate: "", treatment: "CL", notes: "CL处理组存活" },
+                    { id: "1-6B-02", genotype: "c2c", sex: "Male", birthDate: "2024-10-08", deathDate: "", treatment: "CL", notes: "CL处理组存活" },
+                    { id: "1-6B-03", genotype: "c2c", sex: "Male", birthDate: "2024-10-18", deathDate: "", treatment: "CL", notes: "CL处理组存活" }
+                ],
+                deaths: [
+                    { id: "1-6B-D1", birthDate: "2024-10-18", deathDate: "2025-04-22" },
+                    { id: "1-6B-D2", birthDate: "2024-10-18", deathDate: "2025-05-27" },
+                    { id: "1-6B-D3", birthDate: "2024-10-18", deathDate: "2025-07-01" }
+                ]
+            },
+            "1-3B": {
+                genotype: "ly6gxc2c",
+                description: "Ly6g x c2c、c2c x DTR 杂交后代，等待基因型鉴定",
+                status: "Pending Genotyping",
+                mice: [
+                    { id: "1-3B-01", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Male", birthDate: "2025-06-05", deathDate: "", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-3B-02", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Female", birthDate: "2025-06-06", deathDate: "", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-3B-03", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Male", birthDate: "2025-06-07", deathDate: "", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-3B-04", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Female", birthDate: "2025-06-04", deathDate: "", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-3B-05", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Male", birthDate: "2025-06-08", deathDate: "", treatment: "无", notes: "杂交F1代" }
+                ]
+            },
+            "1-8C": {
+                genotype: "c2c",
+                description: "c2c雄性小鼠，原7只，现剩余2只（非CL处理组）",
+                status: "Survivors (Not CL Group)",
+                mice: [
+                    { id: "1-8C-01", genotype: "c2c", sex: "Male", birthDate: "2024-11-13", deathDate: "", treatment: "无", notes: "存活个体" },
+                    { id: "1-8C-02", genotype: "c2c", sex: "Male", birthDate: "2024-11-07", deathDate: "", treatment: "无", notes: "存活个体" }
+                ],
+                deaths: [
+                    { id: "1-8C-D1", birthDate: "2024-11-07", deathDate: "2025-05-20" },
+                    { id: "1-8C-D2", birthDate: "2024-11-07", deathDate: "2025-05-25" },
+                    { id: "1-8C-D3", birthDate: "2024-11-07", deathDate: "2025-06-03" },
+                    { id: "1-8C-D4", birthDate: "2024-11-07", deathDate: "2025-06-16" },
+                    { id: "1-8C-D5", birthDate: "2024-11-17", deathDate: "2025-07-01" }
+                ]
+            },
+            "1-2C": {
+                genotype: "ly6gxc2c",
+                description: "原笼小鼠(除6号雌鼠外)全部丢弃，4只新生转至1-5A。当前为新补入小鼠1-7号，全部为Ly6g^c2c/c2c × DTR后代",
+                status: "New Population - Ly6g × DTR Offspring",
+                mice: [
+                    { id: "1-2C-01", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-15", deathDate: "", treatment: "无", notes: "新补入" },
+                    { id: "1-2C-02", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-16", deathDate: "", treatment: "无", notes: "新补入" },
+                    { id: "1-2C-03", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-17", deathDate: "", treatment: "无", notes: "新补入" },
+                    { id: "1-2C-04", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-14", deathDate: "", treatment: "无", notes: "新补入" },
+                    { id: "1-2C-05", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Female", birthDate: "2025-06-18", deathDate: "", treatment: "无", notes: "新补入-雌鼠" },
+                    { id: "1-2C-06", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Female", birthDate: "2025-06-19", deathDate: "", treatment: "无", notes: "新补入-雌鼠" },
+                    { id: "1-2C-07", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Female", birthDate: "2025-06-20", deathDate: "", treatment: "无", notes: "新补入-雌鼠" }
+                ]
+            },
+            "1-5D": {
+                genotype: "ly6gxc2c",
+                description: "Ly6g x c2c、c2c x DTR 杂交后代，等待基因型鉴定",
+                status: "Pending Genotyping",
+                mice: [
+                    { id: "1-5D-01", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Male", birthDate: "2024-03-26", deathDate: "", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-5D-02", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Female", birthDate: "2024-04-01", deathDate: "", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-5D-03", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Male", birthDate: "2024-03-27", deathDate: "", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-5D-04", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Female", birthDate: "2024-03-30", deathDate: "", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-5D-05", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Male", birthDate: "2024-03-25", deathDate: "", treatment: "无", notes: "杂交F1代" },
+                    { id: "1-5D-06", genotype: "待鉴定 (Ly6gxc2c/c2cxDTR后代)", sex: "Female", birthDate: "2024-04-02", deathDate: "", treatment: "无", notes: "杂交F1代" }
+                ]
+            },
+            "1-1D": {
+                genotype: "umt",
+                description: "umt 小鼠群",
+                status: "UMT Group",
+                mice: [
+                    { id: "1-1D-01", genotype: "umt", sex: "Male", birthDate: "2025-04-30", deathDate: "", treatment: "无", notes: "健康" },
+                    { id: "1-1D-02", genotype: "umt", sex: "Female", birthDate: "2025-05-01", deathDate: "", treatment: "无", notes: "健康" },
+                    { id: "1-1D-03", genotype: "umt", sex: "Male", birthDate: "2025-05-02", deathDate: "", treatment: "无", notes: "健康" },
+                    { id: "1-1D-04", genotype: "umt", sex: "Female", birthDate: "2025-05-03", deathDate: "", treatment: "无", notes: "健康" }
+                ]
+            },
+            "1-2G": {
+                genotype: "c2c",
+                description: "c2c雄性小鼠，PBS对照组，6只",
+                status: "PBS Control Group",
+                mice: [
+                    { id: "1-2G-01", genotype: "c2c", sex: "Male", birthDate: "2024-10-25", deathDate: "", treatment: "PBS", notes: "对照组" },
+                    { id: "1-2G-02", genotype: "c2c", sex: "Male", birthDate: "2024-10-25", deathDate: "", treatment: "PBS", notes: "对照组" },
+                    { id: "1-2G-03", genotype: "c2c", sex: "Male", birthDate: "2024-10-25", deathDate: "", treatment: "PBS", notes: "对照组" },
+                    { id: "1-2G-04", genotype: "c2c", sex: "Male", birthDate: "2024-10-25", deathDate: "", treatment: "PBS", notes: "对照组" },
+                    { id: "1-2G-05", genotype: "c2c", sex: "Male", birthDate: "2024-10-25", deathDate: "", treatment: "PBS", notes: "对照组" },
+                    { id: "1-2G-06", genotype: "c2c", sex: "Male", birthDate: "2024-10-25", deathDate: "", treatment: "PBS", notes: "对照组" }
+                ]
+            },
+            "1-3G": {
+                genotype: "c2c",
+                description: "c2c雌性小鼠，PBS处理组+保种，现剩4只",
+                status: "PBS Treated + Breeding (Survivors)",
+                mice: [
+                    { id: "1-3G-01", genotype: "c2c", sex: "Female", birthDate: "2024-10-25", deathDate: "", treatment: "PBS", notes: "PBS处理组存活" },
+                    { id: "1-3G-02", genotype: "c2c", sex: "Female", birthDate: "2024-10-25", deathDate: "", treatment: "PBS", notes: "PBS处理组存活" },
+                    { id: "1-3G-03", genotype: "c2c", sex: "Female", birthDate: "2024-10-25", deathDate: "", treatment: "无", notes: "补充-保种" },
+                    { id: "1-3G-04", genotype: "c2c", sex: "Female", birthDate: "2024-10-25", deathDate: "", treatment: "无", notes: "补充-保种" }
+                ],
+                deaths: [
+                    { id: "1-3G-D1", birthDate: "2024-10-08", deathDate: "2025-04-22" },
+                    { id: "1-3G-D2", birthDate: "2024-10-18", deathDate: "2025-06-10" },
+                    { id: "1-3G-D3", birthDate: "2024-10-18", deathDate: "2025-06-24" }
+                ]
+            },
+            "1-3A": {
+                genotype: "c2c",
+                description: "编号1-7号，其中6,7号为雌鼠，全部为可能C2C基因型，需进一步鉴定确认",
+                status: "Expanded Population - All Pending C2C",
+                mice: [
+                    { id: "1-3A-01", genotype: "待鉴定 (可能C2C)", sex: "Male", birthDate: "2024-04-08", deathDate: "", treatment: "无", notes: "待鉴定" },
+                    { id: "1-3A-02", genotype: "待鉴定 (可能C2C)", sex: "Male", birthDate: "2024-04-07", deathDate: "", treatment: "无", notes: "待鉴定" },
+                    { id: "1-3A-03", genotype: "待鉴定 (可能C2C)", sex: "Male", birthDate: "2024-04-11", deathDate: "", treatment: "无", notes: "待鉴定" },
+                    { id: "1-3A-04", genotype: "待鉴定 (可能C2C)", sex: "Male", birthDate: "2024-04-09", deathDate: "", treatment: "无", notes: "待鉴定" },
+                    { id: "1-3A-05", genotype: "待鉴定 (可能C2C)", sex: "Male", birthDate: "2024-04-10", deathDate: "", treatment: "无", notes: "待鉴定" },
+                    { id: "1-3A-06", genotype: "待鉴定 (可能C2C)", sex: "Female", birthDate: "2024-04-12", deathDate: "", treatment: "无", notes: "雌鼠-待鉴定" },
+                    { id: "1-3A-07", genotype: "待鉴定 (可能C2C)", sex: "Female", birthDate: "2024-04-13", deathDate: "", treatment: "无", notes: "雌鼠-待鉴定" }
+                ]
+            },
+            
+            // Area 2 cages - UPDATED
+            "2-1A": {
+                genotype: "ly6gxc2c",
+                description: "编号1-6号，为Ly6g^c2c/c2c × DTR后代，需鉴定，仅6号为雌鼠",
+                status: "Extended Ly6g × DTR Group",
+                mice: [
+                    { id: "2-1A-01", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-06", deathDate: "", treatment: "无", notes: "杂交F1代" },
+                    { id: "2-1A-02", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-03", deathDate: "", treatment: "无", notes: "杂交F1代" },
+                    { id: "2-1A-03", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-08", deathDate: "", treatment: "无", notes: "杂交F1代" },
+                    { id: "2-1A-04", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-05", deathDate: "", treatment: "无", notes: "杂交F1代" },
+                    { id: "2-1A-05", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-04", deathDate: "", treatment: "无", notes: "杂交F1代" },
+                    { id: "2-1A-06", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Female", birthDate: "2025-06-07", deathDate: "", treatment: "无", notes: "杂交F1代-雌鼠" }
+                ]
+            },
+            "2-9B": {
+                genotype: "lyz2xc2c",
+                description: "原有2只待鉴定成体雄鼠(含Lyz2)，从1-3A转入4只小鼠(3-6号)，其中仅6号为雌鼠，3-6号可能为C2C后代",
+                status: "Mixed Population with 1-3A Transfers",
+                mice: [
+                    { id: "2-9B-01", genotype: "待鉴定 (含Lyz2)", sex: "Male", birthDate: "2025-06-05", deathDate: "", treatment: "无", notes: "原有成体雄鼠" },
+                    { id: "2-9B-02", genotype: "待鉴定 (含Lyz2)", sex: "Male", birthDate: "2025-06-06", deathDate: "", treatment: "无", notes: "原有成体雄鼠" },
+                    { id: "2-9B-03", genotype: "待鉴定 (可能C2C)", sex: "Male", birthDate: "2024-04-07", deathDate: "", treatment: "无", notes: "从1-3A转入" },
+                    { id: "2-9B-04", genotype: "待鉴定 (可能C2C)", sex: "Male", birthDate: "2024-04-11", deathDate: "", treatment: "无", notes: "从1-3A转入" },
+                    { id: "2-9B-05", genotype: "待鉴定 (可能C2C)", sex: "Male", birthDate: "2024-04-09", deathDate: "", treatment: "无", notes: "从1-3A转入" },
+                    { id: "2-9B-06", genotype: "待鉴定 (可能C2C)", sex: "Female", birthDate: "2024-04-12", deathDate: "", treatment: "无", notes: "从1-3A转入-唯一雌鼠" }
+                ]
+            },
+            "2-7B": {
+                genotype: "ly6gxc2c",
+                description: "编号1-12号，全部为Ly6g^c2c/c2c × DTR后代，需鉴定，仅12号为雌鼠。部分新生小鼠已转至1-5A",
+                status: "Ly6g × DTR Offspring - Post Transfer",
+                mice: [
+                    { id: "2-7B-01", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2024-03-09", deathDate: "", treatment: "无", notes: "需鉴定" },
+                    { id: "2-7B-02", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2024-03-15", deathDate: "", treatment: "无", notes: "需鉴定" },
+                    { id: "2-7B-03", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-27", deathDate: "", treatment: "无", notes: "需鉴定" },
+                    { id: "2-7B-04", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-26", deathDate: "", treatment: "无", notes: "需鉴定" },
+                    { id: "2-7B-05", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-25", deathDate: "", treatment: "无", notes: "需鉴定" },
+                    { id: "2-7B-06", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-20", deathDate: "", treatment: "无", notes: "需鉴定" },
+                    { id: "2-7B-07", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-21", deathDate: "", treatment: "无", notes: "需鉴定" },
+                    { id: "2-7B-08", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-22", deathDate: "", treatment: "无", notes: "需鉴定" },
+                    { id: "2-7B-09", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-23", deathDate: "", treatment: "无", notes: "需鉴定" },
+                    { id: "2-7B-10", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-24", deathDate: "", treatment: "无", notes: "需鉴定" },
+                    { id: "2-7B-11", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-28", deathDate: "", treatment: "无", notes: "需鉴定" },
+                    { id: "2-7B-12", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Female", birthDate: "2025-06-29", deathDate: "", treatment: "无", notes: "需鉴定-唯一雌鼠" }
+                ]
+            },
+            "2-9C": {
+                genotype: "ly6gxc2c",
+                description: "成体1-4号(仅4号为雌鼠)，幼体5-6号(6号为雌鼠)，共6只Ly6g^c2c/c2c × DTR后代",
+                status: "Mixed Age Ly6g × DTR Group",
+                mice: [
+                    { id: "2-9C-01", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-04", deathDate: "", treatment: "无", notes: "成体雄鼠" },
+                    { id: "2-9C-02", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-05", deathDate: "", treatment: "无", notes: "成体雄鼠" },
+                    { id: "2-9C-03", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-07", deathDate: "", treatment: "无", notes: "成体雄鼠" },
+                    { id: "2-9C-04", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Female", birthDate: "2025-06-06", deathDate: "", treatment: "无", notes: "成体雌鼠" },
+                    { id: "2-9C-05", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Male", birthDate: "2025-06-25", deathDate: "", treatment: "无", notes: "幼体雄鼠" },
+                    { id: "2-9C-06", genotype: "待鉴定 (Ly6g^c2c/c2c × DTR后代)", sex: "Female", birthDate: "2025-06-24", deathDate: "", treatment: "无", notes: "幼体雌鼠" }
+                ]
+            },
+            "2-4E": {
+                genotype: "lyz2xc2c",
+                description: "1-2F 后代，等待基因型鉴定",
+                status: "Pending Genotyping",
+                mice: [
+                    { id: "2-4E-01", genotype: "待鉴定 (1-2F后代)", sex: "Female", birthDate: "2025-06-07", deathDate: "", treatment: "无", notes: "F1代" },
+                    { id: "2-4E-02", genotype: "待鉴定 (1-2F后代)", sex: "Male", birthDate: "2025-06-05", deathDate: "", treatment: "无", notes: "F1代" },
+                    { id: "2-4E-03", genotype: "待鉴定 (1-2F后代)", sex: "Female", birthDate: "2025-06-01", deathDate: "", treatment: "无", notes: "F1代" },
+                    { id: "2-4E-04", genotype: "待鉴定 (1-2F后代)", sex: "Male", birthDate: "2025-06-04", deathDate: "", treatment: "无", notes: "F1代" }
+                ]
+            },
+            "2-8E": {
+                genotype: "lyz2xc2c",
+                description: "1-2F 后代，等待基因型鉴定",
+                status: "Pending Genotyping",
+                mice: [
+                    { id: "2-8E-01", genotype: "待鉴定 (1-2F后代)", sex: "Male", birthDate: "2025-06-03", deathDate: "", treatment: "无", notes: "F1代" },
+                    { id: "2-8E-02", genotype: "待鉴定 (1-2F后代)", sex: "Female", birthDate: "2025-06-08", deathDate: "", treatment: "无", notes: "F1代" },
+                    { id: "2-8E-03", genotype: "待鉴定 (1-2F后代)", sex: "Male", birthDate: "2025-06-04", deathDate: "", treatment: "无", notes: "F1代" }
+                ]
+            },
+            
+            // Area 3 cages - UPDATED
+            "3-8D": {
+                genotype: "mzb1",
+                description: "mzb1 实验小鼠",
+                status: "MZB1 Experimental",
+                mice: [
+                    { id: "3-8D-01", genotype: "mzb1", sex: "Male", birthDate: "2024-04-02", deathDate: "", treatment: "无", notes: "实验组" },
+                    { id: "3-8D-02", genotype: "mzb1", sex: "Female", birthDate: "2024-04-05", deathDate: "", treatment: "无", notes: "实验组" },
+                    { id: "3-8D-03", genotype: "mzb1", sex: "Male", birthDate: "2024-04-01", deathDate: "", treatment: "无", notes: "实验组" },
+                    { id: "3-8D-04", genotype: "mzb1", sex: "Female", birthDate: "2024-04-07", deathDate: "", treatment: "无", notes: "实验组" },
+                    { id: "3-8D-05", genotype: "mzb1", sex: "Male", birthDate: "2024-04-03", deathDate: "", treatment: "无", notes: "实验组" }
+                ]
+            },
+            "3-6C": {
+                genotype: "wt",
+                description: "C57/B6 野生型小鼠，2雄4雌（其中1雌5周龄）",
+                status: "Wild Type Control",
+                mice: [
+                    { id: "3-6C-01", genotype: "WT (C57/B6)", sex: "Male", birthDate: "2024-04-09", deathDate: "", treatment: "无", notes: "野生型对照" },
+                    { id: "3-6C-02", genotype: "WT (C57/B6)", sex: "Male", birthDate: "2024-04-08", deathDate: "", treatment: "无", notes: "野生型对照" },
+                    { id: "3-6C-03", genotype: "WT (C57/B6)", sex: "Female", birthDate: "2024-04-11", deathDate: "", treatment: "无", notes: "野生型对照" },
+                    { id: "3-6C-04", genotype: "WT (C57/B6)", sex: "Female", birthDate: "2024-04-07", deathDate: "", treatment: "无", notes: "野生型对照" },
+                    { id: "3-6C-05", genotype: "WT (C57/B6)", sex: "Female", birthDate: "2024-04-10", deathDate: "", treatment: "无", notes: "野生型对照" },
+                    { id: "3-6C-06", genotype: "WT (C57/B6)", sex: "Female", birthDate: "2025-05-28", deathDate: "", treatment: "无", notes: "野生型对照-幼体" }
+                ]
+            }
+        };
+
+        // Add calculated ages to all mice
+        Object.keys(cageData).forEach(cageId => {
+            cageData[cageId].mice.forEach(mouse => {
+                mouse.age = calculateAge(mouse.birthDate) + "周";
+            });
+        });
+
+        let selectedCage = null;
+
+        // Create Area 1 grid manually with a new approach
+        function createGrid1() {
+            const container = document.getElementById('grid1-container');
+            const columns = ['', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
+            const rows = ['9', '8', '7', '6', '5', '4', '3', '2', '1'];
+            
+            // Create header row
+            const headerRow = document.createElement('div');
+            headerRow.className = 'grid1-row';
+            
+            columns.forEach(col => {
+                const cell = document.createElement('div');
+                cell.className = 'grid1-cell grid1-header';
+                cell.textContent = col;
+                headerRow.appendChild(cell);
+            });
+            
+            container.appendChild(headerRow);
+            
+            // Create data rows
+            rows.forEach(row => {
+                const dataRow = document.createElement('div');
+                dataRow.className = 'grid1-row';
+                
+                // Row label first
+                const rowLabel = document.createElement('div');
+                rowLabel.className = 'grid1-cell grid1-row-label';
+                rowLabel.textContent = row;
+                dataRow.appendChild(rowLabel);
+                
+                // Then cells for each column
+                for (let col = 1; col < columns.length; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid1-cell';
+                    
+                    // Check if this cell has a mouse
+                    const cellId = `1-${row}${columns[col]}`;
+                    
+                    if (cellId in cageData) {
+                        cell.className = `grid1-cell occupied ${cageData[cellId].genotype}`;
+                        cell.setAttribute('data-cage-id', cellId);
+                        cell.addEventListener('click', () => selectCage(cellId));
+                        
+                        // Add tooltip
+                        const tooltip = document.createElement('div');
+                        tooltip.className = 'tooltip';
+                        const mouseCount = cageData[cellId].mice.length;
+                        tooltip.textContent = `${cellId}: ${mouseCount}只 (${cageData[cellId].status})`;
+                        cell.appendChild(tooltip);
+                    }
+                    
+                    dataRow.appendChild(cell);
+                }
+                
+                container.appendChild(dataRow);
+            });
+        }
+
+        // Create the grids for areas 2 and 3
+        function createGridStandard(gridId, cols, rows) {
+            const grid = document.getElementById(gridId);
+            
+            // Create column labels (A, B, C, etc.)
+            grid.appendChild(document.createElement("div")); // Empty cell for top-left corner
+            for (let col = 0; col < cols.length; col++) {
+                const colLabel = document.createElement("div");
+                colLabel.className = "cell col-label";
+                colLabel.textContent = cols[col];
+                grid.appendChild(colLabel);
+            }
+            
+            // Create rows with labels and cells
+            for (let row = 0; row < rows.length; row++) {
+                // Row label
+                const rowLabel = document.createElement("div");
+                rowLabel.className = "row-label";
+                rowLabel.textContent = rows[row];
+                grid.appendChild(rowLabel);
+                
+                // Cells in the row
+                for (let col = 0; col < cols.length; col++) {
+                    const cell = document.createElement("div");
+                    cell.className = "cell";
+                    
+                    // Check if this cell has a mouse
+                    const areaNumber = gridId.replace("grid", "");
+                    const cellId = `${areaNumber}-${rows[row]}${cols[col]}`;
+                    
+                    if (cellId in cageData) {
+                        cell.className = `cell occupied ${cageData[cellId].genotype}`;
+                        cell.setAttribute('data-cage-id', cellId);
+                        cell.addEventListener('click', () => selectCage(cellId));
+                        
+                        // Add tooltip
+                        const tooltip = document.createElement("div");
+                        tooltip.className = "tooltip";
+                        const mouseCount = cageData[cellId].mice.length;
+                        tooltip.textContent = `${cellId}: ${mouseCount}只 (${cageData[cellId].status})`;
+                        cell.appendChild(tooltip);
+                    }
+                    
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function selectCage(cageId) {
+            // Remove previous selection
+            if (selectedCage) {
+                const prevSelected = document.querySelector(`[data-cage-id="${selectedCage}"]`);
+                if (prevSelected) {
+                    prevSelected.classList.remove('selected');
+                }
+            }
+            
+            // Add new selection
+            selectedCage = cageId;
+            const newSelected = document.querySelector(`[data-cage-id="${cageId}"]`);
+            if (newSelected) {
+                newSelected.classList.add('selected');
+            }
+            
+            // Update info panel
+            displayCageInfo(cageId);
+        }
+
+        function displayCageInfo(cageId) {
+            const cage = cageData[cageId];
+            const detailsContainer = document.getElementById('cage-details');
+            
+            if (!cage) {
+                detailsContainer.innerHTML = '<div class="no-selection">No data available for this cage</div>';
+                return;
+            }
+            
+            const mouseCount = cage.mice.length;
+            let statusClass = 'status-normal';
+            
+            if (cage.status.includes('Breeding')) {
+                statusClass = 'status-breeding';
+            } else if (cage.status.includes('Experimental') || cage.status.includes('Treatment') || cage.status.includes('CL')) {
+                statusClass = 'status-experimental';
+            } else if (cage.status.includes('Pending') || cage.status.includes('Genotyping')) {
+                statusClass = 'status-pending';
+            }
+            
+            let deathsInfo = '';
+            if (cage.deaths && cage.deaths.length > 0) {
+                deathsInfo = `
+                    <div class="death-info">
+                        <strong>死亡记录 (${cage.deaths.length}只):</strong><br>
+                        ${cage.deaths.map(death => 
+                            `出生: ${death.birthDate}, 死亡: ${death.deathDate}`
+                        ).join('<br>')}
+                    </div>
+                `;
+            }
+            
+            const html = `
+                <div class="cage-info">
+                    <h4>笼位编号: ${cageId}</h4>
+                    <p><strong>小鼠数量:</strong> <span class="mouse-count">${mouseCount}只</span></p>
+                    <p><strong>状态:</strong> <span class="cage-status ${statusClass}">${cage.status}</span></p>
+                    ${cage.additionalInfo ? `<p><strong>补充信息:</strong> ${cage.additionalInfo}</p>` : ''}
+                </div>
+                
+                <div class="cage-description">
+                    <strong>笼位描述:</strong><br>
+                    ${cage.description}
+                </div>
+                
+                ${deathsInfo}
+                
+                ${cage.mice.some(mouse => mouse.treatment !== '无') ? 
+                    `<div class="treatment-info">
+                        <strong>⚠️ 处理信息:</strong> 该笼位包含已处理小鼠
+                    </div>` : ''
+                }
+                
+                <table class="mouse-table">
+                    <thead>
+                        <tr>
+                            <th>小鼠编号</th>
+                            <th>基因型</th>
+                            <th>性别</th>
+                            <th>年龄</th>
+                            <th>出生日期</th>
+                            <th>处理</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${cage.mice.map(mouse => `
+                            <tr>
+                                <td><strong>${mouse.id}</strong></td>
+                                <td><span class="genotype-badge ${cage.genotype}">${mouse.genotype}</span></td>
+                                <td>${mouse.sex === 'Male' ? '雄' : mouse.sex === 'Female' ? '雌' : '未知'}</td>
+                                <td>${mouse.age}</td>
+                                <td class="birth-death-dates">${mouse.birthDate}</td>
+                                <td>${mouse.treatment}</td>
+                                <td>${mouse.notes}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            detailsContainer.innerHTML = html;
+        }
+
+        // Define the grids for areas 2 and 3
+        const colsArea2 = ["A", "B", "C", "D", "E", "F", "G", "H"];
+        const colsArea3 = ["A", "B", "C", "D", "E", "F", "G", "H"];
+        const rows = ["9", "8", "7", "6", "5", "4", "3", "2", "1"];
+
+        // Create all three grids
+        createGrid1();
+        createGridStandard("grid2", colsArea2, rows);
+        createGridStandard("grid3", colsArea3, rows);
+    </script>
+</body>
+</html>
