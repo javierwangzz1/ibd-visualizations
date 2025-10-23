@@ -1,0 +1,9 @@
+# 排除临时文件和备份
+audio/
+transcripts_backup_*/
+thumbnails/
+
+# macOS
+.DS_Store
+._*
+*.mp4
