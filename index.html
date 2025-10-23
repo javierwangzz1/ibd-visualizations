@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动物房视频记录 - 9.25</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .stats {
+            text-align: center;
+            color: white;
+            font-size: 1.1em;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .video-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .video-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .video-title {
+            font-size: 1.8em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .video-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .meta-label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .frames-section {
+            margin-top: 30px;
+        }
+
+        .frames-title {
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .frames-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .frame-item {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .frame-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .frame-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Lightbox样式 */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            box-shadow: 0 0 50px rgba(255,255,255,0.2);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .lightbox-close:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 50px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.1);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .lightbox-nav:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .lightbox-prev {
+            left: 40px;
+        }
+
+        .lightbox-next {
+            right: 40px;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            padding: 20px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 动物房视频记录</h1>
+        <div class="stats">
+            <p><strong>📅 日期:</strong> 2025年9月25日</p>
+            <p><strong>📊 统计:</strong> 4个视频 | 总大小 1475.44MB | 总时长 25分14秒</p>
+        </div>
+
+        <div class="video-section" id="video1">
+            <div class="video-header">
+                <div class="video-title">视频 1</div>
+                <div style="color: #999; font-size: 0.8em;">2025年09月25日 15:23:43</div>
+            </div>
+
+            <div class="video-meta">
+                <div class="meta-item">
+                    <span class="meta-label">文件名:</span> VID_20250925152343914.mp4
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">大小:</span> 584.69MB
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">时长:</span> 10:00
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">分辨率:</span> 2304x1728
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">码率:</span> 8174.22kbps
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">帧率:</span> 30fps
+                </div>
+            </div>
+
+            <div class="video-container">
+                <div class="video-overlay" id="overlay1">00:00:00</div>
+                <video id="player1" controls>
+                    <source src="VID_20250925152343914.mp4" type="video/mp4">
+                    <track label="中文" kind="subtitles" srclang="zh" src="VID_20250925152343914.vtt" default>
+                </video>
+            </div>
+
+            <div class="frames-section">
+                <div class="frames-title">🖼️ 关键帧 (45张)</div>
+                <div class="frames-grid">
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_000.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_000.jpg" alt="frame_000.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_001.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_001.jpg" alt="frame_001.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_002.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_002.jpg" alt="frame_002.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_003.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_003.jpg" alt="frame_003.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_004.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_004.jpg" alt="frame_004.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_005.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_005.jpg" alt="frame_005.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_006.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_006.jpg" alt="frame_006.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_007.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_007.jpg" alt="frame_007.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_008.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_008.jpg" alt="frame_008.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_009.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_009.jpg" alt="frame_009.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_010.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_010.jpg" alt="frame_010.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_011.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_011.jpg" alt="frame_011.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_012.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_012.jpg" alt="frame_012.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_013.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_013.jpg" alt="frame_013.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_014.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_014.jpg" alt="frame_014.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_015.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_015.jpg" alt="frame_015.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_016.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_016.jpg" alt="frame_016.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_017.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_017.jpg" alt="frame_017.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_018.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_018.jpg" alt="frame_018.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_019.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_019.jpg" alt="frame_019.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_020.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_020.jpg" alt="frame_020.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_021.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_021.jpg" alt="frame_021.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_022.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_022.jpg" alt="frame_022.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_023.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_023.jpg" alt="frame_023.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_024.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_024.jpg" alt="frame_024.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_025.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_025.jpg" alt="frame_025.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_026.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_026.jpg" alt="frame_026.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_027.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_027.jpg" alt="frame_027.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_028.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_028.jpg" alt="frame_028.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_029.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_029.jpg" alt="frame_029.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_030.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_030.jpg" alt="frame_030.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_031.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_031.jpg" alt="frame_031.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_032.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_032.jpg" alt="frame_032.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_033.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_033.jpg" alt="frame_033.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_034.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_034.jpg" alt="frame_034.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_035.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_035.jpg" alt="frame_035.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_036.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_036.jpg" alt="frame_036.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_037.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_037.jpg" alt="frame_037.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_038.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_038.jpg" alt="frame_038.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_039.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_039.jpg" alt="frame_039.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_040.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_040.jpg" alt="frame_040.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_041.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_041.jpg" alt="frame_041.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_042.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_042.jpg" alt="frame_042.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_043.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_043.jpg" alt="frame_043.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925152343914/frame_044.jpg', 'VID_20250925152343914')">
+                        <img src="frames/VID_20250925152343914/frame_044.jpg" alt="frame_044.jpg" loading="lazy">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="video-section" id="video2">
+            <div class="video-header">
+                <div class="video-title">视频 2</div>
+                <div style="color: #999; font-size: 0.8em;">2025年09月25日 15:33:53</div>
+            </div>
+
+            <div class="video-meta">
+                <div class="meta-item">
+                    <span class="meta-label">文件名:</span> VID_20250925153353426.mp4
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">大小:</span> 234.34MB
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">时长:</span> 04:00
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">分辨率:</span> 2304x1728
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">码率:</span> 8162.44kbps
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">帧率:</span> 30fps
+                </div>
+            </div>
+
+            <div class="video-container">
+                <div class="video-overlay" id="overlay2">00:00:00</div>
+                <video id="player2" controls>
+                    <source src="VID_20250925153353426.mp4" type="video/mp4">
+                    <track label="中文" kind="subtitles" srclang="zh" src="VID_20250925153353426.vtt" default>
+                </video>
+            </div>
+
+            <div class="frames-section">
+                <div class="frames-title">🖼️ 关键帧 (45张)</div>
+                <div class="frames-grid">
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_000.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_000.jpg" alt="frame_000.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_001.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_001.jpg" alt="frame_001.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_002.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_002.jpg" alt="frame_002.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_003.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_003.jpg" alt="frame_003.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_004.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_004.jpg" alt="frame_004.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_005.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_005.jpg" alt="frame_005.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_006.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_006.jpg" alt="frame_006.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_007.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_007.jpg" alt="frame_007.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_008.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_008.jpg" alt="frame_008.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_009.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_009.jpg" alt="frame_009.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_010.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_010.jpg" alt="frame_010.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_011.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_011.jpg" alt="frame_011.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_012.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_012.jpg" alt="frame_012.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_013.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_013.jpg" alt="frame_013.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_014.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_014.jpg" alt="frame_014.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_015.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_015.jpg" alt="frame_015.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_016.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_016.jpg" alt="frame_016.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_017.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_017.jpg" alt="frame_017.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_018.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_018.jpg" alt="frame_018.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_019.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_019.jpg" alt="frame_019.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_020.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_020.jpg" alt="frame_020.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_021.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_021.jpg" alt="frame_021.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_022.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_022.jpg" alt="frame_022.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_023.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_023.jpg" alt="frame_023.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_024.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_024.jpg" alt="frame_024.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_025.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_025.jpg" alt="frame_025.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_026.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_026.jpg" alt="frame_026.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_027.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_027.jpg" alt="frame_027.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_028.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_028.jpg" alt="frame_028.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_029.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_029.jpg" alt="frame_029.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_030.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_030.jpg" alt="frame_030.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_031.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_031.jpg" alt="frame_031.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_032.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_032.jpg" alt="frame_032.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_033.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_033.jpg" alt="frame_033.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_034.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_034.jpg" alt="frame_034.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_035.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_035.jpg" alt="frame_035.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_036.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_036.jpg" alt="frame_036.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_037.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_037.jpg" alt="frame_037.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_038.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_038.jpg" alt="frame_038.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_039.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_039.jpg" alt="frame_039.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_040.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_040.jpg" alt="frame_040.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_041.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_041.jpg" alt="frame_041.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_042.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_042.jpg" alt="frame_042.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_043.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_043.jpg" alt="frame_043.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925153353426/frame_044.jpg', 'VID_20250925153353426')">
+                        <img src="frames/VID_20250925153353426/frame_044.jpg" alt="frame_044.jpg" loading="lazy">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="video-section" id="video3">
+            <div class="video-header">
+                <div class="video-title">视频 3</div>
+                <div style="color: #999; font-size: 0.8em;">2025年09月25日 15:40:33</div>
+            </div>
+
+            <div class="video-meta">
+                <div class="meta-item">
+                    <span class="meta-label">文件名:</span> VID_20250925154033.mp4
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">大小:</span> 584.36MB
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">时长:</span> 09:59
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">分辨率:</span> 2304x1728
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">码率:</span> 8170.25kbps
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">帧率:</span> 120fps
+                </div>
+            </div>
+
+            <div class="video-container">
+                <div class="video-overlay" id="overlay3">00:00:00</div>
+                <video id="player3" controls>
+                    <source src="VID_20250925154033.mp4" type="video/mp4">
+                    <track label="中文" kind="subtitles" srclang="zh" src="VID_20250925154033.vtt" default>
+                </video>
+            </div>
+
+            <div class="frames-section">
+                <div class="frames-title">🖼️ 关键帧 (45张)</div>
+                <div class="frames-grid">
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_000.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_000.jpg" alt="frame_000.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_001.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_001.jpg" alt="frame_001.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_002.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_002.jpg" alt="frame_002.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_003.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_003.jpg" alt="frame_003.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_004.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_004.jpg" alt="frame_004.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_005.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_005.jpg" alt="frame_005.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_006.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_006.jpg" alt="frame_006.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_007.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_007.jpg" alt="frame_007.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_008.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_008.jpg" alt="frame_008.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_009.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_009.jpg" alt="frame_009.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_010.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_010.jpg" alt="frame_010.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_011.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_011.jpg" alt="frame_011.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_012.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_012.jpg" alt="frame_012.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_013.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_013.jpg" alt="frame_013.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_014.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_014.jpg" alt="frame_014.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_015.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_015.jpg" alt="frame_015.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_016.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_016.jpg" alt="frame_016.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_017.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_017.jpg" alt="frame_017.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_018.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_018.jpg" alt="frame_018.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_019.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_019.jpg" alt="frame_019.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_020.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_020.jpg" alt="frame_020.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_021.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_021.jpg" alt="frame_021.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_022.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_022.jpg" alt="frame_022.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_023.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_023.jpg" alt="frame_023.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_024.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_024.jpg" alt="frame_024.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_025.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_025.jpg" alt="frame_025.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_026.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_026.jpg" alt="frame_026.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_027.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_027.jpg" alt="frame_027.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_028.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_028.jpg" alt="frame_028.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_029.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_029.jpg" alt="frame_029.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_030.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_030.jpg" alt="frame_030.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_031.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_031.jpg" alt="frame_031.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_032.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_032.jpg" alt="frame_032.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_033.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_033.jpg" alt="frame_033.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_034.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_034.jpg" alt="frame_034.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_035.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_035.jpg" alt="frame_035.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_036.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_036.jpg" alt="frame_036.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_037.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_037.jpg" alt="frame_037.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_038.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_038.jpg" alt="frame_038.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_039.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_039.jpg" alt="frame_039.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_040.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_040.jpg" alt="frame_040.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_041.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_041.jpg" alt="frame_041.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_042.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_042.jpg" alt="frame_042.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_043.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_043.jpg" alt="frame_043.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925154033/frame_044.jpg', 'VID_20250925154033')">
+                        <img src="frames/VID_20250925154033/frame_044.jpg" alt="frame_044.jpg" loading="lazy">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="video-section" id="video4">
+            <div class="video-header">
+                <div class="video-title">视频 4</div>
+                <div style="color: #999; font-size: 0.8em;">2025年09月25日 15:50:39</div>
+            </div>
+
+            <div class="video-meta">
+                <div class="meta-item">
+                    <span class="meta-label">文件名:</span> VID_20250925155039.mp4
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">大小:</span> 72.05MB
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">时长:</span> 01:13
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">分辨率:</span> 2304x1728
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">码率:</span> 8213.84kbps
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">帧率:</span> 30fps
+                </div>
+            </div>
+
+            <div class="video-container">
+                <div class="video-overlay" id="overlay4">00:00:00</div>
+                <video id="player4" controls>
+                    <source src="VID_20250925155039.mp4" type="video/mp4">
+                    <track label="中文" kind="subtitles" srclang="zh" src="VID_20250925155039.vtt" default>
+                </video>
+            </div>
+
+            <div class="frames-section">
+                <div class="frames-title">🖼️ 关键帧 (35张)</div>
+                <div class="frames-grid">
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_000.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_000.jpg" alt="frame_000.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_001.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_001.jpg" alt="frame_001.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_002.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_002.jpg" alt="frame_002.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_003.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_003.jpg" alt="frame_003.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_004.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_004.jpg" alt="frame_004.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_005.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_005.jpg" alt="frame_005.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_006.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_006.jpg" alt="frame_006.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_007.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_007.jpg" alt="frame_007.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_008.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_008.jpg" alt="frame_008.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_009.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_009.jpg" alt="frame_009.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_010.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_010.jpg" alt="frame_010.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_011.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_011.jpg" alt="frame_011.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_012.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_012.jpg" alt="frame_012.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_013.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_013.jpg" alt="frame_013.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_014.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_014.jpg" alt="frame_014.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_015.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_015.jpg" alt="frame_015.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_016.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_016.jpg" alt="frame_016.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_017.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_017.jpg" alt="frame_017.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_018.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_018.jpg" alt="frame_018.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_019.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_019.jpg" alt="frame_019.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_020.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_020.jpg" alt="frame_020.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_021.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_021.jpg" alt="frame_021.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_022.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_022.jpg" alt="frame_022.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_023.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_023.jpg" alt="frame_023.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_024.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_024.jpg" alt="frame_024.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_025.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_025.jpg" alt="frame_025.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_026.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_026.jpg" alt="frame_026.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_027.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_027.jpg" alt="frame_027.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_028.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_028.jpg" alt="frame_028.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_029.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_029.jpg" alt="frame_029.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_030.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_030.jpg" alt="frame_030.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_031.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_031.jpg" alt="frame_031.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_032.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_032.jpg" alt="frame_032.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_033.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_033.jpg" alt="frame_033.jpg" loading="lazy">
+                    </div>
+                    <div class="frame-item" onclick="openLightbox('frames/VID_20250925155039/frame_034.jpg', 'VID_20250925155039')">
+                        <img src="frames/VID_20250925155039/frame_034.jpg" alt="frame_034.jpg" loading="lazy">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+            <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+            <span class="lightbox-prev" onclick="event.stopPropagation(); changeImage(-1)">&#10094;</span>
+            <span class="lightbox-next" onclick="event.stopPropagation(); changeImage(1)">&#10095;</span>
+            <img id="lightbox-img" src="" alt="">
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 动物房视频记录系统 | 自动生成于 2025年9月25日</p>
+    </footer>
+
+    <script>
+        // 视频时间戳显示
+
+        const player1 = document.getElementById('player1');
+        const overlay1 = document.getElementById('overlay1');
+
+        player1.addEventListener('timeupdate', function() {{
+            const hours = Math.floor(this.currentTime / 3600);
+            const minutes = Math.floor((this.currentTime % 3600) / 60);
+            const seconds = Math.floor(this.currentTime % 60);
+            overlay1.textContent =
+                String(hours).padStart(2, '0') + ':' +
+                String(minutes).padStart(2, '0') + ':' +
+                String(seconds).padStart(2, '0');
+        }});
+
+        const player2 = document.getElementById('player2');
+        const overlay2 = document.getElementById('overlay2');
+
+        player2.addEventListener('timeupdate', function() {{
+            const hours = Math.floor(this.currentTime / 3600);
+            const minutes = Math.floor((this.currentTime % 3600) / 60);
+            const seconds = Math.floor(this.currentTime % 60);
+            overlay2.textContent =
+                String(hours).padStart(2, '0') + ':' +
+                String(minutes).padStart(2, '0') + ':' +
+                String(seconds).padStart(2, '0');
+        }});
+
+        const player3 = document.getElementById('player3');
+        const overlay3 = document.getElementById('overlay3');
+
+        player3.addEventListener('timeupdate', function() {{
+            const hours = Math.floor(this.currentTime / 3600);
+            const minutes = Math.floor((this.currentTime % 3600) / 60);
+            const seconds = Math.floor(this.currentTime % 60);
+            overlay3.textContent =
+                String(hours).padStart(2, '0') + ':' +
+                String(minutes).padStart(2, '0') + ':' +
+                String(seconds).padStart(2, '0');
+        }});
+
+        const player4 = document.getElementById('player4');
+        const overlay4 = document.getElementById('overlay4');
+
+        player4.addEventListener('timeupdate', function() {{
+            const hours = Math.floor(this.currentTime / 3600);
+            const minutes = Math.floor((this.currentTime % 3600) / 60);
+            const seconds = Math.floor(this.currentTime % 60);
+            overlay4.textContent =
+                String(hours).padStart(2, '0') + ':' +
+                String(minutes).padStart(2, '0') + ':' +
+                String(seconds).padStart(2, '0');
+        }});
+
+        // Lightbox功能
+        let currentImageSet = [];
+        let currentIndex = 0;
+
+        function openLightbox(imageSrc, videoBasename) {
+            // 构建当前视频的所有帧路径
+            const allFrames = document.querySelectorAll(`img[src^="frames/${videoBasename}/"]`);
+            currentImageSet = Array.from(allFrames).map(img => img.src);
+            currentIndex = currentImageSet.indexOf(imageSrc);
+
+            document.getElementById('lightbox-img').src = imageSrc;
+            document.getElementById('lightbox').classList.add('active');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+        }
+
+        function changeImage(direction) {
+            currentIndex += direction;
+            if (currentIndex < 0) currentIndex = currentImageSet.length - 1;
+            if (currentIndex >= currentImageSet.length) currentIndex = 0;
+            document.getElementById('lightbox-img').src = currentImageSet[currentIndex];
+        }
+
+        // 键盘导航
+        document.addEventListener('keydown', function(e) {
+            if (document.getElementById('lightbox').classList.contains('active')) {
+                if (e.key === 'ArrowLeft') changeImage(-1);
+                if (e.key === 'ArrowRight') changeImage(1);
+                if (e.key === 'Escape') closeLightbox();
+            }
+        });
+    </script>
+</body>
+</html>
