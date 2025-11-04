@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动物房视频记录 - 9.25</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "MS PGothic", sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.8;
+            color: #333;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+
+        /* 视频网格 - 2列布局 */
+        .videos-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 1400px) {
+            .container { max-width: 1400px; }
+        }
+
+        @media (max-width: 1200px) {
+            .videos-grid {
+                grid-template-columns: 1fr;
+            }
+            .container { max-width: 900px; }
+        }
+
+        @media (max-width: 768px) {
+            .container { max-width: 100%; padding: 0 15px; }
+            h1 { font-size: 28px; }
+            .video-title { font-size: 18px; }
+            .frame-item { width: 200px; }
+        }
+
+        /* 顶部信息横幅 */
+        .warning-banner {
+            background: #fff;
+            color: #555;
+            padding: 16px 24px;
+            border-radius: 4px;
+            margin-bottom: 24px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 400;
+            border: 1px solid #ddd;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 32px;
+            font-size: 28px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        /* 视频卡片 */
+        .video-card {
+            background: white;
+            border-radius: 4px;
+            padding: 28px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            border: 1px solid #e5e5e5;
+            transition: box-shadow 0.2s ease;
+        }
+        .video-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+
+        .video-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .video-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        /* 视频时间戳 */
+        .video-timestamp {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #f0f4f8;
+            border-left: 3px solid #5a6c7d;
+            border-radius: 3px;
+            font-size: 13px;
+            color: #2c3e50;
+            font-weight: 400;
+        }
+        .timestamp-label {
+            color: #5a6c7d;
+            margin-right: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+        .badge-frames { background: #5a6c7d; color: white; }
+        .badge-duration { background: #6c757d; color: white; }
+
+        /* 关键帧轮播 */
+        .frames-container {
+            margin: 20px auto;
+            background: #fafafa;
+            border-radius: 4px;
+            padding: 16px;
+            max-width: 600px;
+            border: 1px solid #e5e5e5;
+        }
+        .frames-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 8px 0;
+            scroll-behavior: smooth;
+        }
+        .frames-scroll::-webkit-scrollbar { height: 6px; }
+        .frames-scroll::-webkit-scrollbar-track { background: #e5e5e5; border-radius: 3px; }
+        .frames-scroll::-webkit-scrollbar-thumb { background: #999; border-radius: 3px; }
+
+        .frame-item {
+            flex-shrink: 0;
+            width: 240px;
+            border-radius: 3px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            transition: box-shadow 0.2s ease;
+            border: 1px solid #ddd;
+        }
+        .frame-item:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+        .frame-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+        .frame-item img:hover {
+            opacity: 0.8;
+        }
+
+        /* 视频播放器 */
+        .video-player {
+            margin: 20px auto;
+            border-radius: 3px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            max-width: 600px;
+            border: 1px solid #ddd;
+            position: relative;
+        }
+        .video-player video {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* 红色滚动时间覆盖层 */
+        .video-timestamp-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.75);
+            color: #FF0000;
+            padding: 5px 10px;
+            border: 1px solid rgba(255, 0, 0, 0.6);
+            border-radius: 3px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            z-index: 1000;
+            pointer-events: none;
+            text-shadow: 0 0 3px rgba(0,0,0,0.8);
+            white-space: nowrap;
+            display: none; /* 初始隐藏 */
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* 视频播放时显示时间覆盖层 */
+        .video-timestamp-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* 内容区块 */
+        .content-section {
+            margin: 16px 0;
+            padding: 16px 20px;
+            background: #fafafa;
+            border-radius: 3px;
+            border-left: 3px solid #5a6c7d;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .section-title::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #5a6c7d;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .section-content {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            color: #666;
+            margin-top: 40px;
+            padding: 24px 20px;
+            font-size: 13px;
+            background: #fff;
+            border-radius: 3px;
+            border: 1px solid #e5e5e5;
+        }
+
+        /* Lightbox 灯箱样式 */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .lightbox.active {
+            display: flex;
+        }
+        .lightbox-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+        }
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            display: block;
+            border: 3px solid #fff;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: 300;
+            cursor: pointer;
+            z-index: 10001;
+            background: rgba(0,0,0,0.5);
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            border-radius: 3px;
+        }
+        .lightbox-close:hover {
+            background: rgba(0,0,0,0.8);
+        }
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #fff;
+            font-size: 40px;
+            cursor: pointer;
+            padding: 20px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 3px;
+            user-select: none;
+        }
+        .lightbox-nav:hover {
+            background: rgba(0,0,0,0.8);
+        }
+        .lightbox-prev {
+            left: 20px;
+        }
+        .lightbox-next {
+            right: 20px;
+        }
+        .lightbox-caption {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            background: rgba(0,0,0,0.7);
+            padding: 10px 20px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="warning-banner">
+            本页面内容基于实际画面和音频记录生成<br>
+            包含视频播放、关键帧浏览和语音转录
+        </div>
+
+        <h1>动物房视频记录 - 9.25</h1>
+
+        <div class="videos-grid">
+        <div class="video-card">
+            <div class="video-header">
+                <div>
+                    <span class="video-title">视频记录 1</span>
+                    <span class="badge badge-frames">45帧</span>
+                    <span class="badge badge-duration">10分00秒</span>
+                    <div class="video-timestamp">
+                        <span class="timestamp-label">拍摄时间:</span>2025年09月25日 15:23:43
+                    </div>
+                </div>
+            </div>
+
+            <!-- 关键帧轮播 -->
+            <div class="frames-container">
+                <div class="section-title">时间轴关键帧 (45帧)</div>
+                <div class="frames-scroll">
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_000.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_001.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_002.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_003.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_004.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_005.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_006.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_007.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_008.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_009.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_010.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_011.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_012.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_013.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_014.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_015.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_016.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_017.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_018.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_019.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_020.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_021.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_022.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_023.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_024.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_025.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_026.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_027.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_028.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_029.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_030.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_031.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_032.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_033.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_034.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_035.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_036.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_037.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_038.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_039.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_040.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_041.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_042.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_043.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925152343914/frame_044.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 视频播放器 -->
+            <div class="video-player">
+                <div class="video-timestamp-overlay" data-start-time="2025-09-25 15:23:43"></div>
+                <video controls preload="metadata" data-video-id="1">
+                    <source src="https://github.com/javierwangzz1/ibd-visualizations/releases/download/v1.0-9.25videos/VID_20250925152343914.mp4" type="video/mp4">
+                    <track kind="subtitles" src="./subtitles/VID_20250925152343914.vtt" srclang="zh" label="中文字幕" default>
+                    您的浏览器不支持视频播放
+                </video>
+            </div>
+
+            <!-- 画面内容 -->
+
+            <div class="content-section">
+                <div class="section-title">画面内容</div>
+                <div class="section-content">暂无描述</div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-title">转写文本</div>
+                <div class="section-content">剪剪刀 disturb
+好
+好
+好
+好
+好
+好
+好
+好
+好
+好
+好
+好
+好
+好
+好
+好
+好
+好
+好
+好
+2,4,6
+3,4,5
+4,6,7,8
+5,6,7,8
+哎呦
+乾淨一點
+5,6,7,8
+5,6,7,8
+5,6,7,8
+5,6,7,8
+5,6,7,8
+5,6,7,8
+我靠
+哎呀</div>
+            </div>
+        </div>
+
+        <div class="video-card">
+            <div class="video-header">
+                <div>
+                    <span class="video-title">视频记录 2</span>
+                    <span class="badge badge-frames">45帧</span>
+                    <span class="badge badge-duration">4分00秒</span>
+                    <div class="video-timestamp">
+                        <span class="timestamp-label">拍摄时间:</span>2025年09月25日 15:33:53
+                    </div>
+                </div>
+            </div>
+
+            <!-- 关键帧轮播 -->
+            <div class="frames-container">
+                <div class="section-title">时间轴关键帧 (45帧)</div>
+                <div class="frames-scroll">
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_000.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_001.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_002.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_003.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_004.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_005.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_006.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_007.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_008.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_009.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_010.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_011.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_012.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_013.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_014.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_015.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_016.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_017.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_018.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_019.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_020.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_021.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_022.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_023.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_024.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_025.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_026.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_027.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_028.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_029.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_030.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_031.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_032.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_033.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_034.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_035.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_036.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_037.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_038.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_039.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_040.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_041.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_042.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_043.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925153353426/frame_044.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 视频播放器 -->
+            <div class="video-player">
+                <div class="video-timestamp-overlay" data-start-time="2025-09-25 15:33:53"></div>
+                <video controls preload="metadata" data-video-id="2">
+                    <source src="https://github.com/javierwangzz1/ibd-visualizations/releases/download/v1.0-9.25videos/VID_20250925153353426.mp4" type="video/mp4">
+                    <track kind="subtitles" src="./subtitles/VID_20250925153353426.vtt" srclang="zh" label="中文字幕" default>
+                    您的浏览器不支持视频播放
+                </video>
+            </div>
+
+            <!-- 画面内容 -->
+
+            <div class="content-section">
+                <div class="section-title">画面内容</div>
+                <div class="section-content">暂无描述</div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-title">转写文本</div>
+                <div class="section-content">沒事
+三雄三池,3號是小的
+大概就是
+2到4周吧,感覺
+2,8,1
+確定一下
+沒有問題
+可以
+來吧,1,8,3
+2號
+這麼多
+1,8,3
+1,8,3
+2,8,3
+2,8,3
+靠您管
+靠您管
+謝謝</div>
+            </div>
+        </div>
+
+        <div class="video-card">
+            <div class="video-header">
+                <div>
+                    <span class="video-title">视频记录 3</span>
+                    <span class="badge badge-frames">45帧</span>
+                    <span class="badge badge-duration">9分59秒</span>
+                    <div class="video-timestamp">
+                        <span class="timestamp-label">拍摄时间:</span>2025年09月25日 15:40:33
+                    </div>
+                </div>
+            </div>
+
+            <!-- 关键帧轮播 -->
+            <div class="frames-container">
+                <div class="section-title">时间轴关键帧 (45帧)</div>
+                <div class="frames-scroll">
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_000.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_001.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_002.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_003.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_004.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_005.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_006.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_007.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_008.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_009.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_010.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_011.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_012.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_013.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_014.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_015.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_016.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_017.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_018.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_019.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_020.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_021.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_022.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_023.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_024.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_025.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_026.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_027.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_028.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_029.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_030.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_031.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_032.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_033.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_034.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_035.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_036.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_037.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_038.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_039.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_040.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_041.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_042.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_043.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925154033/frame_044.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 视频播放器 -->
+            <div class="video-player">
+                <div class="video-timestamp-overlay" data-start-time="2025-09-25 15:40:33"></div>
+                <video controls preload="metadata" data-video-id="3">
+                    <source src="https://github.com/javierwangzz1/ibd-visualizations/releases/download/v1.0-9.25videos/VID_20250925154033.mp4" type="video/mp4">
+                    <track kind="subtitles" src="./subtitles/VID_20250925154033.vtt" srclang="zh" label="中文字幕" default>
+                    您的浏览器不支持视频播放
+                </video>
+            </div>
+
+            <!-- 画面内容 -->
+
+            <div class="content-section">
+                <div class="section-title">画面内容</div>
+                <div class="section-content">暂无描述</div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-title">转写文本</div>
+                <div class="section-content">五十一號磁的
+也不對,三間的一個
+五十一號磁的
+五十一號磁的
+五十一號磁的
+五十一號磁的
+五十一號磁的
+五十一號磁的
+五十一號磁的
+五十一號磁的
+這次是小的,小一點
+從後面開始
+五十一號磁的
+五十一號磁的
+五十一號磁的
+六號磁的
+六號磁的
+響鐘
+響鐘
+響鐘
+響鐘
+響鐘</div>
+            </div>
+        </div>
+
+        <div class="video-card">
+            <div class="video-header">
+                <div>
+                    <span class="video-title">视频记录 4</span>
+                    <span class="badge badge-frames">35帧</span>
+                    <span class="badge badge-duration">1分13秒</span>
+                    <div class="video-timestamp">
+                        <span class="timestamp-label">拍摄时间:</span>2025年09月25日 15:50:39
+                    </div>
+                </div>
+            </div>
+
+            <!-- 关键帧轮播 -->
+            <div class="frames-container">
+                <div class="section-title">时间轴关键帧 (35帧)</div>
+                <div class="frames-scroll">
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_000.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_001.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_002.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_003.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_004.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_005.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_006.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_007.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_008.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_009.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_010.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_011.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_012.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_013.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_014.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_015.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_016.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_017.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_018.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_019.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_020.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_021.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_022.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_023.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_024.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_025.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_026.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_027.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_028.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_029.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_030.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_031.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_032.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_033.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                    <div class="frame-item">
+                        <img src="frames/VID_20250925155039/frame_034.jpg" alt="关键帧" loading="lazy">
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 视频播放器 -->
+            <div class="video-player">
+                <div class="video-timestamp-overlay" data-start-time="2025-09-25 15:50:39"></div>
+                <video controls preload="metadata" data-video-id="4">
+                    <source src="https://github.com/javierwangzz1/ibd-visualizations/releases/download/v1.0-9.25videos/VID_20250925155039.mp4" type="video/mp4">
+                    <track kind="subtitles" src="./subtitles/VID_20250925155039.vtt" srclang="zh" label="中文字幕" default>
+                    您的浏览器不支持视频播放
+                </video>
+            </div>
+
+            <!-- 画面内容 -->
+
+            <div class="content-section">
+                <div class="section-title">画面内容</div>
+                <div class="section-content">暂无描述</div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-title">转写文本</div>
+                <div class="section-content">以後不知道自己講什麼
+結束
+嗯 我弄完了 馬上</div>
+            </div>
+        </div>
+
+        </div>
+
+        <div class="footer">
+            总计 4 个视频 | 170 个关键帧 | 时间戳标注<br>
+            Whisper Medium模型识别<br>
+            生成时间: 2025-10-23
+        </div>
+    </div>
+
+    <!-- Lightbox 灯箱容器 -->
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" id="lightbox-close">&times;</span>
+        <span class="lightbox-nav lightbox-prev" id="lightbox-prev">&#8249;</span>
+        <span class="lightbox-nav lightbox-next" id="lightbox-next">&#8250;</span>
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="">
+            <div class="lightbox-caption" id="lightbox-caption"></div>
+        </div>
+    </div>
+
+    <script>
+        // Lightbox 图片查看功能
+        (function() {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxCaption = document.getElementById('lightbox-caption');
+            const closeBtn = document.getElementById('lightbox-close');
+            const prevBtn = document.getElementById('lightbox-prev');
+            const nextBtn = document.getElementById('lightbox-next');
+
+            let allImages = [];
+            let currentIndex = 0;
+
+            // 收集所有关键帧图片
+            function initLightbox() {
+                const frameImages = document.querySelectorAll('.frame-item img');
+                allImages = Array.from(frameImages);
+
+                frameImages.forEach((img, index) => {
+                    img.addEventListener('click', function() {
+                        currentIndex = index;
+                        openLightbox(this.src, this.alt);
+                    });
+                });
+            }
+
+            // 打开灯箱
+            function openLightbox(src, caption) {
+                lightboxImg.src = src;
+                lightboxCaption.textContent = caption || '关键帧';
+                lightbox.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            // 关闭灯箱
+            function closeLightbox() {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            // 上一张
+            function showPrev() {
+                currentIndex = (currentIndex - 1 + allImages.length) % allImages.length;
+                lightboxImg.src = allImages[currentIndex].src;
+                lightboxCaption.textContent = allImages[currentIndex].alt || '关键帧';
+            }
+
+            // 下一张
+            function showNext() {
+                currentIndex = (currentIndex + 1) % allImages.length;
+                lightboxImg.src = allImages[currentIndex].src;
+                lightboxCaption.textContent = allImages[currentIndex].alt || '关键帧';
+            }
+
+            // 事件监听
+            closeBtn.addEventListener('click', closeLightbox);
+            prevBtn.addEventListener('click', showPrev);
+            nextBtn.addEventListener('click', showNext);
+
+            // 点击背景关闭
+            lightbox.addEventListener('click', function(e) {
+                if (e.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+
+            // 键盘控制
+            document.addEventListener('keydown', function(e) {
+                if (!lightbox.classList.contains('active')) return;
+
+                if (e.key === 'Escape') closeLightbox();
+                if (e.key === 'ArrowLeft') showPrev();
+                if (e.key === 'ArrowRight') showNext();
+            });
+
+            // 初始化
+            initLightbox();
+        })();
+
+        // 视频滚动时间功能
+        (function() {
+            // 初始化所有视频的滚动时间
+            document.querySelectorAll('video[data-video-id]').forEach(video => {
+                const overlay = video.previousElementSibling; // 获取时间戳覆盖层
+                if (!overlay || !overlay.classList.contains('video-timestamp-overlay')) return;
+
+                const startTimeStr = overlay.dataset.startTime;
+                const startTime = new Date(startTimeStr);
+
+                // 更新时间显示
+                function updateTimestamp() {
+                    const currentSeconds = Math.floor(video.currentTime);
+                    const currentTime = new Date(startTime.getTime() + currentSeconds * 1000);
+
+                    // 仅显示当前滚动时间
+                    const currentDisplay = formatTime(currentTime);
+
+                    overlay.textContent = currentDisplay;
+                }
+
+                // 监听视频播放 - 显示时间覆盖层
+                video.addEventListener('play', function() {
+                    overlay.classList.add('active');
+                    updateTimestamp();
+                });
+
+                // 监听视频暂停 - 隐藏时间覆盖层
+                video.addEventListener('pause', function() {
+                    overlay.classList.remove('active');
+                });
+
+                // 监听视频结束 - 隐藏时间覆盖层
+                video.addEventListener('ended', function() {
+                    overlay.classList.remove('active');
+                });
+
+                // 监听视频时间更新
+                video.addEventListener('timeupdate', updateTimestamp);
+
+                // 加载元数据时初始化（但不显示）
+                video.addEventListener('loadedmetadata', updateTimestamp);
+            });
+
+            // 时间格式化函数
+            function formatTime(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hour = String(date.getHours()).padStart(2, '0');
+                const minute = String(date.getMinutes()).padStart(2, '0');
+                const second = String(date.getSeconds()).padStart(2, '0');
+                return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+            }
+        })();
+    </script>
+</body>
+</html>
