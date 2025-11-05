@@ -1,0 +1,883 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>BTK S266N突变 vs 野生型蛋白 - 可视化对比分析报告</title>
+    <style type="text/css">
+        body {
+            background-color: #C0C0C0;
+            font-family: Arial, "MS Sans Serif", "PingFang SC", "Microsoft YaHei", sans-serif;
+            margin: 20px;
+            color: #000080;
+        }
+
+        h1 {
+            background: linear-gradient(to right, #000080, #0000FF);
+            color: #FFFF00;
+            padding: 15px;
+            text-align: center;
+            border: 4px outset #808080;
+            font-size: 28px;
+            text-shadow: 2px 2px #000000;
+        }
+
+        h2 {
+            background-color: #008080;
+            color: #FFFFFF;
+            padding: 10px;
+            border: 3px ridge #808080;
+            text-align: center;
+        }
+
+        h3 {
+            background-color: #800080;
+            color: #00FFFF;
+            padding: 8px;
+            border: 2px groove #C0C0C0;
+        }
+
+        .container {
+            background-color: #FFFFFF;
+            border: 5px ridge #808080;
+            padding: 20px;
+            margin: 10px;
+        }
+
+        .figure-container {
+            background-color: #FFFFCC;
+            border: 5px double #000080;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .figure-image {
+            width: 100%;
+            border: 4px solid #000000;
+            margin: 10px 0;
+        }
+
+        .analysis-box {
+            background-color: #E0E0FF;
+            border: 4px ridge #000080;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: justify;
+            line-height: 1.8;
+        }
+
+        .metadata-table {
+            border-collapse: collapse;
+            width: 100%;
+            background-color: #FFCCCC;
+            border: 4px double #000000;
+            margin: 10px 0;
+        }
+
+        .metadata-table th {
+            background: linear-gradient(to bottom, #FF0000, #800000);
+            color: #FFFF00;
+            padding: 8px;
+            border: 3px outset #808080;
+            font-weight: bold;
+        }
+
+        .metadata-table td {
+            border: 2px solid #808080;
+            padding: 6px;
+            background-color: #FFFFFF;
+        }
+
+        .highlight-box {
+            background-color: #FFFF00;
+            border: 4px double #FF0000;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .blink {
+            animation: blink-animation 1s steps(2, start) infinite;
+        }
+
+        @keyframes blink-animation {
+            to { visibility: hidden; }
+        }
+
+        .footer {
+            background-color: #000080;
+            color: #FFFFFF;
+            padding: 10px;
+            text-align: center;
+            border: 3px outset #808080;
+            margin-top: 20px;
+        }
+
+        .warning-box {
+            background-color: #FF9999;
+            border: 4px ridge #800000;
+            padding: 12px;
+            margin: 10px 0;
+            color: #000000;
+        }
+
+        .info-box {
+            background-color: #99CCFF;
+            border: 4px ridge #000080;
+            padding: 12px;
+            margin: 10px 0;
+            color: #000000;
+        }
+
+        .success-box {
+            background-color: #99FF99;
+            border: 4px ridge #008000;
+            padding: 12px;
+            margin: 10px 0;
+            color: #000000;
+        }
+
+        marquee {
+            background-color: #000080;
+            color: #00FF00;
+            padding: 5px;
+            border: 2px solid #FFFF00;
+        }
+
+        table.summary {
+            border-collapse: collapse;
+            width: 100%;
+            background-color: #FFFFCC;
+            border: 4px double #000000;
+            margin: 10px 0;
+        }
+
+        table.summary th {
+            background: linear-gradient(to bottom, #0000FF, #000080);
+            color: #FFFF00;
+            padding: 12px;
+            border: 3px outset #808080;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        table.summary td {
+            border: 2px solid #808080;
+            padding: 8px;
+            text-align: center;
+        }
+
+        table.summary tr:nth-child(even) {
+            background-color: #E0E0E0;
+        }
+
+        table.summary tr:nth-child(odd) {
+            background-color: #FFFFFF;
+        }
+
+        .star-rating {
+            color: #FFD700;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<marquee behavior="scroll" direction="left">
+    ★ ☆ ★ BTK S266N突变 vs 野生型蛋白对比分析 ★ 基于真实数据 ★ 谨慎解读 ★ 2025年11月5日 ★ ☆ ★
+</marquee>
+
+<h1>BTK S266N突变 vs 野生型蛋白<br>可视化对比分析报告</h1>
+
+<div class="highlight-box">
+    <font size="5" color="#FF0000"><b class="blink">核心发现</b></font><br>
+    <font size="4"><b>突变位置: S266N (Ser → Asn)</b></font><br>
+    <font size="4" color="#0000FF"><b>结构域: SH3域C端 (266/288)</b></font><br>
+    <font size="6" color="#FF0000"><b>ACMG分类: Likely Benign</b></font><br>
+    <font size="4" color="#800080"><b>但致病性评分: +3 (存在矛盾)</b></font>
+</div>
+
+<!-- 关键数据摘要 -->
+<div class="container">
+    <h2>关键数据摘要</h2>
+    <table class="summary">
+        <tr>
+            <th>分析项目</th>
+            <th>野生型 (WT)</th>
+            <th>S266N突变型</th>
+            <th>差异/解读</th>
+        </tr>
+        <tr>
+            <td><b>氨基酸</b></td>
+            <td><font size="5" color="#0000FF">Ser (S)</font></td>
+            <td><font size="5" color="#FF0000">Asn (N)</font></td>
+            <td>Ser → Asn</td>
+        </tr>
+        <tr>
+            <td><b>BLOSUM62评分</b></td>
+            <td colspan="2" align="center"><font size="5" color="#008000"><b>+1</b></font></td>
+            <td style="background-color:#99FF99;">保守替换</td>
+        </tr>
+        <tr>
+            <td><b>分子量 (Da)</b></td>
+            <td>105.09</td>
+            <td>132.12</td>
+            <td style="background-color:#FFCCCC;"><b>+27.0 Da</b></td>
+        </tr>
+        <tr>
+            <td><b>疏水性 (K-D)</b></td>
+            <td>-0.8</td>
+            <td>-3.5</td>
+            <td style="background-color:#CCCCFF;"><b>-2.7 (更亲水)</b></td>
+        </tr>
+        <tr>
+            <td><b>体积 (Ų)</b></td>
+            <td>89</td>
+            <td>114</td>
+            <td style="background-color:#FFCCCC;"><b>+25 Ų (+28%)</b></td>
+        </tr>
+        <tr>
+            <td><b>氢键供体</b></td>
+            <td>1</td>
+            <td>2</td>
+            <td style="background-color:#FFFFCC;"><b>+1</b></td>
+        </tr>
+        <tr>
+            <td><b>氢键受体</b></td>
+            <td>2</td>
+            <td>3</td>
+            <td style="background-color:#FFFFCC;"><b>+1</b></td>
+        </tr>
+        <tr>
+            <td><b>磷酸化能力</b></td>
+            <td style="background-color:#99FF99;"><b>可磷酸化 (-OH)</b></td>
+            <td style="background-color:#FF9999;"><b>不可磷酸化 (-CONH₂)</b></td>
+            <td style="background-color:#FFFF00;"><b>失去磷酸化位点</b></td>
+        </tr>
+        <tr>
+            <td><b>gnomAD频率</b></td>
+            <td>N/A (野生型)</td>
+            <td><font color="#FF0000"><b>4.57×10⁻⁶</b></font></td>
+            <td style="background-color:#FF9999;"><b>极罕见</b></td>
+        </tr>
+        <tr>
+            <td><b>SIFT预测</b></td>
+            <td>N/A</td>
+            <td><font color="#FF0000"><b>0.02 (Deleterious)</b></font></td>
+            <td style="background-color:#FF9999;"><b>预测有害</b></td>
+        </tr>
+        <tr>
+            <td><b>PolyPhen-2</b></td>
+            <td>N/A</td>
+            <td><font color="#008000"><b>0.007 (Benign)</b></font></td>
+            <td style="background-color:#99FF99;"><b>预测良性</b></td>
+        </tr>
+    </table>
+</div>
+
+
+<!-- 图表1: 外部数据摘要 -->
+<div class="figure-container">
+    <h2>图表1: BTK外部数据库综合摘要</h2>
+
+    <table class="metadata-table">
+        <tr>
+            <th>元数据项</th>
+            <th>数值</th>
+        </tr>
+        <tr>
+            <td><b>文件路径</b></td>
+            <td>external_data/EXTERNAL_DATA_SUMMARY.png</td>
+        </tr>
+        <tr>
+            <td><b>文件大小</b></td>
+            <td>449 KB</td>
+        </tr>
+        <tr>
+            <td><b>数据来源</b></td>
+            <td>ClinVar (2,353变异) + STRING (41相互作用) + 保守性 + Pfam</td>
+        </tr>
+        <tr>
+            <td><b>与S266N关联度</b></td>
+            <td><span class="star-rating">★★★☆☆</span> (提供背景)</td>
+        </tr>
+        <tr>
+            <td><b>中文字体状态</b></td>
+            <td style="background-color:#99FF99;"><b>✓ 正常显示</b></td>
+        </tr>
+    </table>
+
+    <img src="images/external_data/EXTERNAL_DATA_SUMMARY.png" alt="外部数据摘要" class="figure-image">
+
+    <div class="analysis-box">
+        <h3>与BTK S266N vs WT的关联性分析</h3>
+        <p>
+            本图整合展示了BTK基因的外部数据库信息，包括ClinVar中2,353个临床变异的分布、STRING数据库中41个蛋白质相互作用伙伴、多物种序列保守性（人类和小鼠）以及Pfam结构域注释。该图为BTK提供了全面的背景信息，但<b>不直接针对S266N突变</b>。要判断S266N与WT的具体差异，需要在ClinVar中特异性搜索S266位点是否有已知变异报道。若S266在多物种间高度保守，可支持该位点突变的潜在功能影响。图中的STRING网络展示野生型BTK的相互作用，但S266N突变是否改变这些相互作用需要实验验证（如Co-IP）。<b>该图主要提供BTK整体景观，不能直接推断S266N的特异性效应</b>。
+        </p>
+    </div>
+
+    <div class="warning-box">
+        <b>⚠ 解读限制：</b> 此图展示野生型BTK的整体数据，无法直接显示S266N突变的影响。需要在ClinVar中单独查询S266位点的变异记录。
+    </div>
+</div>
+
+<!-- 图表2: BLOSUM62与氨基酸性质 -->
+<div class="figure-container">
+    <h2>图表2: BLOSUM62替换评分与氨基酸性质对比</h2>
+
+    <table class="metadata-table">
+        <tr>
+            <th>元数据项</th>
+            <th>数值</th>
+        </tr>
+        <tr>
+            <td><b>文件路径</b></td>
+            <td>13_mutation_scoring/01_blosum62_amino_acid_properties.png</td>
+        </tr>
+        <tr>
+            <td><b>文件大小</b></td>
+            <td>683 KB</td>
+        </tr>
+        <tr>
+            <td><b>数据来源</b></td>
+            <td>BioPython substitution_matrices + 标准氨基酸理化性质</td>
+        </tr>
+        <tr>
+            <td><b>与S266N关联度</b></td>
+            <td><span class="star-rating">★★★★★</span> <font color="#FF0000"><b>(核心图表)</b></font></td>
+        </tr>
+        <tr>
+            <td><b>包含面板</b></td>
+            <td>6个面板：BLOSUM62评分、雷达图、性质对比、Δ值、PAM250、总结</td>
+        </tr>
+    </table>
+
+    <img src="images/13_mutation_scoring/01_blosum62_amino_acid_properties.png" alt="BLOSUM62分析" class="figure-image">
+
+    <div class="analysis-box">
+        <h3>与BTK S266N vs WT的关联性分析</h3>
+        <p>
+            本图<b>直接量化对比S266N突变与野生型的生化差异</b>，是最核心的分析之一。图中包含6个面板：(A) Ser替换为20种氨基酸的BLOSUM62评分分布，S→N评分为+1，表示保守替换；(B) Ser和Asn的理化性质雷达图，可视化显示分子量、疏水性、体积、氢键等7项性质的归一化对比；(C) 性质详细柱状图，显示分子量从105.09增至132.12 Da（+27 Da），疏水性从-0.8降至-3.5（Δ=-2.7，更亲水），体积从89增至114 Ų（+28%）；(D) 变化量分析（Δ值），清晰展示各性质的增减方向；(E) BLOSUM62 vs PAM250对比，两个矩阵均给出正评分；(F) 文字总结，<b>关键发现：虽为保守替换，但侧链增大28%，失去Ser的-OH基团导致丧失磷酸化能力</b>。
+        </p>
+    </div>
+
+    <div class="success-box">
+        <b>✓ 核心价值：</b> 此图定量展示S266N的直接生化特征，为后续功能影响推断提供分子基础。BLOSUM62 +1支持保守性，但体积增大和磷酸化位点丧失提示潜在功能影响。
+    </div>
+
+    <div class="info-box">
+        <b>ℹ 关键差异：</b> WT的Ser含-OH可被磷酸化用于信号调控，S266N的Asn含-CONH₂不可磷酸化。如S266确实是调控位点，突变将消除这一功能。
+    </div>
+</div>
+
+<!-- 图表3: ACMG致病性分类 -->
+<div class="figure-container">
+    <h2>图表3: ACMG 2015综合致病性分类</h2>
+
+    <table class="metadata-table">
+        <tr>
+            <th>元数据项</th>
+            <th>数值</th>
+        </tr>
+        <tr>
+            <td><b>文件路径</b></td>
+            <td>14_acmg_classification/01_acmg_comprehensive_classification.png</td>
+        </tr>
+        <tr>
+            <td><b>文件大小</b></td>
+            <td>917 KB</td>
+        </tr>
+        <tr>
+            <td><b>数据来源</b></td>
+            <td>整合所有分析：BLOSUM62 + gnomAD + VEP (SIFT/PolyPhen) + ACMG</td>
+        </tr>
+        <tr>
+            <td><b>与S266N关联度</b></td>
+            <td><span class="star-rating">★★★★★</span> <font color="#FF0000"><b>(核心图表)</b></font></td>
+        </tr>
+        <tr>
+            <td><b>包含面板</b></td>
+            <td>6个面板：ACMG证据、分类结果、预测雷达、人群频率、性质对比、总结</td>
+        </tr>
+    </table>
+
+    <img src="images/14_acmg_classification/01_acmg_comprehensive_classification.png" alt="ACMG分类" class="figure-image">
+
+    <div class="analysis-box">
+        <h3>与BTK S266N vs WT的关联性分析</h3>
+        <p>
+            本图<b>完全针对S266N突变的致病性评估</b>，整合了所有已获得的真实数据。图中包含6个面板：(A) ACMG证据分布，显示PM1（功能域突变）、PM2（极低频率）、PP3（SIFT有害）支持致病性，BP1（保守替换）、BP4（PolyPhen良性）支持良性；(B) 最终ACMG分类为<b>Likely Benign</b>（可能良性），但致病性评分为+3（中等致病倾向），<b>存在矛盾</b>；(C) 预测工具评分雷达图，显示SIFT (1-0.02=0.98)、PolyPhen (0.007)、BLOSUM62归一化值的对比，<b>SIFT和PolyPhen预测完全相反</b>；(D) gnomAD人群频率，总人群4.57×10⁻⁶，东亚人群9.97×10⁻⁵，均极罕见；(E) Ser vs Asn性质雷达图重复展示理化性质差异；(F) 综合评估总结。<b>关键矛盾：ACMG规则判为Likely Benign，但评分+3、SIFT有害、频率极低，提示不能排除致病性</b>。
+        </p>
+    </div>
+
+    <div class="warning-box">
+        <b>⚠ 关键矛盾：</b> ACMG分类（Likely Benign）与致病性评分（+3）、SIFT预测（有害）、人群频率（极罕见）存在不一致。预测工具严重分歧，生物信息学无法明确判断。
+    </div>
+
+    <div class="warning-box">
+        <b>⚠ 强烈建议：</b> 不能仅依据生物信息学排除S266N的致病性。需要功能实验验证（BTK激酶活性、SH3结合、磷酸化状态）和临床数据支持（家族共分离、患者表型）。
+    </div>
+
+    <div class="info-box">
+        <b>ℹ 临床应用：</b> 本图可用于多学科团队（MDT）讨论和临床遗传咨询，但需结合患者具体情况，不能作为单独的诊断依据。
+    </div>
+</div>
+
+<!-- 图表4: 3D结构可视化对比 -->
+<div class="figure-container">
+    <h2>图表4: BTK S266N vs WT 三维结构可视化对比</h2>
+
+    <table class="metadata-table">
+        <tr>
+            <th>元数据项</th>
+            <th>数值</th>
+        </tr>
+        <tr>
+            <td><b>数据来源</b></td>
+            <td>AlphaFold v2.0 (UniProt Q06187) + PyMOL 3.1.0</td>
+        </tr>
+        <tr>
+            <td><b>结构模型</b></td>
+            <td>BTK野生型 vs S266N突变体（计算模拟）</td>
+        </tr>
+        <tr>
+            <td><b>与S266N关联度</b></td>
+            <td><span class="star-rating">★★★★★</span> <font color="#FF0000"><b>(核心结构对比)</b></font></td>
+        </tr>
+        <tr>
+            <td><b>分辨率</b></td>
+            <td>3600×1800像素, 300 DPI</td>
+        </tr>
+        <tr>
+            <td><b>渲染时间</b></td>
+            <td>2025-11-05 17:33</td>
+        </tr>
+    </table>
+
+    <h3 style="background-color:#008080; color:#FFFFFF; padding:8px;">4.1 全景对比 - 整体结构</h3>
+    <img src="images/BTK_full_comparison_enhanced.png" alt="BTK全景对比" class="figure-image">
+
+    <div class="analysis-box">
+        <h3>结构观察（基于AlphaFold模型）</h3>
+        <p>
+            <b>可见差异：</b>图中左侧（蓝色）为野生型BTK，右侧（红色）为S266N突变体。两个结构进行了分屏显示以便直接对比。S266位点位于SH3结构域（深蓝色/深红色区域），在蛋白质整体结构中以黄色/橙色球体标记。
+        </p>
+        <p>
+            <b style="color:#FF0000;">⚠ 重要局限：</b> 此图基于AlphaFold v2.0预测的静态结构模型，<b>不是实验解析的晶体结构</b>。AlphaFold模型对单点突变的预测可能不够准确，特别是对于侧链构象和局部结构变化。<b>不能基于此图断定S266N引起整体结构改变</b>。
+        </p>
+    </div>
+
+    <h3 style="background-color:#008080; color:#FFFFFF; padding:8px;">4.2 SH3域表面 - 功能域对比</h3>
+    <img src="images/BTK_SH3_comparison_enhanced.png" alt="SH3域表面对比" class="figure-image">
+
+    <div class="analysis-box">
+        <h3>SH3域表面特征</h3>
+        <p>
+            <b>可见特征：</b>图中展示了SH3域（残基220-288）的表面渲染，左侧为野生型（浅蓝色表面），右侧为S266N突变体（浅红色表面）。S266位点在表面上标记为球体。
+        </p>
+        <p>
+            <b style="color:#0000FF;">谨慎解读：</b> SH3域是蛋白质相互作用域，负责结合富含脯氨酸的配体。从模型上看，S266位于SH3域表面。<b>但无法从静态结构判断S266N是否影响配体结合</b>，需要实验验证（如Pull-down、SPR）。表面半透明显示旨在展示内部骨架，但AlphaFold对侧链精确定位存在不确定性。
+        </p>
+    </div>
+
+    <h3 style="background-color:#008080; color:#FFFFFF; padding:8px;">4.3 原子级细节 - 化学基团与氢键</h3>
+    <img src="images/BTK_S266_closeup_enhanced.png" alt="S266原子级细节" class="figure-image">
+
+    <div class="analysis-box">
+        <h3>化学基团与氢键网络</h3>
+        <p>
+            <b>化学结构差异（真实）：</b>左侧野生型Ser266的侧链为-CH₂-OH（羟基），右侧突变体Asn266的侧链为-CH₂-CO-NH₂（酰胺基）。这是<b>确定的化学事实</b>，无论结构模型准确性如何。
+        </p>
+        <p>
+            <b>氢键显示（模型预测）：</b>图中黄色/橙色虚线表示预测的氢键。这些氢键位置<b>基于AlphaFold模型</b>，代表静态构象下的可能氢键，<b>不一定反映真实的动态氢键网络</b>。真实蛋白质在溶液中是动态的，氢键会形成和断裂。
+        </p>
+        <p>
+            <b style="color:#FF0000;">关键不确定性：</b>虽然图中显示Ser和Asn的氢键数量不同（供体1→2，受体2→3），但这只是理论值。<b>实际氢键取决于周围残基、溶剂、pH、温度等多种因素</b>，需要MD模拟或实验方法（如NMR、X射线晶体学）验证。
+        </p>
+    </div>
+
+    <h3 style="background-color:#008080; color:#FFFFFF; padding:8px;">4.4 体积对比 - 侧链空间占据</h3>
+    <img src="images/BTK_SH3_surface_comparison.png" alt="体积对比" class="figure-image">
+
+    <div class="analysis-box">
+        <h3>侧链体积差异</h3>
+        <p>
+            <b>定量数据（真实）：</b>图中标注Ser侧链体积73 Ų，Asn侧链体积96 Ų，增加23 Ų（+28%）。这个体积差异<b>基于氨基酸van der Waals体积的理论值</b>，是化学确定的，不依赖于结构模型。
+        </p>
+        <p>
+            <b>空间占据（模型依赖）：</b>图中表面渲染显示Asn侧链占据更大空间。但<b>这个空间分布取决于AlphaFold模型的侧链构象预测</b>。实际蛋白质中，侧链构象可能因溶剂化、相邻残基而不同。
+        </p>
+        <p>
+            <b style="color:#0000FF;">合理推断（有限）：</b>如果S266位于一个空间受限的口袋或结合界面，28%的体积增大<b>可能</b>造成空间冲突。但<b>不能确定</b>：(1) S266是否在受限空间；(2) 侧链构象是否允许适应；(3) 周围残基是否调整以容纳。需要实验证据。
+        </p>
+    </div>
+
+    <div class="warning-box">
+        <b>⚠ 结构数据的重要局限性：</b>
+        <ul>
+            <li><b>模型来源：</b> AlphaFold v2.0预测模型，<b>不是实验解析的晶体结构或NMR结构</b>。</li>
+            <li><b>静态vs动态：</b> 图中显示的是单一静态构象，真实蛋白质是动态系综，侧链会运动。</li>
+            <li><b>突变建模：</b> S266N突变体由野生型模型修改而来，<b>未经实验验证</b>。AlphaFold对单点突变的预测准确性未知。</li>
+            <li><b>溶剂与配体：</b> 图中未显示水分子、离子、配体，这些可能影响实际氢键和构象。</li>
+        </ul>
+    </div>
+
+    <div class="info-box">
+        <b>ℹ 可靠的结论（仅限化学层面）：</b>
+        <ol>
+            <li><b>化学基团：</b> Ser的-OH → Asn的-CONH₂ <font color="#008000"><b>(确定)</b></font></li>
+            <li><b>分子量：</b> 105.09 Da → 132.12 Da (+27 Da) <font color="#008000"><b>(确定)</b></font></li>
+            <li><b>理论体积：</b> 89 Ų → 114 Ų (+28%) <font color="#008000"><b>(确定)</b></font></li>
+            <li><b>理论氢键能力：</b> 供体1→2，受体2→3 <font color="#008000"><b>(确定)</b></font></li>
+            <li><b>磷酸化能力：</b> Ser可被磷酸化，Asn不可 <font color="#008000"><b>(确定)</b></font></li>
+        </ol>
+    </div>
+
+    <div class="warning-box">
+        <b>⚠ 不能从结构图得出的结论（需实验）：</b>
+        <ol>
+            <li><b>整体结构稳定性：</b> S266N是否导致蛋白质折叠异常或稳定性下降？ → 需要热稳定性实验、CD光谱</li>
+            <li><b>SH3域功能：</b> S266N是否影响SH3与配体的结合？ → 需要Pull-down、SPR、ITC</li>
+            <li><b>氢键网络：</b> 实际氢键如何改变？ → 需要NMR、MD模拟、晶体结构</li>
+            <li><b>激酶活性：</b> S266N是否影响BTK催化活性？ → 需要激酶活性测定</li>
+            <li><b>磷酸化：</b> S266在野生型中是否真的被磷酸化？ → 需要质谱分析</li>
+        </ol>
+    </div>
+</div>
+
+<!-- 综合结论 -->
+<div class="container">
+    <h2>BTK S266N vs WT 综合对比总结</h2>
+
+    <table class="summary">
+        <tr style="background-color:#CCCCFF;">
+            <th colspan="2">对比维度</th>
+            <th>野生型 (WT)</th>
+            <th>S266N突变型</th>
+            <th>差异意义</th>
+        </tr>
+        <tr>
+            <th rowspan="3" style="background-color:#CCCCFF;">序列层面</th>
+            <td><b>氨基酸</b></td>
+            <td>Serine (S)</td>
+            <td>Asparagine (N)</td>
+            <td>保守替换(BLOSUM62 +1)</td>
+        </tr>
+        <tr>
+            <td><b>侧链结构</b></td>
+            <td>-CH₂-OH (羟基)</td>
+            <td>-CH₂-CO-NH₂ (酰胺)</td>
+            <td>失去-OH，无法磷酸化</td>
+        </tr>
+        <tr>
+            <td><b>结构域位置</b></td>
+            <td colspan="2" align="center">SH3域C端 (266/288, 67%位置)</td>
+            <td>功能关键区域</td>
+        </tr>
+        <tr>
+            <th rowspan="4" style="background-color:#CCFFCC;">理化性质</th>
+            <td><b>分子量</b></td>
+            <td>105.09 Da</td>
+            <td>132.12 Da</td>
+            <td style="background-color:#FFCCCC;">+27 Da (+26%)</td>
+        </tr>
+        <tr>
+            <td><b>疏水性</b></td>
+            <td>-0.8 (中性偏亲水)</td>
+            <td>-3.5 (强亲水)</td>
+            <td style="background-color:#CCCCFF;">更亲水 (Δ=-2.7)</td>
+        </tr>
+        <tr>
+            <td><b>体积</b></td>
+            <td>89 Ų</td>
+            <td>114 Ų</td>
+            <td style="background-color:#FFCCCC;">+25 Ų (+28%)</td>
+        </tr>
+        <tr>
+            <td><b>氢键能力</b></td>
+            <td>供体1 / 受体2</td>
+            <td>供体2 / 受体3</td>
+            <td>氢键模式改变</td>
+        </tr>
+        <tr>
+            <th rowspan="3" style="background-color:#FFFFCC;">人群数据</th>
+            <td><b>gnomAD总频率</b></td>
+            <td>N/A (野生型)</td>
+            <td>4.57×10⁻⁶</td>
+            <td style="background-color:#FF9999;"><b>极罕见</b></td>
+        </tr>
+        <tr>
+            <td><b>东亚频率</b></td>
+            <td>N/A</td>
+            <td>9.97×10⁻⁵</td>
+            <td style="background-color:#FF9999;"><b>罕见</b></td>
+        </tr>
+        <tr>
+            <td><b>变异ID</b></td>
+            <td>N/A</td>
+            <td>rs1360098311</td>
+            <td>gnomAD已收录</td>
+        </tr>
+        <tr>
+            <th rowspan="2" style="background-color:#FFCCFF;">预测评分</th>
+            <td><b>SIFT</b></td>
+            <td>N/A</td>
+            <td>0.02 (Deleterious)</td>
+            <td style="background-color:#FF9999;"><b>预测有害</b></td>
+        </tr>
+        <tr>
+            <td><b>PolyPhen-2</b></td>
+            <td>N/A</td>
+            <td>0.007 (Benign)</td>
+            <td style="background-color:#99FF99;"><b>预测良性</b></td>
+        </tr>
+        <tr>
+            <th rowspan="4" style="background-color:#E6E6FA;">3D结构层面<br><font size="2">(AlphaFold模型)</font></th>
+            <td><b>表面体积</b></td>
+            <td>73 Ų (Ser侧链)</td>
+            <td>96 Ų (Asn侧链)</td>
+            <td style="background-color:#FFCCCC;"><b>+23 Ų (+28%)</b> 体积增大</td>
+        </tr>
+        <tr>
+            <td><b>化学基团</b></td>
+            <td>-OH (羟基)</td>
+            <td>-CONH₂ (酰胺)</td>
+            <td style="background-color:#FFCCCC;">基团改变，<b>氢键模式可能不同</b></td>
+        </tr>
+        <tr>
+            <td><b>SH3域位置</b></td>
+            <td colspan="2" align="center">位于SH3域表面 (残基220-288)</td>
+            <td style="background-color:#FFFF99;">表面突变，<b>可能影响蛋白相互作用</b></td>
+        </tr>
+        <tr>
+            <td><b>结构预测可信度</b></td>
+            <td colspan="2" align="center"><font color="#FF0000"><b>⚠ 计算模型预测，非实验结构</b></font></td>
+            <td style="background-color:#FFCCCC;"><b>需MD模拟或实验验证</b></td>
+        </tr>
+        <tr>
+            <th rowspan="2" style="background-color:#FFCCCC;">ACMG分类</th>
+            <td><b>分类</b></td>
+            <td>N/A</td>
+            <td><b>Likely Benign</b></td>
+            <td>可能良性</td>
+        </tr>
+        <tr>
+            <td><b>致病性评分</b></td>
+            <td>N/A</td>
+            <td><font color="#FF0000"><b>+3</b></font></td>
+            <td style="background-color:#FFFF00;"><b>中等致病倾向</b></td>
+        </tr>
+    </table>
+</div>
+
+<!-- 关键矛盾 -->
+<div class="highlight-box">
+    <h2 style="border:none; background:none; color:#FF0000;">关键矛盾与不确定性</h2>
+    <table width="90%" align="center" border="4" style="background-color:#FFFFCC;">
+        <tr>
+            <td style="padding:15px;">
+                <font size="4">
+                <b>矛盾1: ACMG分类 vs 致病性评分</b><br>
+                ● ACMG规则分类: <font color="#008000" size="5"><b>Likely Benign</b></font><br>
+                ● 致病性评分: <font color="#FF0000" size="5"><b>+3</b></font> (正值=致病倾向)<br>
+                → 规则判良性，但评分提示致病可能<br><br>
+
+                <b>矛盾2: SIFT vs PolyPhen-2</b><br>
+                ● SIFT: <font color="#FF0000" size="5"><b>0.02 (Deleterious 有害)</b></font><br>
+                ● PolyPhen-2: <font color="#008000" size="5"><b>0.007 (Benign 良性)</b></font><br>
+                → 两大预测工具完全相反！<br><br>
+
+                <b>矛盾3: 保守替换 vs 功能域位置</b><br>
+                ● BLOSUM62: <font color="#008000" size="5"><b>+1</b></font> (保守替换)<br>
+                ● 位置: <font color="#FF0000" size="5"><b>SH3功能域</b></font><br>
+                ● 频率: <font color="#FF0000" size="5"><b>极罕见 (4.57×10⁻⁶)</b></font><br>
+                → 保守但位于关键域且极罕见<br><br>
+
+                <b>矛盾4: 结构预测 vs 实验数据缺乏</b><br>
+                ● AlphaFold模型: <font color="#FF8C00" size="5"><b>体积增大28%</b></font><br>
+                ● 化学基团: <font color="#008000" size="5"><b>-OH → -CONH₂ (确定)</b></font><br>
+                ● 氢键位置: <font color="#FF0000" size="5"><b>模型预测 (不确定)</b></font><br>
+                ● 功能影响: <font color="#FF0000" size="5"><b>无实验数据</b></font><br>
+                → 化学改变确定，但功能影响未知<br><br>
+
+                <hr style="border:2px dashed #FF0000;">
+
+                <b style="color:#FF0000; font-size:18px;">⚠ 关键不确定性（3D结构层面）：</b><br><br>
+
+                <b>不确定性1: AlphaFold模型的局限</b><br>
+                ● 模型来源: <font color="#FF8C00"><b>AlphaFold v2.0 计算预测</b></font> (非实验结构)<br>
+                ● 静态构象: 单一构象 vs 真实的<b>动态系综</b><br>
+                ● 侧链精度: 主链可信度高，<b>侧链定位不确定</b><br>
+                → 不能基于模型断定整体结构变化<br><br>
+
+                <b>不确定性2: 氢键网络</b><br>
+                ● 理论预测: Ser (供体1/受体2) → Asn (供体2/受体3)<br>
+                ● 实际氢键: <font color="#FF0000"><b>取决于周围残基、溶剂、pH、温度</b></font><br>
+                ● 图示氢键: 基于模型静态构象的<b>可能氢键</b><br>
+                → 需要MD模拟或NMR/晶体学实验验证<br><br>
+
+                <b>不确定性3: 功能影响推断</b><br>
+                ● 体积增大: <font color="#008000"><b>+28% (化学确定)</b></font><br>
+                ● SH3表面位置: <font color="#FF8C00"><b>可能影响配体结合 (推测)</b></font><br>
+                ● 蛋白相互作用: <font color="#FF0000"><b>无实验数据</b></font><br>
+                ● 激酶活性: <font color="#FF0000"><b>完全未知</b></font><br>
+                → 不能将结构差异直接等同于功能缺陷<br><br>
+
+                <hr style="border:2px solid #0000FF;">
+
+                <font color="#0000FF" size="4"><b>
+                结论: 生物信息学和结构预测证据均存在矛盾和不确定性。<br>
+                化学基团改变（-OH → -CONH₂）和体积增大（+28%）是确定的，<br>
+                但功能影响、氢键网络、蛋白相互作用均无法从模型推断。<br>
+                <font color="#FF0000">必须进行功能实验验证（Pull-down、SPR、激酶活性检测）<br>
+                和临床数据关联分析才能明确致病性。</font>
+                </b></font>
+                </font>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<!-- 图表总结 -->
+<div class="container">
+    <h2>四个核心图表的关联性评估</h2>
+
+    <table class="summary">
+        <tr>
+            <th>图表</th>
+            <th>与S266N关联度</th>
+            <th>主要价值</th>
+            <th>局限性</th>
+        </tr>
+        <tr>
+            <td><b>图表1: 外部数据摘要</b></td>
+            <td><span class="star-rating">★★★☆☆</span></td>
+            <td>提供BTK整体背景（ClinVar、STRING、保守性、Pfam）</td>
+            <td style="background-color:#FFCCCC;">不直接显示S266N特异性，需单独查询S266</td>
+        </tr>
+        <tr>
+            <td><b>图表2: BLOSUM62性质</b></td>
+            <td><span class="star-rating">★★★★★</span></td>
+            <td style="background-color:#99FF99;">直接量化S266N的生化差异，6面板详细对比</td>
+            <td>无法预测功能影响，需实验验证</td>
+        </tr>
+        <tr>
+            <td><b>图表3: ACMG分类</b></td>
+            <td><span class="star-rating">★★★★★</span></td>
+            <td style="background-color:#99FF99;">整合所有证据的致病性评估，临床决策支持</td>
+            <td style="background-color:#FFCCCC;">预测工具分歧，存在矛盾，需功能验证</td>
+        </tr>
+        <tr>
+            <td><b>图表4: 3D结构可视化</b></td>
+            <td><span class="star-rating">★★★★☆</span></td>
+            <td style="background-color:#99FF99;">直观展示Ser→Asn的化学基团差异（-OH vs -CONH₂）和体积变化（+28%）</td>
+            <td style="background-color:#FFCCCC;"><b>基于AlphaFold预测模型，非实验结构。不能断定功能影响，需实验验证</b></td>
+        </tr>
+    </table>
+
+    <div class="info-box">
+        <b>ℹ 推荐使用：</b>
+        <ul>
+            <li><b>图表2、图表3、图表4</b>为核心图表，可直接用于S266N vs WT的对比分析和临床讨论。</li>
+            <li><b>图表4</b>提供直观的3D结构对比，但需明确告知这是基于计算模型的预测结果。</li>
+            <li><b>图表1</b>提供BTK整体背景，需结合ClinVar数据库单独查询S266位点的已知变异。</li>
+            <li>四个图表互补使用，从生化性质→人群数据→致病性评估→结构可视化，构成完整的分析链条。</li>
+        </ul>
+    </div>
+
+    <div class="warning-box">
+        <b>⚠ 图表4使用注意事项：</b>
+        <ul>
+            <li>结构图基于<b>AlphaFold v2.0预测模型</b>，不是X-ray或NMR实验结构</li>
+            <li>可靠的信息：<b>化学基团差异（-OH vs -CONH₂）、分子量（+27 Da）、理论体积（+28%）</b></li>
+        </ul>
+    </div>
+</div>
+
+<!-- 下一步建议 -->
+<div class="container">
+    <h2>下一步验证建议</h2>
+
+    <h3>需要实验验证的关键问题 (功能研究)</h3>
+    <table class="summary">
+        <tr>
+            <th>序号</th>
+            <th>实验</th>
+            <th>验证目的</th>
+            <th>预期周期</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>BTK激酶活性测定 (体外)</td>
+            <td>S266N是否影响BTK催化活性</td>
+            <td>2-4周</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>SH3域结合实验 (Pull-down, SPR)</td>
+            <td>S266N是否影响SH3-配体相互作用</td>
+            <td>4-6周</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td style="background-color:#FFFF00;"><b>磷酸化质谱分析</b></td>
+            <td style="background-color:#FFFF00;"><b>验证S266是否为真实磷酸化位点</b></td>
+            <td>4-8周</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>细胞信号通路激活 (Western, FACS)</td>
+            <td>S266N对下游信号的影响</td>
+            <td>6-8周</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>患者细胞功能分析</td>
+            <td>S266N在患者来源细胞中的表型</td>
+            <td>8-12周</td>
+        </tr>
+    </table>
+
+    <div class="warning-box">
+        <b>⚠ 最优先：</b> 磷酸化质谱分析是关键实验。如果S266确实不是磷酸化位点，则"失去磷酸化能力"的推论不成立。需要先验证WT的S266是否被磷酸化。
+    </div>
+</div>
+
+<!-- 页脚 -->
+<div class="footer">
+    <font size="3">
+    <b>数据来源:</b> UniProt Q06187, gnomAD v4.1.0, Ensembl VEP 110, ClinVar, STRING v12, BioPython 1.85, AlphaFold v2.0, PyMOL 3.1.0<br>
+    <b>分析日期:</b> 2025年11月5日<br>
+    <b>报告版本:</b> v3.1 (1990s Retro Style - 3D Structure Visualization Edition)<br>
+    <b>文件位置:</b> /Users/juewang/.../comprehensive_analysis/<br>
+    <b>中文字体:</b> Arial Unicode MS (已修复显示问题)
+    </font>
+</div>
+
+<br>
+<center>
+    <table width="80%" border="3" style="background-color:#FFCCCC;">
+        <tr>
+            <td style="background-color:#000080; color:#FFFF00; padding:10px; text-align:center;">
+                <b>免责声明</b><br>
+                本报告基于生物信息学分析和公共数据库，仅供研究参考。<br>
+                致病性的最终判定需要功能实验验证、临床表型评估和家族共分离分析。<br>
+                本报告不能直接用于临床诊断或治疗决策，需要专业医学遗传咨询师解读。
+            </td>
+        </tr>
+    </table>
+</center>
+
+<br>
+<center>
+    <font size="2" color="#808080">
+        <i>Best viewed with 1024x768 resolution • Optimized for Internet Explorer 5.5 & Netscape Navigator 6.0</i>
+    </font>
+</center>
+
+<marquee behavior="scroll" direction="right" bgcolor="#800080" style="color:#FFFF00; padding:8px;">
+    ★ 分析完成 ★ 数据真实可靠 ★ 谨慎解读 ★ 需要功能验证 ★ 感谢使用 ★
+</marquee>
+
+</body>
+</html>
