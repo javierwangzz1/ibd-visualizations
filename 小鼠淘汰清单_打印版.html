@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>小鼠淘汰与保留清单</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 12mm;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "SimSun", "PingFang SC", "Microsoft YaHei", serif;
+            font-size: 10pt;
+            line-height: 1.4;
+            color: #000;
+            background: #fff;
+            padding: 8mm;
+        }
+        h1 {
+            text-align: center;
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 4mm;
+            padding-bottom: 2mm;
+            border-bottom: 2px solid #000;
+        }
+        .meta {
+            text-align: center;
+            font-size: 9pt;
+            color: #333;
+            margin-bottom: 5mm;
+        }
+        h2 {
+            font-size: 11pt;
+            font-weight: bold;
+            margin: 5mm 0 2mm 0;
+            padding: 2mm 3mm;
+            background: #e0e0e0;
+            border-left: 4px solid #333;
+        }
+        h3 {
+            font-size: 10pt;
+            font-weight: bold;
+            margin: 3mm 0 2mm 0;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2mm 0;
+            font-size: 9pt;
+        }
+        th, td {
+            border: 1px solid #666;
+            padding: 1.5mm 2mm;
+            text-align: center;
+        }
+        th {
+            background: #d0d0d0;
+            font-weight: bold;
+        }
+        .discard { background: #ffe0e0; }
+        .keep { background: #d0ffd0; }
+        .pending { background: #fff0d0; }
+
+        .cage-info {
+            background: #f0f0ff;
+            border: 1px solid #666;
+            padding: 3mm;
+            margin: 3mm 0;
+            font-size: 9pt;
+        }
+        .cage-info strong { color: #333; }
+        .cage-arrow {
+            font-size: 12pt;
+            color: #666;
+            margin: 0 2mm;
+        }
+
+        .summary-box {
+            border: 2px solid #000;
+            padding: 3mm;
+            margin: 4mm 0;
+            background: #f8f8f8;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2mm;
+            margin-top: 2mm;
+        }
+        .summary-item {
+            text-align: center;
+            padding: 2mm;
+            border: 1px solid #999;
+        }
+        .summary-item .num {
+            font-size: 14pt;
+            font-weight: bold;
+        }
+        .summary-item .label {
+            font-size: 8pt;
+            color: #666;
+        }
+        .summary-item.red { background: #ffe0e0; }
+        .summary-item.green { background: #d0ffd0; }
+        .summary-item.orange { background: #fff0d0; }
+
+        .criteria-box {
+            border: 1px solid #666;
+            padding: 2mm;
+            margin: 2mm 0;
+            font-size: 8pt;
+            background: #f5f5ff;
+        }
+
+        .checklist {
+            margin: 2mm 0;
+            padding: 2mm;
+            border: 1px solid #999;
+            background: #fafafa;
+            font-size: 9pt;
+        }
+        .checklist-title {
+            font-weight: bold;
+            margin-bottom: 1mm;
+            font-size: 9pt;
+            padding: 1mm 2mm;
+        }
+        .checklist-items {
+            line-height: 1.6;
+            padding: 1mm 2mm;
+        }
+        .checkbox {
+            display: inline-block;
+            width: 3.5mm;
+            height: 3.5mm;
+            border: 1px solid #000;
+            margin-right: 1mm;
+            vertical-align: middle;
+        }
+
+        .discard-list {
+            background: #fff0f0;
+            border: 2px solid #c00;
+        }
+        .discard-list .checklist-title {
+            background: #c00;
+            color: white;
+        }
+
+        .keep-list {
+            background: #f0fff0;
+            border: 2px solid #060;
+        }
+        .keep-list .checklist-title {
+            background: #060;
+            color: white;
+        }
+
+        .pending-list {
+            background: #fffaf0;
+            border: 2px solid #f90;
+        }
+        .pending-list .checklist-title {
+            background: #f90;
+            color: white;
+        }
+
+        .cage-section {
+            margin-bottom: 4mm;
+            page-break-inside: avoid;
+        }
+
+        .highlight-cage {
+            border: 2px solid #c00;
+            background: #fff8f8;
+        }
+
+        .footer {
+            margin-top: 5mm;
+            padding-top: 2mm;
+            border-top: 1px solid #999;
+            font-size: 8pt;
+            color: #666;
+            text-align: center;
+        }
+
+        .page-break { page-break-before: always; }
+
+        .cage-relationship {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3mm;
+            margin: 3mm 0;
+        }
+        .cage-card {
+            border: 2px solid #666;
+            padding: 3mm;
+            background: #fafafa;
+            text-align: center;
+        }
+        .cage-card.focus {
+            border-color: #c00;
+            background: #fff0f0;
+        }
+        .cage-card h4 {
+            font-size: 10pt;
+            margin-bottom: 2mm;
+            padding-bottom: 1mm;
+            border-bottom: 1px solid #ccc;
+        }
+        .cage-card .relation {
+            font-size: 8pt;
+            color: #666;
+            margin-bottom: 2mm;
+        }
+        .cage-card .status {
+            font-size: 9pt;
+            font-weight: bold;
+        }
+        .status-bad { color: #c00; }
+        .status-good { color: #060; }
+        .status-warn { color: #f90; }
+
+        @media print {
+            body { padding: 0; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Lyz2-Cre/iDTR/Cg3 三基因小鼠淘汰与保留清单</h1>
+    <p class="meta">日期：2025-12-23 | 总样品数：41只 | 淘汰率：70.7%</p>
+
+    <!-- 笼位关系说明 -->
+    <div class="cage-info">
+        <strong>重点关注笼位对应关系：</strong><br>
+        <table style="margin-top:2mm;">
+            <tr>
+                <th>交配笼位</th>
+                <th>子代笼位</th>
+                <th>亲本来源</th>
+                <th>本次鉴定样品</th>
+                <th>状态</th>
+            </tr>
+            <tr class="discard">
+                <td><strong>2-9C</strong></td>
+                <td>1-9E (小)</td>
+                <td>2-9C</td>
+                <td>1-9♂, 11-17♀ (16只)</td>
+                <td class="status-bad">淘汰14只</td>
+            </tr>
+            <tr class="keep">
+                <td><strong>2-9B</strong></td>
+                <td>-</td>
+                <td>2-9B</td>
+                <td>21-27♀, 31-35♂ (12只)</td>
+                <td class="status-good">保留7只</td>
+            </tr>
+            <tr class="discard">
+                <td><strong>2-8E</strong></td>
+                <td>1-9D (小)</td>
+                <td>2-8E</td>
+                <td>41-46♂, 51-57♀ (13只)</td>
+                <td class="status-bad">淘汰10只</td>
+            </tr>
+            <tr class="pending">
+                <td><strong>2-1A</strong></td>
+                <td>1-8G (分)</td>
+                <td>2-1A (分)</td>
+                <td>待鉴定</td>
+                <td class="status-warn">待处理</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="criteria-box">
+        <strong>筛选标准：</strong>
+        <strong>优秀♂：</strong>C2C+(纯合) + LYZ2+(Het) + DTR+(Het) 全部满足 |
+        <strong>优秀♀：</strong>以上3项满足任意2项 |
+        <strong>淘汰：</strong>♂不满足3项、♀不满足2项
+    </div>
+
+    <div class="summary-box">
+        <div class="summary-grid">
+            <div class="summary-item red">
+                <div class="num">29</div>
+                <div class="label">淘汰</div>
+            </div>
+            <div class="summary-item green">
+                <div class="num">8</div>
+                <div class="label">保留</div>
+            </div>
+            <div class="summary-item orange">
+                <div class="num">4</div>
+                <div class="label">待定</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2-9C笼位 - 重点 -->
+    <div class="cage-section highlight-cage">
+        <h2>2-9C笼位 → 子代: 1-9E(小) | 淘汰14只 / 待定2只</h2>
+
+        <h3>雄性 1-9♂ — 全部淘汰（9只）— C2C均为wt/het</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>编号</th>
+                    <th>C2C</th>
+                    <th>LYZ2</th>
+                    <th>DTR</th>
+                    <th>淘汰原因</th>
+                    <th>处理</th>
+                    <th>✓</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="discard"><td><strong>1(80)♂</strong></td><td>wt/het</td><td>Het</td><td>Het</td><td>缺C2C纯合</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>2(80)♂</strong></td><td>wt/het</td><td>WT</td><td>WT</td><td>0项满足</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>3(80)♂</strong></td><td>wt/het</td><td>Het</td><td>Het</td><td>缺C2C纯合</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>4(80)♂</strong></td><td>wt/het</td><td>WT</td><td>WT</td><td>0项满足</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>5(80)♂</strong></td><td>wt/het</td><td>Het</td><td>WT</td><td>缺C2C+/DTR</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>6(80)♂</strong></td><td>wt/het</td><td>Het</td><td>Het</td><td>缺C2C纯合</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>7(80)♂</strong></td><td>wt/het</td><td>Het</td><td>缺失</td><td>缺C2C+/DTR未检测</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>8(80)♂</strong></td><td>wt/het</td><td>Het</td><td>Het</td><td>缺C2C纯合</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>9(80)♂</strong></td><td>wt/het</td><td>Het</td><td>Het</td><td>缺C2C纯合</td><td>淘汰</td><td></td></tr>
+            </tbody>
+        </table>
+
+        <h3>雌性 11-17♀ — 淘汰5只 / 待定2只</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>编号</th>
+                    <th>C2C</th>
+                    <th>LYZ2</th>
+                    <th>DTR</th>
+                    <th>原因</th>
+                    <th>处理</th>
+                    <th>✓</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="discard"><td><strong>11(80)♀</strong></td><td>wt/het</td><td>Het</td><td>WT</td><td>仅1项(LYZ2)</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>12(80)♀</strong></td><td>wt/het</td><td>Het</td><td>WT</td><td>仅1项(LYZ2)</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>13(80)♀</strong></td><td>wt/het</td><td>WT</td><td>WT</td><td>0项满足</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>14(80)♀</strong></td><td>wt/het</td><td>WT</td><td>Het</td><td>仅1项(DTR)</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>15(80)♀</strong></td><td>wt/het</td><td>Het</td><td>WT</td><td>仅1项(LYZ2)</td><td>淘汰</td><td></td></tr>
+                <tr class="pending"><td><strong>16(80)♀</strong></td><td>c2c+</td><td>?</td><td>?</td><td>LYZ2/DTR待复测</td><td>待定</td><td></td></tr>
+                <tr class="pending"><td><strong>17(80)♀</strong></td><td>c2c+</td><td>?</td><td>?</td><td>LYZ2/DTR待复测</td><td>待定</td><td></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 2-9B笼位 -->
+    <div class="cage-section">
+        <h2>2-9B笼位 | 淘汰5只 / 保留7只 ★优质笼位</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>编号</th>
+                    <th>C2C</th>
+                    <th>LYZ2</th>
+                    <th>DTR</th>
+                    <th>满足条件</th>
+                    <th>处理</th>
+                    <th>✓</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="keep"><td><strong>21(80)♀</strong></td><td>c2c+</td><td>Het</td><td>WT</td><td>C2C+ LYZ2+ (2项)</td><td>★保留</td><td></td></tr>
+                <tr class="discard"><td><strong>22(80)♀</strong></td><td>wt/het</td><td>Het</td><td>WT</td><td>仅1项(LYZ2)</td><td>淘汰</td><td></td></tr>
+                <tr class="keep"><td><strong>23(80)♀</strong></td><td>wt/het</td><td>Het</td><td>Het</td><td>LYZ2+ DTR+ (2项)</td><td>★保留</td><td></td></tr>
+                <tr class="discard"><td><strong>24(80)♀</strong></td><td>wt/het</td><td>Het</td><td>WT</td><td>仅1项(LYZ2)</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>25(80)♀</strong></td><td>wt/het</td><td>Het</td><td>WT</td><td>仅1项(LYZ2)</td><td>淘汰</td><td></td></tr>
+                <tr class="keep"><td><strong>26(80)♀</strong></td><td>c2c+</td><td>Het</td><td>WT</td><td>C2C+ LYZ2+ (2项)</td><td>★保留</td><td></td></tr>
+                <tr class="keep"><td><strong>27(80)♀</strong></td><td>wt/het</td><td>Het</td><td>Het</td><td>LYZ2+ DTR+ (2项)</td><td>★保留</td><td></td></tr>
+                <tr class="discard"><td><strong>31(80)♂</strong></td><td>c2c+</td><td>WT</td><td>WT</td><td>仅1项(C2C)</td><td>淘汰</td><td></td></tr>
+                <tr class="keep"><td><strong>32(80)♂</strong></td><td>c2c+</td><td>Het</td><td>Het</td><td>3项全满足</td><td>★★保留</td><td></td></tr>
+                <tr class="discard"><td><strong>33(80)♂</strong></td><td>c2c+</td><td>Het</td><td>WT</td><td>缺DTR</td><td>淘汰</td><td></td></tr>
+                <tr class="keep"><td><strong>34(80)♂</strong><sup>小</sup></td><td>c2c+</td><td>Het</td><td>Het</td><td>3项全满足</td><td>★★保留</td><td></td></tr>
+                <tr class="keep"><td><strong>35(80)♂</strong><sup>小</sup></td><td>c2c+</td><td>Het</td><td>Het</td><td>3项全满足</td><td>★★保留</td><td></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 2-8E笼位 - 重点 -->
+    <div class="cage-section highlight-cage">
+        <h2>2-8E笼位 → 子代: 1-9D(小) | 淘汰10只 / 保留1只 / 待定2只</h2>
+
+        <h3>雄性 41-46♂</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>编号</th>
+                    <th>C2C</th>
+                    <th>LYZ2</th>
+                    <th>DTR</th>
+                    <th>原因</th>
+                    <th>处理</th>
+                    <th>✓</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="discard"><td><strong>41(80)♂</strong></td><td>wt/het</td><td>WT</td><td>Het</td><td>仅1项(DTR)</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>42(80)♂</strong></td><td>wt/het</td><td>WT</td><td>WT</td><td>0项满足</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>43(80)♂</strong></td><td>wt/het</td><td>WT</td><td>WT</td><td>0项满足</td><td>淘汰</td><td></td></tr>
+                <tr class="pending"><td><strong>44(80)♂</strong></td><td>wt/het</td><td>Het</td><td>Het</td><td>仅缺C2C+(后备)</td><td>待定</td><td></td></tr>
+                <tr class="discard"><td><strong>45(80)♂</strong></td><td>wt/het</td><td>WT</td><td>Het</td><td>仅1项(DTR)</td><td>淘汰</td><td></td></tr>
+                <tr class="pending"><td><strong>46(80)♂</strong></td><td>wt/het</td><td>Het</td><td>Homo</td><td>仅缺C2C+(后备)</td><td>待定</td><td></td></tr>
+            </tbody>
+        </table>
+
+        <h3>雌性 51-57♀</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>编号</th>
+                    <th>C2C</th>
+                    <th>LYZ2</th>
+                    <th>DTR</th>
+                    <th>原因</th>
+                    <th>处理</th>
+                    <th>✓</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="discard"><td><strong>51(80)♀</strong></td><td>wt/het</td><td>WT</td><td>WT</td><td>0项满足</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>52(80)♀</strong></td><td>wt/het</td><td>Het</td><td>WT</td><td>仅1项(LYZ2)</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>53(80)♀</strong></td><td>wt/het</td><td>Het</td><td>WT</td><td>仅1项(LYZ2)</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>54(80)♀</strong></td><td>wt/het</td><td>WT</td><td>Het</td><td>仅1项(DTR)</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>55(80)♀</strong></td><td>wt/het</td><td>WT</td><td>Het</td><td>仅1项(DTR)</td><td>淘汰</td><td></td></tr>
+                <tr class="discard"><td><strong>56(80)♀</strong></td><td>缺失</td><td>-</td><td>-</td><td>样品缺失</td><td>淘汰</td><td></td></tr>
+                <tr class="keep"><td><strong>57(80)♀</strong></td><td>wt/het</td><td>Het</td><td>Homo</td><td>LYZ2+ DTR+ (2项)</td><td>★保留</td><td></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- 快速操作清单 -->
+    <h2>快速操作清单</h2>
+
+    <div class="checklist discard-list">
+        <div class="checklist-title">【淘汰清单】共29只 — 立即处理</div>
+        <div class="checklist-items">
+            <strong>2-9C笼位 (14只) → 子代1-9E(小)需同步处理：</strong><br>
+            <span class="checkbox"></span>1(80)♂
+            <span class="checkbox"></span>2(80)♂
+            <span class="checkbox"></span>3(80)♂
+            <span class="checkbox"></span>4(80)♂
+            <span class="checkbox"></span>5(80)♂
+            <span class="checkbox"></span>6(80)♂
+            <span class="checkbox"></span>7(80)♂
+            <span class="checkbox"></span>8(80)♂
+            <span class="checkbox"></span>9(80)♂<br>
+            <span class="checkbox"></span>11(80)♀
+            <span class="checkbox"></span>12(80)♀
+            <span class="checkbox"></span>13(80)♀
+            <span class="checkbox"></span>14(80)♀
+            <span class="checkbox"></span>15(80)♀<br><br>
+
+            <strong>2-9B笼位 (5只)：</strong><br>
+            <span class="checkbox"></span>22(80)♀
+            <span class="checkbox"></span>24(80)♀
+            <span class="checkbox"></span>25(80)♀
+            <span class="checkbox"></span>31(80)♂
+            <span class="checkbox"></span>33(80)♂<br><br>
+
+            <strong>2-8E笼位 (10只) → 子代1-9D(小)需同步处理：</strong><br>
+            <span class="checkbox"></span>41(80)♂
+            <span class="checkbox"></span>42(80)♂
+            <span class="checkbox"></span>43(80)♂
+            <span class="checkbox"></span>45(80)♂<br>
+            <span class="checkbox"></span>51(80)♀
+            <span class="checkbox"></span>52(80)♀
+            <span class="checkbox"></span>53(80)♀
+            <span class="checkbox"></span>54(80)♀
+            <span class="checkbox"></span>55(80)♀
+            <span class="checkbox"></span>56(80)♀
+        </div>
+    </div>
+
+    <div class="checklist keep-list">
+        <div class="checklist-title">【保留清单】共8只 — 优秀种鼠，用于繁殖</div>
+        <div class="checklist-items">
+            <strong>优秀雄性 (3只) — 来自2-9B：</strong><br>
+            <span class="checkbox"></span><strong>32(80)♂</strong> [C2C+ LYZ2+ DTR+] — 主力种公鼠<br>
+            <span class="checkbox"></span><strong>34(80)♂</strong><sup>小</sup> [C2C+ LYZ2+ DTR+] — 后备种公鼠<br>
+            <span class="checkbox"></span><strong>35(80)♂</strong><sup>小</sup> [C2C+ LYZ2+ DTR+] — 后备种公鼠<br><br>
+
+            <strong>优秀雌性 (5只)：</strong><br>
+            <span class="checkbox"></span><strong>21(80)♀</strong> [C2C+ LYZ2+] — 2-9B<br>
+            <span class="checkbox"></span><strong>23(80)♀</strong> [LYZ2+ DTR+] — 2-9B<br>
+            <span class="checkbox"></span><strong>26(80)♀</strong> [C2C+ LYZ2+] — 2-9B<br>
+            <span class="checkbox"></span><strong>27(80)♀</strong> [LYZ2+ DTR+] — 2-9B<br>
+            <span class="checkbox"></span><strong>57(80)♀</strong> [LYZ2+ DTR+] — 2-8E
+        </div>
+    </div>
+
+    <div class="checklist pending-list">
+        <div class="checklist-title">【待定清单】共4只 — 需复测或作为后备</div>
+        <div class="checklist-items">
+            <strong>需复测 (2只) — 来自2-9C：</strong><br>
+            <span class="checkbox"></span><strong>16(80)♀</strong> [C2C+, LYZ2/DTR待复测] — 复测后可能升级为优秀♀<br>
+            <span class="checkbox"></span><strong>17(80)♀</strong> [C2C+, LYZ2/DTR待复测] — 复测后可能升级为优秀♀<br><br>
+
+            <strong>后备种鼠 (2只) — 来自2-8E：</strong><br>
+            <span class="checkbox"></span><strong>44(80)♂</strong> [LYZ2+ DTR+, 缺C2C+] — 可与C2C+雌配对<br>
+            <span class="checkbox"></span><strong>46(80)♂</strong> [LYZ2+ DTR+, 缺C2C+] — 可与C2C+雌配对
+        </div>
+    </div>
+
+    <!-- 重点笼位处理说明 -->
+    <div class="summary-box">
+        <h3 style="margin:0 0 2mm 0; font-size:10pt;">重点笼位处理说明</h3>
+        <table style="font-size:9pt;">
+            <tr>
+                <th style="width:20%;">笼位关系</th>
+                <th style="width:25%;">当前状态</th>
+                <th style="width:30%;">处理建议</th>
+                <th style="width:25%;">备注</th>
+            </tr>
+            <tr class="discard">
+                <td><strong>2-9C → 1-9E(小)</strong></td>
+                <td>优秀0只，淘汰14只<br>亲本质量差</td>
+                <td>1. 淘汰2-9C全部不合格个体<br>2. 检查1-9E(小)子代情况</td>
+                <td>16/17♀待复测后决定</td>
+            </tr>
+            <tr class="discard">
+                <td><strong>2-8E → 1-9D(小)</strong></td>
+                <td>优秀1只(57♀)，淘汰10只<br>C2C全为wt/het</td>
+                <td>1. 淘汰2-8E不合格个体<br>2. 检查1-9D(小)子代情况<br>3. 保留57♀配种</td>
+                <td>44/46♂可作后备</td>
+            </tr>
+            <tr class="pending">
+                <td><strong>2-1A → 1-8G(分)</strong></td>
+                <td>待鉴定</td>
+                <td>尽快完成基因型鉴定</td>
+                <td>参照本标准筛选</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        Lyz2-Cre/iDTR/Cg3 三基因小鼠筛选 | 2025-12-23 | 淘汰29只(70.7%) / 保留8只 / 待定4只<br>
+        重点笼位：2-9C↔1-9E(小) | 2-8E↔1-9D(小) | 2-1A↔1-8G(分)
+    </div>
+</body>
+</html>
