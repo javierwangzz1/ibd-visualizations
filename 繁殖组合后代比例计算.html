@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>繁殖组合后代比例计算</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 25px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .card h2 {
+            color: #1a1a2e;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .card h3 {
+            color: #333;
+            margin: 15px 0 10px;
+        }
+
+        .cross-box {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .parent {
+            background: white;
+            border-radius: 8px;
+            padding: 12px 18px;
+            text-align: center;
+            min-width: 200px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .parent.male { border: 3px solid #2196f3; }
+        .parent.female { border: 3px solid #e91e63; }
+        .parent .symbol { font-size: 1.5em; }
+        .parent .genotype {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin-top: 5px;
+            font-weight: 600;
+        }
+        .cross-symbol {
+            font-size: 1.8em;
+            color: #9c27b0;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.85em;
+        }
+        th, td {
+            padding: 10px 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+        }
+        tr:nth-child(even) { background: #f8f9fa; }
+        tr:hover { background: #e3f2fd; }
+
+        .tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        .tag-exp { background: #c8e6c9; color: #2e7d32; }
+        .tag-ctrl { background: #bbdefb; color: #1565c0; }
+        .tag-breed { background: #fff9c4; color: #f57f17; }
+        .tag-warn { background: #ffcdd2; color: #c62828; }
+        .tag-discard { background: #e0e0e0; color: #616161; }
+
+        .highlight { background: #c8e6c9 !important; }
+        .warning-row { background: #ffcdd2 !important; }
+
+        .summary-box {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+        }
+        .summary-box h4 {
+            color: #2e7d32;
+            margin-bottom: 8px;
+        }
+        .summary-box .big-num {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+        }
+        .warning-box h4 {
+            color: #e65100;
+            margin-bottom: 8px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .comp-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .comp-card h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+        .comp-card .rate {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        .comp-card.low .rate { color: #c62828; }
+        .comp-card.mid .rate { color: #f57f17; }
+        .comp-card.high .rate { color: #2e7d32; }
+        .comp-card.best {
+            background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+            border: 2px solid #4caf50;
+        }
+
+        .note {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .gene-split {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .gene-box {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+        .gene-box h5 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        .gene-box .split-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>繁殖组合后代比例计算</h1>
+        <p class="subtitle">C2C × iDTR × Cre 三基因小鼠繁殖策略</p>
+
+        <!-- 基因型说明 -->
+        <div class="card">
+            <h2>基因型说明与目标</h2>
+            <table>
+                <tr>
+                    <th>基因</th>
+                    <th>理想实验基因型</th>
+                    <th>可接受基因型</th>
+                    <th>不可用</th>
+                </tr>
+                <tr>
+                    <td><strong>C2C</strong></td>
+                    <td><span class="tag tag-exp">+/+ 纯合</span></td>
+                    <td><span class="tag tag-breed">+/- 杂合(雌鼠繁殖用)</span></td>
+                    <td><span class="tag tag-discard">-/- 野生型</span></td>
+                </tr>
+                <tr>
+                    <td><strong>iDTR</strong></td>
+                    <td><span class="tag tag-exp">+/- 杂合</span></td>
+                    <td><span class="tag tag-breed">+/+ 纯合(可用但过敏感)</span></td>
+                    <td><span class="tag tag-discard">-/- 野生型</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Cre (Knock-in)</strong><br/>Lyz2/Ly6G</td>
+                    <td><span class="tag tag-exp">+/- 杂合</span></td>
+                    <td>—</td>
+                    <td><span class="tag tag-warn">+/+ 纯合(基因敲除!)</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Cre (转基因)</strong><br/>S100a8</td>
+                    <td><span class="tag tag-exp">+/- 杂合</span></td>
+                    <td><span class="tag tag-breed">+/+ 纯合(可用)</span></td>
+                    <td><span class="tag tag-discard">-/- 阴性</span></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 组合1: 全杂合×全杂合 -->
+        <div class="card">
+            <h2>组合1: 三基因杂合 × 三基因杂合</h2>
+            <div class="cross-box">
+                <div class="parent male">
+                    <div class="symbol">♂</div>
+                    <div class="genotype">C2C<sup>+/-</sup>; iDTR<sup>+/-</sup>; Cre<sup>+/-</sup></div>
+                </div>
+                <div class="cross-symbol">×</div>
+                <div class="parent female">
+                    <div class="symbol">♀</div>
+                    <div class="genotype">C2C<sup>+/-</sup>; iDTR<sup>+/-</sup>; Cre<sup>+/-</sup></div>
+                </div>
+            </div>
+
+            <div class="gene-split">
+                <div class="gene-box">
+                    <h5>C2C分离</h5>
+                    <div class="split-item"><span>+/+</span><span>25%</span></div>
+                    <div class="split-item"><span>+/-</span><span>50%</span></div>
+                    <div class="split-item"><span>-/-</span><span>25%</span></div>
+                </div>
+                <div class="gene-box">
+                    <h5>iDTR分离</h5>
+                    <div class="split-item"><span>+/+</span><span>25%</span></div>
+                    <div class="split-item"><span>+/-</span><span>50%</span></div>
+                    <div class="split-item"><span>-/-</span><span>25%</span></div>
+                </div>
+                <div class="gene-box">
+                    <h5>Cre分离</h5>
+                    <div class="split-item"><span>+/+</span><span>25%</span></div>
+                    <div class="split-item"><span>+/-</span><span>50%</span></div>
+                    <div class="split-item"><span>-/-</span><span>25%</span></div>
+                </div>
+            </div>
+
+            <h3>C2C+/+ 后代详细分布 (占总数25%)</h3>
+            <table>
+                <tr>
+                    <th>iDTR</th>
+                    <th>Cre</th>
+                    <th>占C2C+/+比例</th>
+                    <th>占总比例</th>
+                    <th>用途</th>
+                </tr>
+                <tr class="warning-row">
+                    <td>+/+</td><td>+/+</td><td>6.25%</td><td>1.56%</td>
+                    <td><span class="tag tag-warn">Cre纯合不可用</span></td>
+                </tr>
+                <tr class="highlight">
+                    <td>+/+</td><td>+/-</td><td>12.5%</td><td>3.125%</td>
+                    <td><span class="tag tag-exp">实验组(iDTR过表达)</span></td>
+                </tr>
+                <tr>
+                    <td>+/+</td><td>-/-</td><td>6.25%</td><td>1.56%</td>
+                    <td><span class="tag tag-ctrl">对照C2</span></td>
+                </tr>
+                <tr class="warning-row">
+                    <td>+/-</td><td>+/+</td><td>12.5%</td><td>3.125%</td>
+                    <td><span class="tag tag-warn">Cre纯合不可用</span></td>
+                </tr>
+                <tr class="highlight">
+                    <td><strong>+/-</strong></td><td><strong>+/-</strong></td><td><strong>25%</strong></td><td><strong>6.25%</strong></td>
+                    <td><span class="tag tag-exp">★理想实验组</span></td>
+                </tr>
+                <tr>
+                    <td>+/-</td><td>-/-</td><td>12.5%</td><td>3.125%</td>
+                    <td><span class="tag tag-ctrl">对照C2</span></td>
+                </tr>
+                <tr class="warning-row">
+                    <td>-/-</td><td>+/+</td><td>6.25%</td><td>1.56%</td>
+                    <td><span class="tag tag-warn">Cre纯合不可用</span></td>
+                </tr>
+                <tr>
+                    <td>-/-</td><td>+/-</td><td>12.5%</td><td>3.125%</td>
+                    <td><span class="tag tag-ctrl">对照C3</span></td>
+                </tr>
+                <tr>
+                    <td>-/-</td><td>-/-</td><td>6.25%</td><td>1.56%</td>
+                    <td><span class="tag tag-ctrl">对照C4</span></td>
+                </tr>
+            </table>
+
+            <div class="summary-box">
+                <h4>组合1 汇总 (Knock-in Cre)</h4>
+                <p>理想实验组 (C2C+/+; iDTR+/-; Cre+/-): <strong class="big-num">6.25%</strong></p>
+                <p>可用实验组 (含iDTR+/+): 6.25% + 3.125% = <strong>9.375%</strong></p>
+                <p>Cre纯合不可用: 25% × 25% = <strong style="color:#c62828;">6.25%</strong></p>
+            </div>
+        </div>
+
+        <!-- 组合2: C2C纯合♂ × 杂合♀ -->
+        <div class="card">
+            <h2>组合2: C2C纯合♂ × C2C杂合♀</h2>
+            <div class="cross-box">
+                <div class="parent male">
+                    <div class="symbol">♂</div>
+                    <div class="genotype">C2C<sup>+/+</sup>; iDTR<sup>+/-</sup>; Cre<sup>+/-</sup></div>
+                </div>
+                <div class="cross-symbol">×</div>
+                <div class="parent female">
+                    <div class="symbol">♀</div>
+                    <div class="genotype">C2C<sup>+/-</sup>; iDTR<sup>+/-</sup>; Cre<sup>+/-</sup></div>
+                </div>
+            </div>
+
+            <div class="gene-split">
+                <div class="gene-box">
+                    <h5>C2C分离</h5>
+                    <div class="split-item"><span>+/+</span><span><strong>50%</strong></span></div>
+                    <div class="split-item"><span>+/-</span><span>50%</span></div>
+                    <div class="split-item" style="color:#999;"><span>-/-</span><span>0%</span></div>
+                </div>
+                <div class="gene-box">
+                    <h5>iDTR分离</h5>
+                    <div class="split-item"><span>+/+</span><span>25%</span></div>
+                    <div class="split-item"><span>+/-</span><span>50%</span></div>
+                    <div class="split-item"><span>-/-</span><span>25%</span></div>
+                </div>
+                <div class="gene-box">
+                    <h5>Cre分离</h5>
+                    <div class="split-item"><span>+/+</span><span>25%</span></div>
+                    <div class="split-item"><span>+/-</span><span>50%</span></div>
+                    <div class="split-item"><span>-/-</span><span>25%</span></div>
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <h4>组合2 汇总</h4>
+                <p>理想实验组 (C2C+/+; iDTR+/-; Cre+/-): 50% × 50% × 50% = <strong class="big-num">12.5%</strong></p>
+                <p>C2C+/+后代比例: <strong>50%</strong> (↑2倍)</p>
+            </div>
+        </div>
+
+        <!-- 组合3: C2C双纯合 -->
+        <div class="card">
+            <h2>组合3: C2C双纯合 × C2C双纯合</h2>
+            <div class="cross-box">
+                <div class="parent male">
+                    <div class="symbol">♂</div>
+                    <div class="genotype">C2C<sup>+/+</sup>; iDTR<sup>+/-</sup>; Cre<sup>+/-</sup></div>
+                </div>
+                <div class="cross-symbol">×</div>
+                <div class="parent female">
+                    <div class="symbol">♀</div>
+                    <div class="genotype">C2C<sup>+/+</sup>; iDTR<sup>+/-</sup>; Cre<sup>+/-</sup></div>
+                </div>
+            </div>
+
+            <div class="gene-split">
+                <div class="gene-box">
+                    <h5>C2C分离</h5>
+                    <div class="split-item"><span>+/+</span><span><strong>100%</strong></span></div>
+                </div>
+                <div class="gene-box">
+                    <h5>iDTR分离</h5>
+                    <div class="split-item"><span>+/+</span><span>25%</span></div>
+                    <div class="split-item"><span>+/-</span><span>50%</span></div>
+                    <div class="split-item"><span>-/-</span><span>25%</span></div>
+                </div>
+                <div class="gene-box">
+                    <h5>Cre分离</h5>
+                    <div class="split-item"><span>+/+</span><span>25%</span></div>
+                    <div class="split-item"><span>+/-</span><span>50%</span></div>
+                    <div class="split-item"><span>-/-</span><span>25%</span></div>
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <h4>组合3 汇总</h4>
+                <p>理想实验组 (C2C+/+; iDTR+/-; Cre+/-): 100% × 50% × 50% = <strong class="big-num">25%</strong></p>
+                <p>C2C+/+后代比例: <strong>100%</strong> (↑4倍)</p>
+                <p class="note">⚠️ Cre纯合仍占25%后代，需筛选</p>
+            </div>
+        </div>
+
+        <!-- 组合4: iDTR纯合参与 -->
+        <div class="card">
+            <h2>组合4: iDTR纯合♂ × iDTR杂合♀</h2>
+            <div class="cross-box">
+                <div class="parent male">
+                    <div class="symbol">♂</div>
+                    <div class="genotype">C2C<sup>+/+</sup>; iDTR<sup>+/+</sup>; Cre<sup>+/-</sup></div>
+                </div>
+                <div class="cross-symbol">×</div>
+                <div class="parent female">
+                    <div class="symbol">♀</div>
+                    <div class="genotype">C2C<sup>+/-</sup>; iDTR<sup>+/-</sup>; Cre<sup>+/-</sup></div>
+                </div>
+            </div>
+
+            <div class="gene-split">
+                <div class="gene-box">
+                    <h5>C2C分离</h5>
+                    <div class="split-item"><span>+/+</span><span>50%</span></div>
+                    <div class="split-item"><span>+/-</span><span>50%</span></div>
+                </div>
+                <div class="gene-box">
+                    <h5>iDTR分离</h5>
+                    <div class="split-item"><span>+/+</span><span>50%</span></div>
+                    <div class="split-item"><span>+/-</span><span>50%</span></div>
+                    <div class="split-item" style="color:#999;"><span>-/-</span><span>0%</span></div>
+                </div>
+                <div class="gene-box">
+                    <h5>Cre分离</h5>
+                    <div class="split-item"><span>+/+</span><span>25%</span></div>
+                    <div class="split-item"><span>+/-</span><span>50%</span></div>
+                    <div class="split-item"><span>-/-</span><span>25%</span></div>
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <h4>组合4 汇总</h4>
+                <p>C2C+/+; iDTR阳性; Cre+/-: 50% × 100% × 50% = <strong class="big-num">25%</strong></p>
+                <p>iDTR阳性后代: <strong>100%</strong> (无iDTR阴性！)</p>
+                <p class="note">优势：不会产生iDTR阴性后代，减少筛选</p>
+            </div>
+        </div>
+
+        <!-- 组合5: iDTR双纯合 -->
+        <div class="card">
+            <h2>组合5: iDTR双纯合交配</h2>
+            <div class="cross-box">
+                <div class="parent male">
+                    <div class="symbol">♂</div>
+                    <div class="genotype">C2C<sup>+/+</sup>; iDTR<sup>+/+</sup>; Cre<sup>+/-</sup></div>
+                </div>
+                <div class="cross-symbol">×</div>
+                <div class="parent female">
+                    <div class="symbol">♀</div>
+                    <div class="genotype">C2C<sup>+/+</sup>; iDTR<sup>+/+</sup>; Cre<sup>+/-</sup></div>
+                </div>
+            </div>
+
+            <div class="gene-split">
+                <div class="gene-box">
+                    <h5>C2C分离</h5>
+                    <div class="split-item"><span>+/+</span><span><strong>100%</strong></span></div>
+                </div>
+                <div class="gene-box">
+                    <h5>iDTR分离</h5>
+                    <div class="split-item"><span>+/+</span><span><strong>100%</strong></span></div>
+                </div>
+                <div class="gene-box">
+                    <h5>Cre分离</h5>
+                    <div class="split-item"><span>+/+</span><span>25%</span></div>
+                    <div class="split-item"><span>+/-</span><span>50%</span></div>
+                    <div class="split-item"><span>-/-</span><span>25%</span></div>
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <h4>组合5 汇总</h4>
+                <p>实验可用 (C2C+/+; iDTR+/+; Cre+/-): <strong class="big-num">50%</strong></p>
+                <p>C2C+/+ × iDTR+/+: <strong>100%</strong></p>
+                <p class="note">⚠️ iDTR纯合可能导致DT过敏感，需调整剂量</p>
+            </div>
+
+            <div class="warning-box">
+                <h4>注意：iDTR纯合的影响</h4>
+                <p>iDTR纯合(+/+)表达更多DTR，可能导致：</p>
+                <ul style="margin-left:20px; margin-top:5px;">
+                    <li>细胞对DT过度敏感</li>
+                    <li>需要降低DT剂量</li>
+                    <li>建议先做剂量滴定实验</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 组合6: Cre纯合参与 (仅S100a8) -->
+        <div class="card">
+            <h2>组合6: Cre纯合交配 (仅限S100a8转基因型)</h2>
+            <div class="cross-box">
+                <div class="parent male">
+                    <div class="symbol">♂</div>
+                    <div class="genotype">C2C<sup>+/+</sup>; iDTR<sup>+/-</sup>; S100a8-Cre<sup>+/+</sup></div>
+                </div>
+                <div class="cross-symbol">×</div>
+                <div class="parent female">
+                    <div class="symbol">♀</div>
+                    <div class="genotype">C2C<sup>+/+</sup>; iDTR<sup>+/-</sup>; S100a8-Cre<sup>+/-</sup></div>
+                </div>
+            </div>
+
+            <div class="gene-split">
+                <div class="gene-box">
+                    <h5>C2C分离</h5>
+                    <div class="split-item"><span>+/+</span><span><strong>100%</strong></span></div>
+                </div>
+                <div class="gene-box">
+                    <h5>iDTR分离</h5>
+                    <div class="split-item"><span>+/+</span><span>25%</span></div>
+                    <div class="split-item"><span>+/-</span><span>50%</span></div>
+                    <div class="split-item"><span>-/-</span><span>25%</span></div>
+                </div>
+                <div class="gene-box">
+                    <h5>S100a8-Cre分离</h5>
+                    <div class="split-item"><span>+/+</span><span>50%</span></div>
+                    <div class="split-item"><span>+/-</span><span>50%</span></div>
+                    <div class="split-item" style="color:#999;"><span>-/-</span><span>0%</span></div>
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <h4>组合6 汇总 (S100a8-Cre特有)</h4>
+                <p>实验可用 (C2C+/+; iDTR阳性; Cre阳性): 100% × 75% × 100% = <strong class="big-num">75%</strong></p>
+                <p>其中理想组合 (iDTR+/-; Cre+/-): 50% × 50% = <strong>25%</strong></p>
+                <p class="note">✓ S100a8-Cre是转基因型，纯合不影响内源基因！</p>
+            </div>
+        </div>
+
+        <!-- 组合7: 全纯合(S100a8) -->
+        <div class="card">
+            <h2>组合7: 最高效组合 (S100a8-Cre专用)</h2>
+            <div class="cross-box">
+                <div class="parent male">
+                    <div class="symbol">♂</div>
+                    <div class="genotype">C2C<sup>+/+</sup>; iDTR<sup>+/+</sup>; S100a8-Cre<sup>+/+</sup></div>
+                </div>
+                <div class="cross-symbol">×</div>
+                <div class="parent female">
+                    <div class="symbol">♀</div>
+                    <div class="genotype">C2C<sup>+/+</sup>; iDTR<sup>+/+</sup>; S100a8-Cre<sup>+/+</sup></div>
+                </div>
+            </div>
+
+            <div class="gene-split">
+                <div class="gene-box">
+                    <h5>C2C</h5>
+                    <div class="split-item"><span>+/+</span><span><strong>100%</strong></span></div>
+                </div>
+                <div class="gene-box">
+                    <h5>iDTR</h5>
+                    <div class="split-item"><span>+/+</span><span><strong>100%</strong></span></div>
+                </div>
+                <div class="gene-box">
+                    <h5>S100a8-Cre</h5>
+                    <div class="split-item"><span>+/+</span><span><strong>100%</strong></span></div>
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <h4>组合7 汇总</h4>
+                <p>实验可用后代: <strong class="big-num" style="font-size:3em;">100%</strong></p>
+                <p class="note">全部后代都是 C2C+/+; iDTR+/+; S100a8-Cre+/+</p>
+                <p class="note">⚠️ 仅适用于S100a8-Cre（转基因型），Knock-in型Cre不可用！</p>
+            </div>
+        </div>
+
+        <!-- 汇总对比 -->
+        <div class="card">
+            <h2>各组合效率对比汇总</h2>
+
+            <h3>Knock-in Cre (Lyz2-Cre / Ly6G-iCre)</h3>
+            <div class="comparison-grid">
+                <div class="comp-card low">
+                    <h4>组合1: 全杂合互交</h4>
+                    <div class="rate">6.25%</div>
+                    <p class="note">理想实验组</p>
+                </div>
+                <div class="comp-card mid">
+                    <h4>组合2: C2C♂纯合×♀杂合</h4>
+                    <div class="rate">12.5%</div>
+                    <p class="note">↑2倍</p>
+                </div>
+                <div class="comp-card high">
+                    <h4>组合3: C2C双纯合</h4>
+                    <div class="rate">25%</div>
+                    <p class="note">↑4倍</p>
+                </div>
+                <div class="comp-card high">
+                    <h4>组合4: +iDTR纯合♂</h4>
+                    <div class="rate">25%</div>
+                    <p class="note">无iDTR阴性</p>
+                </div>
+                <div class="comp-card best">
+                    <h4>组合5: C2C+iDTR双纯合</h4>
+                    <div class="rate">50%</div>
+                    <p class="note">★最高效(Knock-in)</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top:25px;">转基因 Cre (S100a8-Cre)</h3>
+            <div class="comparison-grid">
+                <div class="comp-card high">
+                    <h4>组合6: +Cre纯合</h4>
+                    <div class="rate">75%</div>
+                    <p class="note">Cre全阳性</p>
+                </div>
+                <div class="comp-card best">
+                    <h4>组合7: 全纯合</h4>
+                    <div class="rate">100%</div>
+                    <p class="note">★最高效(转基因)</p>
+                </div>
+            </div>
+
+            <div class="warning-box" style="margin-top:20px;">
+                <h4>关键区别：Knock-in vs 转基因</h4>
+                <table>
+                    <tr>
+                        <th>Cre类型</th>
+                        <th>纯合(+/+)能否用</th>
+                        <th>最高效率</th>
+                        <th>原因</th>
+                    </tr>
+                    <tr>
+                        <td>Lyz2-Cre (Knock-in)</td>
+                        <td><span class="tag tag-warn">不能用</span></td>
+                        <td>50%</td>
+                        <td>纯合=Lyz2敲除</td>
+                    </tr>
+                    <tr>
+                        <td>Ly6G-iCre (Knock-in)</td>
+                        <td><span class="tag tag-warn">不能用</span></td>
+                        <td>50%</td>
+                        <td>纯合=Ly6G敲除</td>
+                    </tr>
+                    <tr>
+                        <td>S100a8-Cre (转基因)</td>
+                        <td><span class="tag tag-exp">可以用</span></td>
+                        <td>100%</td>
+                        <td>不影响内源基因</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

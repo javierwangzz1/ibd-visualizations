@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>细胞遗传学清除实验 - 繁殖流程图</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .phase-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .phase-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .phase-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5em;
+            color: white;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .phase-1 .phase-number { background: linear-gradient(135deg, #11998e, #38ef7d); }
+        .phase-2 .phase-number { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .phase-3 .phase-number { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .phase-4 .phase-number { background: linear-gradient(135deg, #a8edea, #fed6e3); color: #333; }
+        .phase-5 .phase-number { background: linear-gradient(135deg, #667eea, #764ba2); }
+
+        .phase-title {
+            font-size: 1.3em;
+            color: #333;
+        }
+        .phase-status {
+            margin-left: auto;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .status-done {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-current {
+            background: #fff3cd;
+            color: #856404;
+            animation: pulse 2s infinite;
+        }
+        .status-pending {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .genotype-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9em;
+        }
+        .genotype-table th, .genotype-table td {
+            padding: 10px 12px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+        .genotype-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+        }
+        .genotype-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .genotype-table tr:hover {
+            background: #e3f2fd;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-left: 4px solid #2196f3;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+        }
+        .info-box h4 {
+            color: #1565c0;
+            margin-bottom: 8px;
+        }
+        .info-box.warning {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border-left-color: #ff9800;
+        }
+        .info-box.warning h4 {
+            color: #e65100;
+        }
+        .info-box.success {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-left-color: #4caf50;
+        }
+        .info-box.success h4 {
+            color: #2e7d32;
+        }
+
+        .crossing-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        .mouse-box {
+            background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+            border-radius: 12px;
+            padding: 15px 20px;
+            text-align: center;
+            min-width: 180px;
+        }
+        .mouse-box.male {
+            border: 3px solid #2196f3;
+        }
+        .mouse-box.female {
+            border: 3px solid #e91e63;
+        }
+        .mouse-box.homo {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        }
+        .mouse-symbol {
+            font-size: 1.8em;
+            margin-bottom: 8px;
+        }
+        .mouse-genotype {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #333;
+        }
+        .mouse-note {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .cross-symbol {
+            font-size: 2em;
+            color: #9c27b0;
+            font-weight: bold;
+        }
+        .arrow-down {
+            font-size: 2.5em;
+            color: #4caf50;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .offspring-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 15px 0;
+        }
+        .offspring-card {
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+        .offspring-card.target {
+            background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+            border: 2px solid #4caf50;
+        }
+        .offspring-card.breeding {
+            background: linear-gradient(135deg, #fff9c4, #fff59d);
+            border: 2px solid #ffc107;
+        }
+        .offspring-card.control {
+            background: linear-gradient(135deg, #bbdefb, #90caf9);
+            border: 2px solid #2196f3;
+        }
+        .offspring-card.discard {
+            background: linear-gradient(135deg, #ffcdd2, #ef9a9a);
+            border: 2px solid #f44336;
+        }
+        .offspring-card h4 {
+            margin-bottom: 6px;
+            font-size: 0.95em;
+        }
+        .offspring-card .genotype {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            margin-bottom: 6px;
+        }
+        .offspring-card .percentage {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .prob-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        .prob-100 { background: #c8e6c9; color: #2e7d32; }
+        .prob-50 { background: #fff9c4; color: #f57f17; }
+        .prob-25 { background: #ffcdd2; color: #c62828; }
+
+        .breeding-strategy {
+            background: #f5f5f5;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .breeding-strategy h3 {
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .flow-container {
+            overflow-x: auto;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fff8e1, #ffecb3);
+            border: 2px dashed #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .comparison-table {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .comparison-box {
+            border-radius: 12px;
+            padding: 15px;
+        }
+        .comparison-box.before {
+            background: linear-gradient(135deg, #ffcdd2, #ef9a9a);
+            border: 2px solid #f44336;
+        }
+        .comparison-box.after {
+            background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+            border: 2px solid #4caf50;
+        }
+        .comparison-box h4 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .comparison-box .big-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-align: center;
+        }
+        .comparison-box.before .big-number { color: #c62828; }
+        .comparison-box.after .big-number { color: #2e7d32; }
+
+        @media (max-width: 768px) {
+            .comparison-table {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>IgG2c 细胞遗传学清除实验</h1>
+        <p class="subtitle">Lyz2-Cre / S100a8-Cre / Ly6G-iCre × iDTR × C2C 繁殖流程</p>
+
+        <!-- Phase 1 -->
+        <div class="phase-card phase-1">
+            <div class="phase-header">
+                <div class="phase-number">1</div>
+                <div class="phase-title">第一轮交配：建立双杂合种鼠</div>
+                <span class="phase-status status-done">✓ 已完成</span>
+            </div>
+
+            <div class="info-box">
+                <h4>起始种鼠基因型</h4>
+                <table class="genotype-table">
+                    <tr>
+                        <th>种鼠</th>
+                        <th>基因型</th>
+                        <th>说明</th>
+                    </tr>
+                    <tr>
+                        <td>C2C</td>
+                        <td><strong>+/+ (纯合)</strong></td>
+                        <td>IgG2c研究背景</td>
+                    </tr>
+                    <tr>
+                        <td>iDTR</td>
+                        <td><strong>+/+ (纯合)</strong></td>
+                        <td>白喉毒素受体</td>
+                    </tr>
+                    <tr>
+                        <td>Lyz2-Cre</td>
+                        <td><strong>+/+ (纯合)</strong></td>
+                        <td>巨噬细胞Cre</td>
+                    </tr>
+                    <tr>
+                        <td>S100a8-Cre</td>
+                        <td>+/- (杂合)</td>
+                        <td>中性粒细胞Cre (转基因)</td>
+                    </tr>
+                    <tr>
+                        <td>Ly6G-iCre</td>
+                        <td>+/- (杂合)</td>
+                        <td>中性粒细胞Cre (Knock-in)</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h3 style="text-align:center; margin: 20px 0; color:#333;">第一轮交配结果</h3>
+
+            <div class="breeding-strategy">
+                <div class="crossing-diagram">
+                    <div class="mouse-box homo">
+                        <div class="mouse-symbol">🐭</div>
+                        <div class="mouse-genotype">C2C +/+</div>
+                        <div class="mouse-note">纯合</div>
+                    </div>
+                    <div class="cross-symbol">×</div>
+                    <div class="mouse-box homo">
+                        <div class="mouse-symbol">🐭</div>
+                        <div class="mouse-genotype">iDTR +/+ 或 Lyz2-Cre +/+</div>
+                        <div class="mouse-note">纯合</div>
+                    </div>
+                </div>
+                <div class="arrow-down">⬇</div>
+                <div class="offspring-grid" style="max-width: 400px; margin: 0 auto;">
+                    <div class="offspring-card target">
+                        <h4>后代</h4>
+                        <div class="genotype">C2C+/-; iDTR/+ 或 Cre/+</div>
+                        <div class="percentage"><span class="prob-tag prob-100">100%</span></div>
+                        <div style="font-size:0.8em; margin-top:5px;">全部都是双杂合！</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="breeding-strategy" style="margin-top: 20px;">
+                <div class="crossing-diagram">
+                    <div class="mouse-box homo">
+                        <div class="mouse-symbol">🐭</div>
+                        <div class="mouse-genotype">C2C +/+</div>
+                        <div class="mouse-note">纯合</div>
+                    </div>
+                    <div class="cross-symbol">×</div>
+                    <div class="mouse-box">
+                        <div class="mouse-symbol">🐭</div>
+                        <div class="mouse-genotype">S100a8-Cre/+ 或 Ly6G-iCre/+</div>
+                        <div class="mouse-note">杂合</div>
+                    </div>
+                </div>
+                <div class="arrow-down">⬇</div>
+                <div class="offspring-grid" style="max-width: 600px; margin: 0 auto;">
+                    <div class="offspring-card target">
+                        <h4>目标后代</h4>
+                        <div class="genotype">C2C+/-; Cre/+</div>
+                        <div class="percentage"><span class="prob-tag prob-50">50%</span></div>
+                    </div>
+                    <div class="offspring-card discard">
+                        <h4>非目标</h4>
+                        <div class="genotype">C2C+/-; Cre-</div>
+                        <div class="percentage"><span class="prob-tag prob-50">50%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box success">
+                <h4>已获得的双杂合种鼠</h4>
+                <ul>
+                    <li><strong>C2C+/-; iDTR/+</strong> (100%效率)</li>
+                    <li><strong>C2C+/-; Lyz2-Cre/+</strong> (100%效率)</li>
+                    <li><strong>C2C+/-; S100a8-Cre+</strong> (50%效率)</li>
+                    <li><strong>C2C+/-; Ly6G-iCre/+</strong> (50%效率)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="phase-card phase-2">
+            <div class="phase-header">
+                <div class="phase-number">2</div>
+                <div class="phase-title">第二轮交配：双杂合互交（初筛）</div>
+                <span class="phase-status status-current">● 进行中</span>
+            </div>
+
+            <div class="crossing-diagram">
+                <div class="mouse-box male">
+                    <div class="mouse-symbol">♂</div>
+                    <div class="mouse-genotype">C2C+/-; iDTR/+</div>
+                </div>
+                <div class="cross-symbol">×</div>
+                <div class="mouse-box female">
+                    <div class="mouse-symbol">♀</div>
+                    <div class="mouse-genotype">C2C+/-; Cre/+</div>
+                </div>
+            </div>
+
+            <div class="arrow-down">⬇</div>
+
+            <div class="info-box warning">
+                <h4>问题：目标基因型比例太低！</h4>
+                <p>目标: <strong>C2C+/+; iDTR/+; Cre/+</strong></p>
+                <p>比例: 1/4 (C2C) × 1/2 (iDTR) × 1/2 (Cre) = <strong style="color:#c62828;">6.25%</strong></p>
+            </div>
+
+            <h3 style="text-align:center; margin: 20px 0; color:#333;">后代筛选策略</h3>
+
+            <div class="offspring-grid">
+                <div class="offspring-card target">
+                    <h4>★ 理想实验鼠</h4>
+                    <div class="genotype">C2C+/+; iDTR/+; Cre/+</div>
+                    <div class="percentage">6.25%</div>
+                    <div style="font-size:0.8em; color:#2e7d32;">直接用于DT实验</div>
+                </div>
+                <div class="offspring-card breeding">
+                    <h4>★ 优质繁殖♂</h4>
+                    <div class="genotype">C2C+/+; iDTR/+; Cre/+</div>
+                    <div class="percentage">6.25%中♂</div>
+                    <div style="font-size:0.8em; color:#f57f17;">用于Phase 3繁殖</div>
+                </div>
+                <div class="offspring-card breeding">
+                    <h4>★ 可用繁殖♀</h4>
+                    <div class="genotype">C2C+/-; iDTR/+; Cre/+</div>
+                    <div class="percentage">12.5%</div>
+                    <div style="font-size:0.8em; color:#f57f17;">雌鼠C2C杂合可用</div>
+                </div>
+                <div class="offspring-card control">
+                    <h4>对照组来源</h4>
+                    <div class="genotype">C2C+/+; 缺iDTR或Cre</div>
+                    <div class="percentage">18.75%</div>
+                    <div style="font-size:0.8em; color:#1565c0;">各种对照</div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4 style="text-align:center; margin-bottom:10px;">🎯 Phase 2 筛选目标</h4>
+                <table class="genotype-table">
+                    <tr>
+                        <th>筛选类型</th>
+                        <th>基因型要求</th>
+                        <th>用途</th>
+                    </tr>
+                    <tr style="background:#c8e6c9;">
+                        <td><strong>优质种♂</strong></td>
+                        <td>C2C<strong>+/+</strong>; iDTR/+; Cre/+</td>
+                        <td>Phase 3 繁殖核心</td>
+                    </tr>
+                    <tr style="background:#fff9c4;">
+                        <td><strong>可用种♀</strong></td>
+                        <td>C2C<strong>+/-</strong>; iDTR/+; Cre/+</td>
+                        <td>Phase 3 配合繁殖</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="phase-card phase-3">
+            <div class="phase-header">
+                <div class="phase-number">3</div>
+                <div class="phase-title">第三轮交配：高效繁殖（优化后）</div>
+                <span class="phase-status status-pending">待进行</span>
+            </div>
+
+            <h3 style="text-align:center; margin: 15px 0; color:#333;">最优繁殖组合</h3>
+
+            <div class="breeding-strategy">
+                <h4 style="text-align:center; color:#4caf50;">组合A：C2C纯合♂ × C2C杂合♀</h4>
+                <div class="crossing-diagram">
+                    <div class="mouse-box male homo">
+                        <div class="mouse-symbol">♂</div>
+                        <div class="mouse-genotype">C2C<strong>+/+</strong>; iDTR/+; Cre/+</div>
+                        <div class="mouse-note">三基因纯合雄鼠</div>
+                    </div>
+                    <div class="cross-symbol">×</div>
+                    <div class="mouse-box female">
+                        <div class="mouse-symbol">♀</div>
+                        <div class="mouse-genotype">C2C<strong>+/-</strong>; iDTR/+; Cre/+</div>
+                        <div class="mouse-note">三基因杂合雌鼠</div>
+                    </div>
+                </div>
+                <div class="arrow-down">⬇</div>
+                <div class="offspring-grid" style="max-width: 800px; margin: 0 auto;">
+                    <div class="offspring-card target">
+                        <h4>★ 目标实验鼠</h4>
+                        <div class="genotype">C2C+/+; iDTR/+; Cre/+</div>
+                        <div class="percentage" style="color:#2e7d32; font-size:1.5em;">12.5%</div>
+                    </div>
+                    <div class="offspring-card control">
+                        <h4>对照C2</h4>
+                        <div class="genotype">C2C+/+; iDTR/+; Cre-</div>
+                        <div class="percentage">12.5%</div>
+                    </div>
+                    <div class="offspring-card control">
+                        <h4>对照C3</h4>
+                        <div class="genotype">C2C+/+; iDTR-; Cre/+</div>
+                        <div class="percentage">12.5%</div>
+                    </div>
+                    <div class="offspring-card control">
+                        <h4>对照C4</h4>
+                        <div class="genotype">C2C+/+; iDTR-; Cre-</div>
+                        <div class="percentage">12.5%</div>
+                    </div>
+                </div>
+                <p style="text-align:center; margin-top:15px; color:#2e7d32; font-weight:bold;">
+                    C2C+/+ 后代比例: 50% (提升2倍!)
+                </p>
+            </div>
+
+            <div class="breeding-strategy" style="margin-top:25px;">
+                <h4 style="text-align:center; color:#4caf50;">组合B：C2C纯合♂ × C2C纯合♀ (最优)</h4>
+                <div class="crossing-diagram">
+                    <div class="mouse-box male homo">
+                        <div class="mouse-symbol">♂</div>
+                        <div class="mouse-genotype">C2C<strong>+/+</strong>; iDTR/+; Cre/+</div>
+                        <div class="mouse-note">三基因纯合雄鼠</div>
+                    </div>
+                    <div class="cross-symbol">×</div>
+                    <div class="mouse-box female homo">
+                        <div class="mouse-symbol">♀</div>
+                        <div class="mouse-genotype">C2C<strong>+/+</strong>; iDTR/+; Cre/+</div>
+                        <div class="mouse-note">三基因纯合雌鼠</div>
+                    </div>
+                </div>
+                <div class="arrow-down">⬇</div>
+                <div class="offspring-grid" style="max-width: 800px; margin: 0 auto;">
+                    <div class="offspring-card target">
+                        <h4>★ 目标实验鼠</h4>
+                        <div class="genotype">C2C+/+; iDTR/+; Cre/+</div>
+                        <div class="percentage" style="color:#2e7d32; font-size:1.5em;">25%</div>
+                    </div>
+                    <div class="offspring-card control">
+                        <h4>对照C2</h4>
+                        <div class="genotype">C2C+/+; iDTR/+; Cre-</div>
+                        <div class="percentage">25%</div>
+                    </div>
+                    <div class="offspring-card control">
+                        <h4>对照C3</h4>
+                        <div class="genotype">C2C+/+; iDTR-; Cre/+</div>
+                        <div class="percentage">25%</div>
+                    </div>
+                    <div class="offspring-card control">
+                        <h4>对照C4</h4>
+                        <div class="genotype">C2C+/+; iDTR-; Cre-</div>
+                        <div class="percentage">25%</div>
+                    </div>
+                </div>
+                <p style="text-align:center; margin-top:15px; color:#2e7d32; font-weight:bold;">
+                    C2C+/+ 后代比例: 100% | 目标基因型: 25% (提升4倍!)
+                </p>
+            </div>
+
+            <div class="comparison-table">
+                <div class="comparison-box before">
+                    <h4>Phase 2 直接互交</h4>
+                    <div class="big-number">6.25%</div>
+                    <p style="text-align:center;">目标基因型比例</p>
+                </div>
+                <div class="comparison-box after">
+                    <h4>Phase 3 优化后</h4>
+                    <div class="big-number">25%</div>
+                    <p style="text-align:center;">目标基因型比例</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 4 -->
+        <div class="phase-card phase-4">
+            <div class="phase-header">
+                <div class="phase-number">4</div>
+                <div class="phase-title">实验分组与DT处理</div>
+                <span class="phase-status status-pending">待进行</span>
+            </div>
+
+            <table class="genotype-table">
+                <tr>
+                    <th>组别</th>
+                    <th>基因型</th>
+                    <th>处理</th>
+                    <th>预期结果</th>
+                </tr>
+                <tr style="background:#c8e6c9;">
+                    <td><strong>实验组</strong></td>
+                    <td>C2C+/+; iDTR/+; Cre/+</td>
+                    <td>+ DT</td>
+                    <td>细胞清除</td>
+                </tr>
+                <tr>
+                    <td>对照C1</td>
+                    <td>C2C+/+; iDTR/+; Cre/+</td>
+                    <td>+ PBS</td>
+                    <td>无清除 (DT对照)</td>
+                </tr>
+                <tr>
+                    <td>对照C2</td>
+                    <td>C2C+/+; iDTR/+; Cre-</td>
+                    <td>+ DT</td>
+                    <td>无清除 (Cre对照)</td>
+                </tr>
+                <tr>
+                    <td>对照C3</td>
+                    <td>C2C+/+; iDTR-; Cre/+</td>
+                    <td>+ DT</td>
+                    <td>无清除 (iDTR对照)</td>
+                </tr>
+                <tr>
+                    <td>对照C4</td>
+                    <td>C2C+/+; iDTR-; Cre-</td>
+                    <td>+ DT</td>
+                    <td>无清除 (基线)</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 完整流程总览 -->
+        <div class="phase-card phase-5">
+            <div class="phase-header">
+                <div class="phase-number">✦</div>
+                <div class="phase-title">完整繁殖流程总览</div>
+            </div>
+
+            <div class="flow-container">
+                <div class="mermaid">
+                flowchart TB
+                    subgraph P1["Phase 1: 建立双杂合 ✓"]
+                        A1["C2C+/+(纯合)"] --> |"× iDTR+/+(纯合)"| B1["C2C+/-; iDTR/+<br/>(100%)"]
+                        A2["C2C+/+(纯合)"] --> |"× Lyz2-Cre+/+(纯合)"| B2["C2C+/-; Lyz2-Cre/+<br/>(100%)"]
+                        A3["C2C+/+(纯合)"] --> |"× S100a8-Cre/+(杂合)"| B3["C2C+/-; S100a8-Cre/+<br/>(50%)"]
+                    end
+
+                    subgraph P2["Phase 2: 双杂合互交 (初筛) ●"]
+                        B1 --> |"×"| C["双杂合互交"]
+                        B2 --> C
+                        B3 --> C
+                        C --> D1["筛选 C2C+/+♂<br/>iDTR/+; Cre/+"]
+                        C --> D2["筛选 C2C+/-♀<br/>iDTR/+; Cre/+"]
+                    end
+
+                    subgraph P3["Phase 3: 高效繁殖 ○"]
+                        D1 --> |"×"| E["优化交配"]
+                        D2 --> E
+                        E --> F1["目标: C2C+/+; iDTR/+; Cre/+<br/><b>12.5%-25%</b>"]
+                        E --> F2["对照组<br/>37.5%-75%"]
+                    end
+
+                    subgraph P4["Phase 4: DT实验 ○"]
+                        F1 --> G["DT处理"]
+                        F2 --> G
+                        G --> H["IgG2c应答分析"]
+                    end
+
+                    style D1 fill:#c8e6c9,stroke:#4caf50,stroke-width:2px
+                    style D2 fill:#fff9c4,stroke:#ffc107,stroke-width:2px
+                    style F1 fill:#c8e6c9,stroke:#4caf50,stroke-width:3px
+                    style H fill:#e1bee7,stroke:#9c27b0,stroke-width:2px
+                </div>
+            </div>
+
+            <div class="info-box success" style="margin-top:20px;">
+                <h4>繁殖效率提升总结</h4>
+                <ul>
+                    <li>Phase 2直接使用: <strong style="color:#c62828;">6.25%</strong> 目标基因型</li>
+                    <li>Phase 3 组合A (♂纯合×♀杂合): <strong style="color:#ff9800;">12.5%</strong> 目标基因型 (↑2倍)</li>
+                    <li>Phase 3 组合B (♂纯合×♀纯合): <strong style="color:#2e7d32;">25%</strong> 目标基因型 (↑4倍)</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>
