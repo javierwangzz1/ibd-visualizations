@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>1-8E & 1-6B 基因型鉴定结果 - 综合版</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", "SimSun", sans-serif;
+            background: #fff;
+            color: #000;
+            padding: 15px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { text-align: center; color: #333; margin-bottom: 5px; font-size: 18px; font-weight: bold; }
+        .date { text-align: center; color: #666; margin-bottom: 15px; font-size: 11px; }
+
+        .section-title {
+            color: #fff;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            padding: 8px 12px;
+            margin: 18px 0 12px 0;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+        .section-title.c2c { background: linear-gradient(135deg, #16a085, #1abc9c); }
+        .section-title.dtr { background: linear-gradient(135deg, #2980b9, #3498db); }
+        .section-title.lyz2 { background: linear-gradient(135deg, #8e44ad, #9b59b6); }
+        .section-title.ly6g { background: linear-gradient(135deg, #c0392b, #e74c3c); }
+        .section-title.s100a8 { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+
+        .gel-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0;
+            align-items: start;
+        }
+        .gel-box {
+            border: 1px solid #999;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .gel-box-title {
+            background: #f0f0f0;
+            padding: 5px 8px;
+            font-size: 11px;
+            color: #333;
+            border-bottom: 1px solid #999;
+            font-weight: bold;
+        }
+        .gel-box img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .gel-placeholder {
+            background: #f5f5f5;
+            padding: 30px 20px;
+            text-align: center;
+            color: #999;
+            font-style: italic;
+            font-size: 11px;
+        }
+        .diagram-box {
+            border: 1px solid #999;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .diagram-box-title {
+            background: #f0f0f0;
+            padding: 5px 8px;
+            font-size: 11px;
+            color: #333;
+            border-bottom: 1px solid #999;
+            font-weight: bold;
+        }
+        .diagram-content {
+            padding: 8px;
+            font-family: "Courier New", "SimSun", monospace;
+            font-size: 8px;
+            line-height: 1.3;
+            overflow-x: auto;
+            white-space: pre;
+            background: #fafafa;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 8px 0;
+            font-size: 10px;
+            flex-wrap: wrap;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 6px;
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .legend-color { width: 14px; height: 14px; border-radius: 50%; }
+
+        .gel-container-new { background: #1a1a2e; border-radius: 10px; padding: 15px; margin: 15px 0; }
+        .gel-container-title { color: #fff; text-align: center; margin-bottom: 15px; font-size: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .gel-row-new { display: flex; align-items: center; margin-bottom: 10px; }
+        .gel-row-label { width: 70px; color: #ffd700; font-weight: bold; font-size: 8px; text-align: right; padding-right: 10px; }
+        .gel-wells-container { display: grid; grid-template-columns: repeat(25, 1fr); gap: 2px; flex: 1; }
+        .gel-well { aspect-ratio: 1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 6px; font-weight: bold; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.5); min-width: 16px; min-height: 16px; }
+        .gw-m { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%); border: 2px solid #fff; }
+        .gw-wt { background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%); }
+        .gw-pos { background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%); }
+        .gw-h2o { background: linear-gradient(135deg, #78909c 0%, #546e7a 100%); }
+        .gw-8e { background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%); }
+        .gw-6b { background: linear-gradient(135deg, #ffa726 0%, #f57c00 100%); }
+        .gw-6by { background: linear-gradient(135deg, #ab47bc 0%, #8e24aa 100%); }
+        .gw-empty { background: #333; border: 1px dashed #555; color: #666; }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+            margin: 10px 0;
+        }
+        .results-table th {
+            background: #e0e0e0;
+            color: #000;
+            padding: 5px 3px;
+            text-align: center;
+            border: 1px solid #999;
+            font-weight: bold;
+        }
+        .results-table td {
+            padding: 4px 3px;
+            text-align: center;
+            border: 1px solid #999;
+        }
+        .results-table tr:nth-child(even) { background: #f5f5f5; }
+        .pos { color: #c00; font-weight: bold; }
+        .neg { color: #060; }
+        .wt { color: #666; }
+        .fail { color: #999; }
+        .male-row { border-left: 3px solid #42a5f5; }
+        .female-row { border-left: 3px solid #e91e63; }
+        .young-row { border-left: 3px solid #ab47bc; }
+
+        /* 目标基因型高亮 - c2c+/iDTR+/-/Ly6G+/- (3/3) */
+        .target-genotype {
+            background: linear-gradient(90deg, #c8e6c9 0%, #e8f5e9 50%, #c8e6c9 100%) !important;
+            border: 2px solid #4caf50 !important;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+            position: relative;
+        }
+        .target-genotype td:first-child::before {
+            content: "★";
+            color: #2e7d32;
+            margin-right: 3px;
+            font-size: 10px;
+        }
+
+        /* 次优基因型高亮 - 满足2/3条件 */
+        .partial-match {
+            background: linear-gradient(90deg, #fff3e0 0%, #ffe0b2 50%, #fff3e0 100%) !important;
+            border: 2px solid #ff9800 !important;
+            box-shadow: 0 0 6px rgba(255, 152, 0, 0.4);
+            position: relative;
+        }
+        .partial-match td:first-child::before {
+            content: "◆";
+            color: #e65100;
+            margin-right: 3px;
+            font-size: 9px;
+        }
+
+        /* 基因型高亮样式 */
+        .g-ok { color: #2e7d32; font-weight: bold; } /* 目标基因型 */
+        .g-no { color: #999; } /* 非目标基因型 */
+        .g-bad { color: #c00; } /* 不符合基因型 */
+        .sample-id sup { font-size: 8px; color: #666; }
+
+        /* 电泳实拍图片样式 */
+        .gel-photo {
+            width: 100%;
+            max-width: 800px;
+            margin: 10px auto;
+            display: block;
+            border: 2px solid #333;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .gel-photo-container {
+            text-align: center;
+            margin: 15px 0;
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        .gel-photo-label {
+            color: #fff;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .summary-card {
+            border: 1px solid #999;
+            padding: 8px;
+            border-radius: 4px;
+            text-align: center;
+            background: #f9f9f9;
+        }
+        .summary-card h4 { color: #333; font-size: 10px; margin-bottom: 5px; }
+        .summary-card .stats { display: flex; justify-content: space-around; }
+        .stat-item .num { font-size: 14px; font-weight: bold; }
+        .stat-item .label { font-size: 8px; color: #666; }
+
+        .note {
+            background: #fff5f5;
+            border-left: 3px solid #c00;
+            padding: 8px;
+            margin: 10px 0;
+            font-size: 11px;
+        }
+        .note h4 { color: #c00; margin-bottom: 3px; font-size: 11px; }
+
+        .info-note {
+            background: #f5fff5;
+            border-left: 3px solid #060;
+            padding: 8px;
+            margin: 10px 0;
+            font-size: 11px;
+        }
+        .info-note h4 { color: #060; margin-bottom: 3px; font-size: 11px; }
+
+        .warning-note {
+            background: #fff8e1;
+            border-left: 3px solid #f90;
+            padding: 8px;
+            margin: 10px 0;
+            font-size: 11px;
+        }
+        .warning-note h4 { color: #e65100; margin-bottom: 3px; font-size: 11px; }
+
+        .genotype-note {
+            background: #f5f5ff;
+            border-left: 3px solid #339;
+            padding: 8px;
+            margin: 10px 0;
+            font-size: 11px;
+        }
+        .genotype-note h4 { color: #339; margin-bottom: 3px; font-size: 11px; }
+
+        .page-break { page-break-before: always; }
+
+        /* 灰化样式 - 用于弃用/无效实验 */
+        .deprecated-section {
+            opacity: 0.45;
+            filter: grayscale(100%);
+            position: relative;
+        }
+        .deprecated-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.15);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .deprecated-section .section-title {
+            background: linear-gradient(135deg, #9e9e9e, #bdbdbd) !important;
+        }
+        .deprecated-section .gel-container-new {
+            background: #4a4a4a !important;
+        }
+        .deprecated-section .gel-box-title,
+        .deprecated-section .diagram-box-title {
+            background: #e0e0e0 !important;
+            color: #666 !important;
+        }
+        .deprecated-section .note,
+        .deprecated-section .warning-note {
+            background: #f5f5f5 !important;
+            border-left-color: #999 !important;
+        }
+        .deprecated-section .note h4,
+        .deprecated-section .warning-note h4 {
+            color: #666 !important;
+        }
+        .deprecated-badge {
+            display: inline-block;
+            background: #9e9e9e;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        @media print {
+            body { padding: 10px; font-size: 9px; }
+            .container { max-width: 100%; }
+            .gel-pair { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .summary { grid-template-columns: repeat(5, 1fr); }
+            .diagram-content { font-size: 7px; }
+            .results-table { font-size: 9px; }
+            h1 { font-size: 16px; }
+            .section-title { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>1-8E & 1-6B 基因型鉴定结果 (综合版)</h1>
+        <p class="date">2025-12-24 ~ 27 | C2C + iDTR + Cre(Ly6G) | 1.5%胶 135V 30min | 100bp/1kb Ladder</p>
+
+        <!-- 样本信息概览 -->
+        <div class="genotype-note">
+            <h4>样本信息</h4>
+            <p><strong>1-8E笼位 (20只)</strong>: ♀ #1-8(60) + ♂ #11-22(60) → C2C + DTR + <del>Lyz2</del> → <span style="color:#c00;">改用 Ly6G</span></p>
+            <p><strong>1-6B笼位 (17只)</strong>: 成年 #1-9(60),#82,#85 + 幼鼠 #1,3,4,5,6,7 → C2C + DTR + Ly6G</p>
+        </div>
+
+        <div class="warning-note">
+            <h4>实验说明 (共7个电泳槽)</h4>
+            <table style="width:100%;font-size:10px;border-collapse:collapse;margin-top:8px;">
+                <tr style="background:#f5f5f5;"><th style="padding:4px;border:1px solid #ddd;">槽号</th><th style="padding:4px;border:1px solid #ddd;">内容</th><th style="padding:4px;border:1px solid #ddd;">结果</th></tr>
+                <tr><td style="padding:4px;border:1px solid #ddd;text-align:center;">槽1</td><td style="padding:4px;border:1px solid #ddd;">C2C/Cg3 (699bp)</td><td style="padding:4px;border:1px solid #ddd;color:#060;">✓ OK</td></tr>
+                <tr><td style="padding:4px;border:1px solid #ddd;text-align:center;">槽2</td><td style="padding:4px;border:1px solid #ddd;">iDTR-1 (878bp)</td><td style="padding:4px;border:1px solid #ddd;color:#060;">✓ OK</td></tr>
+                <tr><td style="padding:4px;border:1px solid #ddd;text-align:center;">槽3</td><td style="padding:4px;border:1px solid #ddd;">iDTR-2 (487bp)</td><td style="padding:4px;border:1px solid #ddd;color:#060;">✓ OK</td></tr>
+                <tr style="background:#f5f5f5;color:#999;"><td style="padding:4px;border:1px solid #ddd;text-align:center;">槽4</td><td style="padding:4px;border:1px solid #ddd;">Lyz2配对 (1-8E)</td><td style="padding:4px;border:1px solid #ddd;">✗ 已弃用-基因型不匹配</td></tr>
+                <tr><td style="padding:4px;border:1px solid #ddd;text-align:center;">槽5</td><td style="padding:4px;border:1px solid #ddd;">Ly6G配对 (1-6B)</td><td style="padding:4px;border:1px solid #ddd;color:#060;">✓ OK</td></tr>
+                <tr style="background:#f5f5f5;color:#999;"><td style="padding:4px;border:1px solid #ddd;text-align:center;">槽6</td><td style="padding:4px;border:1px solid #ddd;">1-8E Ly6G重测</td><td style="padding:4px;border:1px solid #ddd;">⚠ 电压错误-仅供参考</td></tr>
+                <tr><td style="padding:4px;border:1px solid #ddd;text-align:center;">槽7</td><td style="padding:4px;border:1px solid #ddd;">1-8E Ly6G最终</td><td style="padding:4px;border:1px solid #ddd;color:#060;">✓ 确定结果</td></tr>
+            </table>
+            <p style="margin-top:8px;color:#666;font-size:10px;">* S100a8胶已跑但未拍照，因Ly6G已确认基因型</p>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><div class="legend-color" style="background: linear-gradient(135deg, #ff6b6b, #ee5a5a); border: 2px solid #fff;"></div><span><strong>M</strong> Marker</span></div>
+            <div class="legend-item"><div class="legend-color" style="background: linear-gradient(135deg, #ffa726, #fb8c00);"></div><span><strong>WT</strong> 阴性对照</span></div>
+            <div class="legend-item"><div class="legend-color" style="background: linear-gradient(135deg, #66bb6a, #43a047);"></div><span><strong>+</strong> 阳性对照</span></div>
+            <div class="legend-item"><div class="legend-color" style="background: linear-gradient(135deg, #78909c, #546e7a);"></div><span><strong>H₂O</strong> 水对照</span></div>
+            <div class="legend-item"><div class="legend-color" style="background: linear-gradient(135deg, #42a5f5, #1e88e5);"></div><span><strong>蓝</strong> 1-8E</span></div>
+            <div class="legend-item"><div class="legend-color" style="background: linear-gradient(135deg, #ffa726, #f57c00);"></div><span><strong>橙</strong> 1-6B成年</span></div>
+            <div class="legend-item"><div class="legend-color" style="background: linear-gradient(135deg, #ab47bc, #8e24aa);"></div><span><strong>紫</strong> 1-6B幼鼠</span></div>
+        </div>
+
+        <!-- ==================== 电泳槽1: C2C/Cg3 ==================== -->
+        <h2 class="section-title c2c">电泳槽 #1: C2C/Cg3 (699bp) | 全样本37只</h2>
+        <div class="gel-photo-container">
+            <img src="images/槽1_C2C.png" alt="电泳槽1 C2C实拍" class="gel-photo">
+            <div class="gel-photo-label">▲ 电泳槽1实拍图 | C2C/Cg3 699bp | 2025-12-25</div>
+        </div>
+
+        <div class="gel-container-new">
+            <div class="gel-container-title">电泳槽 #1: C2C/Cg3 | 699bp | 40样品</div>
+
+            <div class="gel-row-new">
+                <div class="gel-row-label">Row1<br>对照+1-8E</div>
+                <div class="gel-wells-container">
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-wt">WT</div>
+                    <div class="gel-well gw-pos">+</div>
+                    <div class="gel-well gw-h2o">H₂O</div>
+                    <div class="gel-well gw-8e">1♀</div>
+                    <div class="gel-well gw-8e">2♀</div>
+                    <div class="gel-well gw-8e">3♀</div>
+                    <div class="gel-well gw-8e">4♀</div>
+                    <div class="gel-well gw-8e">5♀</div>
+                    <div class="gel-well gw-8e">6♀</div>
+                    <div class="gel-well gw-8e">7♀</div>
+                    <div class="gel-well gw-8e">8♀</div>
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-8e">11♂</div>
+                    <div class="gel-well gw-8e">12♂</div>
+                    <div class="gel-well gw-8e">13♂</div>
+                    <div class="gel-well gw-8e">14♂</div>
+                    <div class="gel-well gw-8e">15♂</div>
+                    <div class="gel-well gw-8e">16♂</div>
+                    <div class="gel-well gw-8e">17♂</div>
+                    <div class="gel-well gw-8e">18♂</div>
+                    <div class="gel-well gw-8e">19♂</div>
+                    <div class="gel-well gw-8e">20♂</div>
+                    <div class="gel-well gw-8e">21♂</div>
+                    <div class="gel-well gw-8e">22♂</div>
+                </div>
+            </div>
+
+            <div class="gel-row-new">
+                <div class="gel-row-label">Row2<br>1-6B</div>
+                <div class="gel-wells-container">
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-6b">1</div>
+                    <div class="gel-well gw-6b">2</div>
+                    <div class="gel-well gw-6b">3</div>
+                    <div class="gel-well gw-6b">4</div>
+                    <div class="gel-well gw-6b">5</div>
+                    <div class="gel-well gw-6b">6</div>
+                    <div class="gel-well gw-6b">7</div>
+                    <div class="gel-well gw-6b">8</div>
+                    <div class="gel-well gw-6b">9</div>
+                    <div class="gel-well gw-6b">82</div>
+                    <div class="gel-well gw-6b">85</div>
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-6by">1幼</div>
+                    <div class="gel-well gw-6by">3幼</div>
+                    <div class="gel-well gw-6by">4幼</div>
+                    <div class="gel-well gw-6by">5幼</div>
+                    <div class="gel-well gw-6by">6幼</div>
+                    <div class="gel-well gw-6by">7幼</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-m">M</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="gel-pair">
+            <div>
+                <div class="gel-box">
+                    <div class="gel-box-title">电泳图 - C2C/Cg3</div>
+                    <img src="26.1.4_电泳图/槽1_C2C.png" alt="C2C电泳图">
+                </div>
+            </div>
+            <div class="diagram-box">
+                <div class="diagram-box-title">C2C/Cg3条带解读 | 目的带699bp | 100bp Ladder | 有条带=wt | 无条带=c2c+</div>
+                <div class="diagram-content">
+<span style="font-weight:bold;color:#16a085;">Row1: 对照 + 1-8E</span>
+        M   WT  +   H2O 1♀  2♀  3♀  4♀  5♀  6♀  7♀  8♀  M   11♂ 12♂ 13♂ 14♂ 15♂ 16♂ 17♂ 18♂ 19♂ 20♂ 21♂ 22♂
+1000bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 900bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 800bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 700bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+<span style="font-weight:bold;color:#16a085;">▸699bp</span> ·   <span style="color:#060;">█</span>   ·   ·   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   ·   ·   ·   <span style="color:#060;">█</span>   ·   ·   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>
+ 600bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 500bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 400bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 300bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 200bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 100bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">结果</span>   M   <span style="color:#060;">WT</span>  <span style="color:#c00;">+</span>   -   <span style="color:#060;">wt</span>  <span style="color:#c00;">+</span>   <span style="color:#060;">wt</span>  <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#060;">wt</span>  <span style="color:#c00;">+</span>   M   <span style="color:#060;">wt</span>  <span style="color:#c00;">+</span>   <span style="color:#060;">wt</span>  <span style="color:#c00;">+</span>   <span style="color:#060;">wt</span>  <span style="color:#c00;">+</span>   <span style="color:#060;">wt</span>  <span style="color:#060;">wt</span>  <span style="color:#060;">wt</span>  <span style="color:#060;">wt</span>  <span style="color:#c00;">+</span>   <span style="color:#060;">wt</span>
+
+<span style="font-weight:bold;color:#16a085;">Row2: 1-6B | 末尾M未上样</span>
+        M   1   2   3   4   5   6   7   8   9   82  85  M   1幼 3幼 4幼 5幼 6幼 7幼 ×   ×   ×   ×   ×   ×
+1000bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 900bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 800bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 700bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+<span style="font-weight:bold;color:#16a085;">▸699bp</span> ·   ·   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   <span style="color:#060;">█</span>   ·   ·   ·   ·   ·   ·
+ 600bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 500bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 400bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 300bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 200bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 100bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">结果</span>   M   <span style="color:#c00;">+</span>   <span style="color:#060;">wt</span>  <span style="color:#c00;">+</span>   <span style="color:#060;">wt</span>  <span style="color:#060;">wt</span>  <span style="color:#060;">wt</span>  <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   M   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#060;">wt</span>  ×   ×   ×   ×   ×   ×
+
+<span style="color:#666;">备注: WT对照699bp条带正常 | +阳性对照无条带(c2c+纯合,正常) | H2O无污染 | Row2末尾M(第25孔)未上样</span>
+<span style="color:#666;">统计: 1-8E c2c+ 9只/wt 11只 | 1-6B成年 c2c+ 7只/wt 4只 | 1-6B幼鼠 c2c+ 5只/wt 1只 | 总计 c2c+ 21只/wt 16只</span></div>
+            </div>
+        </div>
+
+        <!-- ==================== 电泳槽2: iDTR-1 ==================== -->
+        <h2 class="section-title dtr">电泳槽 #2: iDTR-1 (DTR阳性 878bp) | 全样本37只</h2>
+        <div class="gel-photo-container">
+            <img src="images/槽2_iDTR-1.png" alt="电泳槽2 iDTR-1实拍" class="gel-photo">
+            <div class="gel-photo-label">▲ 电泳槽2实拍图 | iDTR-1 DTR阳性 878bp | 2025-12-25</div>
+        </div>
+
+        <div class="gel-container-new">
+            <div class="gel-container-title">电泳槽 #2: iDTR-1 | DTR阳性 878bp | 40样品</div>
+
+            <div class="gel-row-new">
+                <div class="gel-row-label">Row1<br>对照+1-8E</div>
+                <div class="gel-wells-container">
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-wt">WT</div>
+                    <div class="gel-well gw-pos">+</div>
+                    <div class="gel-well gw-h2o">H₂O</div>
+                    <div class="gel-well gw-8e">1♀</div>
+                    <div class="gel-well gw-8e">2♀</div>
+                    <div class="gel-well gw-8e">3♀</div>
+                    <div class="gel-well gw-8e">4♀</div>
+                    <div class="gel-well gw-8e">5♀</div>
+                    <div class="gel-well gw-8e">6♀</div>
+                    <div class="gel-well gw-8e">7♀</div>
+                    <div class="gel-well gw-8e">8♀</div>
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-8e">11♂</div>
+                    <div class="gel-well gw-8e">12♂</div>
+                    <div class="gel-well gw-8e">13♂</div>
+                    <div class="gel-well gw-8e">14♂</div>
+                    <div class="gel-well gw-8e">15♂</div>
+                    <div class="gel-well gw-8e">16♂</div>
+                    <div class="gel-well gw-8e">17♂</div>
+                    <div class="gel-well gw-8e">18♂</div>
+                    <div class="gel-well gw-8e">19♂</div>
+                    <div class="gel-well gw-8e">20♂</div>
+                    <div class="gel-well gw-8e">21♂</div>
+                    <div class="gel-well gw-8e">22♂</div>
+                </div>
+            </div>
+
+            <div class="gel-row-new">
+                <div class="gel-row-label">Row2<br>1-6B</div>
+                <div class="gel-wells-container">
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-6b">1</div>
+                    <div class="gel-well gw-6b">2</div>
+                    <div class="gel-well gw-6b">3</div>
+                    <div class="gel-well gw-6b">4</div>
+                    <div class="gel-well gw-6b">5</div>
+                    <div class="gel-well gw-6b">6</div>
+                    <div class="gel-well gw-6b">7</div>
+                    <div class="gel-well gw-6b">8</div>
+                    <div class="gel-well gw-6b">9</div>
+                    <div class="gel-well gw-6b">82</div>
+                    <div class="gel-well gw-6b">85</div>
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-6by">1幼</div>
+                    <div class="gel-well gw-6by">3幼</div>
+                    <div class="gel-well gw-6by">4幼</div>
+                    <div class="gel-well gw-6by">5幼</div>
+                    <div class="gel-well gw-6by">6幼</div>
+                    <div class="gel-well gw-6by">7幼</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-m">M</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="gel-pair">
+            <div>
+                <div class="gel-box">
+                    <div class="gel-box-title">电泳图 - iDTR-1</div>
+                    <img src="26.1.4_电泳图/槽2_iDTR-1.png" alt="iDTR-1电泳图">
+                </div>
+            </div>
+            <div class="diagram-box">
+                <div class="diagram-box-title">iDTR-1条带解读 | 目的带878bp | 100bp Ladder | 有条带=DTR+ | 无条带=无DTR插入</div>
+                <div class="diagram-content">
+<span style="font-weight:bold;color:#2980b9;">Row1: 对照 + 1-8E</span>
+        M   WT  +   H2O 1♀  2♀  3♀  4♀  5♀  6♀  7♀  8♀  M   11♂ 12♂ 13♂ 14♂ 15♂ 16♂ 17♂ 18♂ 19♂ 20♂ 21♂ 22♂
+1000bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 900bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+<span style="font-weight:bold;color:#2980b9;">▸878bp</span> ·   ·   <span style="color:#060;">█</span>   ·   ·   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·   ·   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>
+ 800bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 700bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 600bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 500bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 400bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 300bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 200bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 100bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">结果</span>   M   -   <span style="color:#060;">+</span>   -   -   <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   -   -   <span style="color:#060;">+</span>   M   <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>
+
+<span style="font-weight:bold;color:#2980b9;">Row2: 1-6B | 末尾5孔未上样</span>
+        M   1   2   3   4   5   6   7   8   9   <span style="color:#c00;font-weight:bold;">82</span>  85  M   1幼 3幼 4幼 5幼 6幼 7幼 ×   ×   ×   ×   ×   M
+1000bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══
+ 900bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─
+<span style="font-weight:bold;color:#2980b9;">▸878bp</span> ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   <span style="color:#c00;font-weight:bold;">██</span>  <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·   ·   ·   ·   ·   ·
+ 800bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 700bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 600bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 500bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══
+ 400bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 300bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 200bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 100bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">结果</span>   M   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>   <span style="color:#c00;font-weight:bold;">++</span>  <span style="color:#060;">+</span>   M   <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   ×   ×   ×   ×   ×   M
+<span style="color:#666;">注: 82号样本条带明显较亮，后续与DTR-2结合判断为iDTR+/+纯合</span>
+<span style="color:#666;">统计: 1-8E DTR+ 12只/无DTR 8只 | 1-6B成年 DTR+ 9只/无DTR 2只 | 1-6B幼鼠 DTR+ 5只/无DTR 1只</span></div>
+            </div>
+        </div>
+
+        <!-- ==================== 电泳槽3: iDTR-2 ==================== -->
+        <h2 class="section-title dtr">电泳槽 #3: iDTR-2 (WT 487bp) | 全样本37只</h2>
+        <div class="gel-photo-container">
+            <img src="images/槽3_iDTR-2.png" alt="电泳槽3 iDTR-2实拍" class="gel-photo">
+            <div class="gel-photo-label">▲ 电泳槽3实拍图 | iDTR-2 WT 487bp | 2025-12-25</div>
+        </div>
+
+        <div class="gel-container-new">
+            <div class="gel-container-title">电泳槽 #3: iDTR-2 | WT 487bp | 40样品</div>
+
+            <div class="gel-row-new">
+                <div class="gel-row-label">Row1<br>对照+1-8E</div>
+                <div class="gel-wells-container">
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-wt">WT</div>
+                    <div class="gel-well gw-pos">+</div>
+                    <div class="gel-well gw-h2o">H₂O</div>
+                    <div class="gel-well gw-8e">1♀</div>
+                    <div class="gel-well gw-8e">2♀</div>
+                    <div class="gel-well gw-8e">3♀</div>
+                    <div class="gel-well gw-8e">4♀</div>
+                    <div class="gel-well gw-8e">5♀</div>
+                    <div class="gel-well gw-8e">6♀</div>
+                    <div class="gel-well gw-8e">7♀</div>
+                    <div class="gel-well gw-8e">8♀</div>
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-8e">11♂</div>
+                    <div class="gel-well gw-8e">12♂</div>
+                    <div class="gel-well gw-8e">13♂</div>
+                    <div class="gel-well gw-8e">14♂</div>
+                    <div class="gel-well gw-8e">15♂</div>
+                    <div class="gel-well gw-8e">16♂</div>
+                    <div class="gel-well gw-8e">17♂</div>
+                    <div class="gel-well gw-8e">18♂</div>
+                    <div class="gel-well gw-8e">19♂</div>
+                    <div class="gel-well gw-8e">20♂</div>
+                    <div class="gel-well gw-8e">21♂</div>
+                    <div class="gel-well gw-8e">22♂</div>
+                </div>
+            </div>
+
+            <div class="gel-row-new">
+                <div class="gel-row-label">Row2<br>1-6B</div>
+                <div class="gel-wells-container">
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-6b">1</div>
+                    <div class="gel-well gw-6b">2</div>
+                    <div class="gel-well gw-6b">3</div>
+                    <div class="gel-well gw-6b">4</div>
+                    <div class="gel-well gw-6b">5</div>
+                    <div class="gel-well gw-6b">6</div>
+                    <div class="gel-well gw-6b">7</div>
+                    <div class="gel-well gw-6b">8</div>
+                    <div class="gel-well gw-6b">9</div>
+                    <div class="gel-well gw-6b">82</div>
+                    <div class="gel-well gw-6b">85</div>
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-6by">1幼</div>
+                    <div class="gel-well gw-6by">3幼</div>
+                    <div class="gel-well gw-6by">4幼</div>
+                    <div class="gel-well gw-6by">5幼</div>
+                    <div class="gel-well gw-6by">6幼</div>
+                    <div class="gel-well gw-6by">7幼</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-m">M</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="gel-pair">
+            <div>
+                <div class="gel-box">
+                    <div class="gel-box-title">电泳图 - iDTR-2</div>
+                    <img src="26.1.4_电泳图/槽3_iDTR-2.png" alt="iDTR-2电泳图">
+                </div>
+            </div>
+            <div class="diagram-box">
+                <div class="diagram-box-title">iDTR-2条带解读 | 目的带487bp | 100bp Ladder | 有条带=WT位点 | 无条带=DTR纯合插入位点</div>
+                <div class="diagram-content">
+<span style="font-weight:bold;color:#5dade2;">Row1: 对照 + 1-8E</span>
+        M   WT  +   H2O 1♀  2♀  3♀  4♀  5♀  6♀  7♀  8♀  M   11♂ 12♂ 13♂ 14♂ 15♂ 16♂ 17♂ 18♂ 19♂ 20♂ 21♂ 22♂
+1000bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 900bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 800bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 700bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 600bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 500bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+<span style="font-weight:bold;color:#5dade2;">▸487bp</span> ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>
+ 400bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 300bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 200bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 100bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">结果</span>   M   <span style="color:#060;">WT</span>  <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   M   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>
+
+<span style="font-weight:bold;color:#5dade2;">Row2: 1-6B | 末尾5孔未上样</span>
+        M   1   2   3   4   5   6   7   8   9   <span style="color:#c00;font-weight:bold;">82</span>  85  M   1幼 3幼 4幼 5幼 6幼 7幼 ×   ×   ×   ×   ×   M
+1000bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══
+ 900bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 800bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 700bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 600bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 500bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══
+<span style="font-weight:bold;color:#5dade2;">▸487bp</span> ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·   ·   ·   ·   ·   ·
+ 400bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 300bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 200bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 100bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">结果</span>   M   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#c00;font-weight:bold;">-</span>   <span style="color:#060;">+</span>   M   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   ×   ×   ×   ×   ×   M
+<span style="color:#666;">注: 82号样本在DTR-2中无条带，结合DTR-1亮带，判断为iDTR+/+纯合</span>
+<span style="color:#666;">统计: 1-8E WT位点+ 20只/- 0只 | 1-6B成年 WT位点+ 10只/- 1只(82) | 1-6B幼鼠 WT位点+ 6只/- 0只</span></div>
+            </div>
+        </div>
+
+        <div class="info-note">
+            <h4>iDTR判读方法</h4>
+            <p>• <strong>DTR-1有 + DTR-2有</strong> = iDTR+/- 杂合 (目标)</p>
+            <p>• <strong>DTR-1有 + DTR-2无</strong> = iDTR+/+ 纯合</p>
+            <p>• <strong>DTR-1无 + DTR-2有</strong> = WT 野生型</p>
+        </div>
+
+        <div class="diagram-box" style="margin-top:15px;">
+            <div class="diagram-box-title">iDTR基因型综合判读 | 槽2(DTR-1) + 槽3(DTR-2) 结果汇总</div>
+            <div class="diagram-content">
+<span style="font-weight:bold;color:#2980b9;">═══════════════════════════════════════════════════════════════════════════════════════════════</span>
+<span style="font-weight:bold;">1-8E笼位 (20只)</span>
+───────────────────────────────────────────────────────────────────────────────────────────────
+样本   1♀  2♀  3♀  4♀  5♀  6♀  7♀  8♀  │  11♂ 12♂ 13♂ 14♂ 15♂ 16♂ 17♂ 18♂ 19♂ 20♂ 21♂ 22♂
+DTR-1  -   <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   -   -   <span style="color:#060;">+</span>   │  <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>
+DTR-2  <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   │  <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>
+───────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">基因型</span> <span style="color:#999;">WT</span>  <span style="color:#060;font-weight:bold;">+/-</span> <span style="color:#999;">WT</span>  <span style="color:#060;font-weight:bold;">+/-</span> <span style="color:#060;font-weight:bold;">+/-</span> <span style="color:#999;">WT</span>  <span style="color:#999;">WT</span>  <span style="color:#060;font-weight:bold;">+/-</span> │  <span style="color:#060;font-weight:bold;">+/-</span> <span style="color:#999;">WT</span>  <span style="color:#060;font-weight:bold;">+/-</span> <span style="color:#999;">WT</span>  <span style="color:#060;font-weight:bold;">+/-</span> <span style="color:#999;">WT</span>  <span style="color:#060;font-weight:bold;">+/-</span> <span style="color:#060;font-weight:bold;">+/-</span> <span style="color:#060;font-weight:bold;">+/-</span> <span style="color:#060;font-weight:bold;">+/-</span> <span style="color:#999;">WT</span>  <span style="color:#060;font-weight:bold;">+/-</span>
+<span style="color:#666;">统计: iDTR+/- 12只(2♀,4♀,5♀,8♀,11♂,13♂,15♂,17♂,18♂,19♂,20♂,22♂) | WT 8只(1♀,3♀,6♀,7♀,12♂,14♂,16♂,21♂)</span>
+
+<span style="font-weight:bold;color:#2980b9;">═══════════════════════════════════════════════════════════════════════════════════════════════</span>
+<span style="font-weight:bold;">1-6B笼位成年 (11只)</span>
+───────────────────────────────────────────────────────────────────────────────────────────────
+样本   1   2   3   4   5   6   7   8   9   <span style="color:#c00;font-weight:bold;">82</span>  85
+DTR-1  <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>   <span style="color:#c00;font-weight:bold;">++</span>  <span style="color:#060;">+</span>
+DTR-2  <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#c00;font-weight:bold;">-</span>   <span style="color:#060;">+</span>
+───────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">基因型</span> <span style="color:#060;font-weight:bold;">+/-</span> <span style="color:#060;font-weight:bold;">+/-</span> <span style="color:#060;font-weight:bold;">+/-</span> <span style="color:#060;font-weight:bold;">+/-</span> <span style="color:#060;font-weight:bold;">+/-</span> <span style="color:#999;">WT</span>  <span style="color:#060;font-weight:bold;">+/-</span> <span style="color:#999;">WT</span>  <span style="color:#060;font-weight:bold;">+/-</span> <span style="color:#c00;font-weight:bold;">+/+</span> <span style="color:#060;font-weight:bold;">+/-</span>
+<span style="color:#666;">统计: iDTR+/- 8只(1,2,3,4,5,7,9,85) | iDTR+/+ 1只(82,条带亮) | WT 2只(6,8)</span>
+
+<span style="font-weight:bold;color:#2980b9;">═══════════════════════════════════════════════════════════════════════════════════════════════</span>
+<span style="font-weight:bold;">1-6B笼位幼鼠 (6只)</span>
+───────────────────────────────────────────────────────────────────────────────────────────────
+样本   1幼  3幼  4幼  5幼  6幼  7幼
+DTR-1  <span style="color:#060;">+</span>    -    <span style="color:#060;">+</span>    <span style="color:#060;">+</span>    <span style="color:#060;">+</span>    <span style="color:#060;">+</span>
+DTR-2  <span style="color:#060;">+</span>    <span style="color:#060;">+</span>    <span style="color:#060;">+</span>    <span style="color:#060;">+</span>    <span style="color:#060;">+</span>    <span style="color:#060;">+</span>
+───────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">基因型</span> <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#999;">WT</span>   <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#060;font-weight:bold;">+/-</span>
+<span style="color:#666;">统计: iDTR+/- 5只(1幼,4幼,5幼,6幼,7幼) | WT 1只(3幼)</span>
+
+<span style="font-weight:bold;color:#2980b9;">═══════════════════════════════════════════════════════════════════════════════════════════════</span>
+<span style="font-weight:bold;color:#060;">总计: iDTR+/- 25只 | iDTR+/+ 1只(82) | WT 11只</span></div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- ==================== 电泳槽4: Lyz2配对 (已弃用) ==================== -->
+        <div class="deprecated-section">
+        <h2 class="section-title lyz2">电泳槽 #4: Lyz2配对 | Row1=阳性(721bp) / Row2=WT(346bp) | 仅1-8E <span class="deprecated-badge">已弃用-基因型不匹配</span></h2>
+        <div class="gel-photo-container">
+            <img src="images/槽4_Lyz2.png" alt="电泳槽4 Lyz2实拍" class="gel-photo">
+            <div class="gel-photo-label">▲ 电泳槽4实拍图 | Lyz2 (已弃用) | 2025-12-25</div>
+        </div>
+
+        <div class="note">
+            <h4>Lyz2结果说明</h4>
+            <p>2025-12-24鉴定结果显示：1-8E笼位小鼠<strong>不是Lyz2基因型</strong>，需改用Ly6G和S100a8引物重新鉴定。</p>
+        </div>
+
+        <div class="gel-container-new">
+            <div class="gel-container-title">电泳槽 #4: Lyz2 配对 | 仅1-8E | <span style="color:#f66;">已弃用-基因型不匹配</span></div>
+
+            <div class="gel-row-new">
+                <div class="gel-row-label">Row1<br>Lyz2-1<br>阳性721bp</div>
+                <div class="gel-wells-container">
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-wt">WT</div>
+                    <div class="gel-well gw-pos">+</div>
+                    <div class="gel-well gw-h2o">H₂O</div>
+                    <div class="gel-well gw-8e">1♀</div>
+                    <div class="gel-well gw-8e">2♀</div>
+                    <div class="gel-well gw-8e">3♀</div>
+                    <div class="gel-well gw-8e">4♀</div>
+                    <div class="gel-well gw-8e">5♀</div>
+                    <div class="gel-well gw-8e">6♀</div>
+                    <div class="gel-well gw-8e">7♀</div>
+                    <div class="gel-well gw-8e">8♀</div>
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-8e">11♂</div>
+                    <div class="gel-well gw-8e">12♂</div>
+                    <div class="gel-well gw-8e">13♂</div>
+                    <div class="gel-well gw-8e">14♂</div>
+                    <div class="gel-well gw-8e">15♂</div>
+                    <div class="gel-well gw-8e">16♂</div>
+                    <div class="gel-well gw-8e">17♂</div>
+                    <div class="gel-well gw-8e">18♂</div>
+                    <div class="gel-well gw-8e">19♂</div>
+                    <div class="gel-well gw-8e">20♂</div>
+                    <div class="gel-well gw-8e">21♂</div>
+                    <div class="gel-well gw-8e">22♂</div>
+                </div>
+            </div>
+
+            <div class="gel-row-new">
+                <div class="gel-row-label">Row2<br>Lyz2-2<br>WT 346bp</div>
+                <div class="gel-wells-container">
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-wt">WT</div>
+                    <div class="gel-well gw-pos">+</div>
+                    <div class="gel-well gw-h2o">H₂O</div>
+                    <div class="gel-well gw-8e">1♀</div>
+                    <div class="gel-well gw-8e">2♀</div>
+                    <div class="gel-well gw-8e">3♀</div>
+                    <div class="gel-well gw-8e">4♀</div>
+                    <div class="gel-well gw-8e">5♀</div>
+                    <div class="gel-well gw-8e">6♀</div>
+                    <div class="gel-well gw-8e">7♀</div>
+                    <div class="gel-well gw-8e">8♀</div>
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-8e">11♂</div>
+                    <div class="gel-well gw-8e">12♂</div>
+                    <div class="gel-well gw-8e">13♂</div>
+                    <div class="gel-well gw-8e">14♂</div>
+                    <div class="gel-well gw-8e">15♂</div>
+                    <div class="gel-well gw-8e">16♂</div>
+                    <div class="gel-well gw-8e">17♂</div>
+                    <div class="gel-well gw-8e">18♂</div>
+                    <div class="gel-well gw-8e">19♂</div>
+                    <div class="gel-well gw-8e">20♂</div>
+                    <div class="gel-well gw-8e">21♂</div>
+                    <div class="gel-well gw-8e">22♂</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="gel-pair">
+            <div>
+                <div class="gel-box">
+                    <div class="gel-box-title" style="background:#fce4ec;color:#c62828;">电泳图 - 槽4 Lyz2 (已弃用)</div>
+                    <img src="26.1.4_电泳图/槽4_Lyz2.png" alt="槽4 Lyz2电泳图-弃用">
+                </div>
+            </div>
+            <div class="diagram-box">
+                <div class="diagram-box-title" style="color:#c62828;">Lyz2 结果说明</div>
+                <div class="diagram-content" style="background:#fff5f5;">
+<span style="color:#c00;font-weight:bold;">⚠ 1-8E笼位小鼠不是Lyz2基因型</span>
+
+Row1 (Lyz2-1 阳性721bp): <span style="color:#c00;">所有样本均无条带</span>
+Row2 (Lyz2-2 WT 346bp): <span style="color:#060;">所有样本均有WT条带</span>
+
+<span style="font-weight:bold;">结论</span>: 只有WT条带，无突变条带
+       → 需改用 <span style="color:#c00;font-weight:bold;">Ly6G</span> 引物重新鉴定</div>
+            </div>
+        </div>
+        </div><!-- end deprecated-section 槽4 -->
+
+        <!-- ==================== 电泳槽5: Ly6G配对 (1-6B) ==================== -->
+        <h2 class="section-title ly6g">电泳槽 #5: Ly6G配对 | Row1=阳性(375bp) / Row2=WT(305bp) | 仅1-6B</h2>
+        <div class="gel-photo-container">
+            <img src="images/槽5_Ly6G_1-6B.png" alt="电泳槽5 Ly6G 1-6B实拍" class="gel-photo">
+            <div class="gel-photo-label">▲ 电泳槽5实拍图 | Ly6G配对 1-6B | 2025-12-25</div>
+        </div>
+
+        <div class="gel-container-new">
+            <div class="gel-container-title">电泳槽 #5: Ly6G 配对 | Row1=阳性(375bp) / Row2=WT(305bp) | 仅1-6B</div>
+
+            <div class="gel-row-new">
+                <div class="gel-row-label">Row1<br>Ly6G-1<br>阳性375bp</div>
+                <div class="gel-wells-container">
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-wt">WT</div>
+                    <div class="gel-well gw-pos">+</div>
+                    <div class="gel-well gw-h2o">H₂O</div>
+                    <div class="gel-well gw-6b">1</div>
+                    <div class="gel-well gw-6b">2</div>
+                    <div class="gel-well gw-6b">3</div>
+                    <div class="gel-well gw-6b">4</div>
+                    <div class="gel-well gw-6b">5</div>
+                    <div class="gel-well gw-6b">6</div>
+                    <div class="gel-well gw-6b">7</div>
+                    <div class="gel-well gw-6b">8</div>
+                    <div class="gel-well gw-6b">9</div>
+                    <div class="gel-well gw-6b">82</div>
+                    <div class="gel-well gw-6b">85</div>
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-6by">1幼</div>
+                    <div class="gel-well gw-6by">3幼</div>
+                    <div class="gel-well gw-6by">4幼</div>
+                    <div class="gel-well gw-6by">5幼</div>
+                    <div class="gel-well gw-6by">6幼</div>
+                    <div class="gel-well gw-6by">7幼</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-m">M</div>
+                </div>
+            </div>
+
+            <div class="gel-row-new">
+                <div class="gel-row-label">Row2<br>Ly6G-2<br>WT 305bp</div>
+                <div class="gel-wells-container">
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-wt">WT</div>
+                    <div class="gel-well gw-pos">+</div>
+                    <div class="gel-well gw-h2o">H₂O</div>
+                    <div class="gel-well gw-6b">1</div>
+                    <div class="gel-well gw-6b">2</div>
+                    <div class="gel-well gw-6b">3</div>
+                    <div class="gel-well gw-6b">4</div>
+                    <div class="gel-well gw-6b">5</div>
+                    <div class="gel-well gw-6b">6</div>
+                    <div class="gel-well gw-6b">7</div>
+                    <div class="gel-well gw-6b">8</div>
+                    <div class="gel-well gw-6b">9</div>
+                    <div class="gel-well gw-6b">82</div>
+                    <div class="gel-well gw-6b">85</div>
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-6by">1幼</div>
+                    <div class="gel-well gw-6by">3幼</div>
+                    <div class="gel-well gw-6by">4幼</div>
+                    <div class="gel-well gw-6by">5幼</div>
+                    <div class="gel-well gw-6by">6幼</div>
+                    <div class="gel-well gw-6by">7幼</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-empty">×</div>
+                    <div class="gel-well gw-m">M</div>
+                </div>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.1);padding:8px;border-radius:4px;margin-top:10px;">
+                <p style="color:#ffd700;font-size:10px;margin:0;">Ly6G判读: Row1有 + Row2有 = Ly6G+/- (杂合目标) | Row1无 + Row2有 = WT | Row1有 + Row2无 = Ly6G+/+</p>
+            </div>
+        </div>
+
+        <div class="gel-pair">
+            <div>
+                <div class="gel-box">
+                    <div class="gel-box-title">电泳图 - 槽5 Ly6G (1-6B)</div>
+                    <img src="26.1.4_电泳图/槽5_Ly6G_1-6B.png" alt="槽5 Ly6G 1-6B电泳图">
+                </div>
+            </div>
+            <div class="diagram-box">
+                <div class="diagram-box-title">Ly6G条带解读 (1-6B) | Ly6G-1(375bp)阳性 + Ly6G-2(305bp)WT | 100bp Ladder</div>
+            <div class="diagram-content">
+<span style="font-weight:bold;color:#c0392b;">Row1: Ly6G-1 (阳性375bp) | 有条带=Cre插入</span>
+        M   WT  +   H2O 1   2   3   4   5   6   7   8   9   82  85  M   1幼 3幼 4幼 5幼 6幼 7幼 ×   ×   M
+1000bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ══
+ 900bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 800bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 700bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 600bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 500bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ══
+ 400bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ─
+<span style="font-weight:bold;color:#c0392b;">▸375bp</span> ·   ·   <span style="color:#c00;">█</span>   ·   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   ·   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   ·   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   ·   ·   ·   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   ·   ·   ·
+ 300bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 200bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 100bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ─
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">结果</span>   M   -   <span style="color:#c00;">+</span>   -   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   -   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   -   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   M   -   -   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   ×   ×   M
+
+<span style="font-weight:bold;color:#e74c3c;">Row2: Ly6G-2 (WT 305bp) | 有条带=WT位点</span>
+        M   WT  +   H2O 1   2   3   4   5   6   7   8   9   82  85  M   1幼 3幼 4幼 5幼 6幼 7幼 ×   ×   M
+1000bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ══
+ 900bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 800bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 700bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 600bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 500bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ══
+ 400bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 300bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ─
+<span style="font-weight:bold;color:#e74c3c;">▸305bp</span> ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·   ·   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   ·   ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·   ·   ·   ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·   ·   ·
+ 200bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ─
+ 100bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ─
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">结果</span>   M   <span style="color:#060;">WT</span>  <span style="color:#060;">+</span>   -   -   <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>   -   -   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   M   -   -   -   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   ×   ×   M
+<span style="color:#666;">统计: 成年 Ly6G-1+ 9只(1,2,3,5,6,7,9,82,85)/- 2只(4,8) | Ly6G-2+ 7只(2,4,7,8,9,82,85)/- 4只(1,3,5,6)</span>
+<span style="color:#666;">幼鼠: Ly6G-1+ 4只(4幼,5幼,6幼,7幼)/- 2只(1幼,3幼) | Ly6G-2+ 3只(5幼,6幼,7幼)/- 3只(1幼,3幼,4幼)</span></div>
+            </div>
+        </div>
+
+        <div class="info-note">
+            <h4>Ly6G-iCre判读方法</h4>
+            <p>• <strong>Ly6G-1有 + Ly6G-2有</strong> = Ly6G+/- 杂合 (目标)</p>
+            <p>• <strong>Ly6G-1有 + Ly6G-2无</strong> = Ly6G+/+ 纯合</p>
+            <p>• <strong>Ly6G-1无 + Ly6G-2有</strong> = WT 野生型</p>
+            <p>• <strong>Ly6G-1无 + Ly6G-2无</strong> = 需重测/样本问题</p>
+        </div>
+
+        <div class="diagram-box" style="margin-top:15px;">
+            <div class="diagram-box-title">Ly6G基因型综合判读 (1-6B) | Ly6G-1 + Ly6G-2 结果汇总</div>
+            <div class="diagram-content">
+<span style="font-weight:bold;color:#c0392b;">═══════════════════════════════════════════════════════════════════════════════════════════════</span>
+<span style="font-weight:bold;">1-6B笼位成年 (11只)</span>
+───────────────────────────────────────────────────────────────────────────────────────────────
+样本    1    2    3    4    5    6    7    8    9    82   85
+Ly6G-1  <span style="color:#c00;">+</span>    <span style="color:#c00;">+</span>    <span style="color:#c00;">+</span>    -    <span style="color:#c00;">+</span>    <span style="color:#c00;">+</span>    <span style="color:#c00;">+</span>    -    <span style="color:#c00;">+</span>    <span style="color:#c00;">+</span>    <span style="color:#c00;">+</span>
+Ly6G-2  -    <span style="color:#060;">+</span>    -    <span style="color:#060;">+</span>    -    -    <span style="color:#060;">+</span>    <span style="color:#060;">+</span>    <span style="color:#060;">+</span>    <span style="color:#060;">+</span>    <span style="color:#060;">+</span>
+───────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">基因型</span>  <span style="color:#c00;font-weight:bold;">+/+</span>  <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#c00;font-weight:bold;">+/+</span>  <span style="color:#999;">WT</span>   <span style="color:#c00;font-weight:bold;">+/+</span>  <span style="color:#c00;font-weight:bold;">+/+</span>  <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#999;">WT</span>   <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#060;font-weight:bold;">+/-</span>
+<span style="color:#666;">统计: Ly6G+/- 5只(2,7,9,82,85) | Ly6G+/+ 4只(1,3,5,6) | WT 2只(4,8)</span>
+
+<span style="font-weight:bold;color:#c0392b;">═══════════════════════════════════════════════════════════════════════════════════════════════</span>
+<span style="font-weight:bold;">1-6B笼位幼鼠 (6只)</span>
+───────────────────────────────────────────────────────────────────────────────────────────────
+样本    1幼   3幼   4幼   5幼   6幼   7幼
+Ly6G-1  -     -     <span style="color:#c00;">+</span>     <span style="color:#c00;">+</span>     <span style="color:#c00;">+</span>     <span style="color:#c00;">+</span>
+Ly6G-2  -     -     -     <span style="color:#060;">+</span>     <span style="color:#060;">+</span>     <span style="color:#060;">+</span>
+───────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">基因型</span>  <span style="color:#f90;font-weight:bold;">?</span>     <span style="color:#f90;font-weight:bold;">?</span>     <span style="color:#c00;font-weight:bold;">+/+</span>   <span style="color:#060;font-weight:bold;">+/-</span>   <span style="color:#060;font-weight:bold;">+/-</span>   <span style="color:#060;font-weight:bold;">+/-</span>
+<span style="color:#666;">统计: Ly6G+/- 3只(5幼,6幼,7幼) | Ly6G+/+ 1只(4幼) | 待定 2只(1幼,3幼 两条均无条带)</span>
+
+<span style="font-weight:bold;color:#c0392b;">═══════════════════════════════════════════════════════════════════════════════════════════════</span>
+<span style="font-weight:bold;color:#060;">1-6B总计: Ly6G+/- 8只 | Ly6G+/+ 5只 | WT 2只 | 待定 2只</span></div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- ==================== 1-8E 重测: Ly6G + S100a8 ==================== -->
+        <h2 class="section-title ly6g">1-8E 重测: Ly6G-iCre | Row1=阳性(375bp) / Row2=WT(305bp)</h2>
+
+        <div class="gel-container-new">
+            <div class="gel-container-title">1-8E Ly6G 重测 (12/26-27) | Row1=阳性(375bp) / Row2=WT(305bp)</div>
+
+            <div class="gel-row-new">
+                <div class="gel-row-label">Row1<br>Ly6G-1<br>阳性375bp</div>
+                <div class="gel-wells-container">
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-wt">WT</div>
+                    <div class="gel-well gw-pos">+</div>
+                    <div class="gel-well gw-h2o">H₂O</div>
+                    <div class="gel-well gw-8e">1♀</div>
+                    <div class="gel-well gw-8e">2♀</div>
+                    <div class="gel-well gw-8e">3♀</div>
+                    <div class="gel-well gw-8e">4♀</div>
+                    <div class="gel-well gw-8e">5♀</div>
+                    <div class="gel-well gw-8e">6♀</div>
+                    <div class="gel-well gw-8e">7♀</div>
+                    <div class="gel-well gw-8e">8♀</div>
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-8e">11♂</div>
+                    <div class="gel-well gw-8e">12♂</div>
+                    <div class="gel-well gw-8e">13♂</div>
+                    <div class="gel-well gw-8e">14♂</div>
+                    <div class="gel-well gw-8e">15♂</div>
+                    <div class="gel-well gw-8e">16♂</div>
+                    <div class="gel-well gw-8e">17♂</div>
+                    <div class="gel-well gw-8e">18♂</div>
+                    <div class="gel-well gw-8e">19♂</div>
+                    <div class="gel-well gw-8e">20♂</div>
+                    <div class="gel-well gw-8e">21♂</div>
+                    <div class="gel-well gw-8e">22♂</div>
+                </div>
+            </div>
+
+            <div class="gel-row-new">
+                <div class="gel-row-label">Row2<br>Ly6G-2<br>WT 305bp</div>
+                <div class="gel-wells-container">
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-wt">WT</div>
+                    <div class="gel-well gw-pos">+</div>
+                    <div class="gel-well gw-h2o">H₂O</div>
+                    <div class="gel-well gw-8e">1♀</div>
+                    <div class="gel-well gw-8e">2♀</div>
+                    <div class="gel-well gw-8e">3♀</div>
+                    <div class="gel-well gw-8e">4♀</div>
+                    <div class="gel-well gw-8e">5♀</div>
+                    <div class="gel-well gw-8e">6♀</div>
+                    <div class="gel-well gw-8e">7♀</div>
+                    <div class="gel-well gw-8e">8♀</div>
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-8e">11♂</div>
+                    <div class="gel-well gw-8e">12♂</div>
+                    <div class="gel-well gw-8e">13♂</div>
+                    <div class="gel-well gw-8e">14♂</div>
+                    <div class="gel-well gw-8e">15♂</div>
+                    <div class="gel-well gw-8e">16♂</div>
+                    <div class="gel-well gw-8e">17♂</div>
+                    <div class="gel-well gw-8e">18♂</div>
+                    <div class="gel-well gw-8e">19♂</div>
+                    <div class="gel-well gw-8e">20♂</div>
+                    <div class="gel-well gw-8e">21♂</div>
+                    <div class="gel-well gw-8e">22♂</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="gel-pair">
+            <div>
+                <div class="gel-box">
+                    <div class="gel-box-title" style="background:#fdecea;color:#c0392b;">电泳图 - 1-8E Ly6G (重测布局参考)</div>
+                    <div class="gel-placeholder" style="font-size:10px;padding:15px;">[此处为重测布局说明，实际结果见槽6和槽7]</div>
+                </div>
+            </div>
+            <div class="diagram-box">
+                <div class="diagram-box-title">1-8E Ly6G 条带解读 - 待填充</div>
+                <div class="diagram-content">
+        M   WT  +   H2O 1♀  2♀  3♀  4♀  5♀  6♀  7♀  8♀  M   11♂ 12♂ 13♂ 14♂ 15♂ 16♂ 17♂ 18♂ 19♂ 20♂ 21♂ 22♂  ← Row1
+<span style="font-weight:bold;color:#c0392b;">▸375bp</span> ·   ·   <span style="color:#c00;">█</span>   ·   -   -   -   -   -   -   -   -   ·   -   -   -   -   -   -   -   -   -   -   -   -
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">结果</span>   M   -   <span style="color:#c00;">+</span>   -   -   -   -   -   -   -   -   -   M   -   -   -   -   -   -   -   -   -   -   -   -
+
+        M   WT  +   H2O 1♀  2♀  3♀  4♀  5♀  6♀  7♀  8♀  M   11♂ 12♂ 13♂ 14♂ 15♂ 16♂ 17♂ 18♂ 19♂ 20♂ 21♂ 22♂  ← Row2
+<span style="font-weight:bold;color:#e74c3c;">▸305bp</span> ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·   -   -   -   -   -   -   -   -   ·   -   -   -   -   -   -   -   -   -   -   -   -
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">结果</span>   M   <span style="color:#060;">WT</span>  <span style="color:#060;">+</span>   -   -   -   -   -   -   -   -   -   M   -   -   -   -   -   -   -   -   -   -   -   -</div>
+            </div>
+        </div>
+
+        <!-- ==================== 槽6: 1-8E Ly6G重测 (电压错误) ==================== -->
+        <div class="deprecated-section">
+        <h2 class="section-title ly6g">槽6: 1-8E Ly6G重测 (12/26) <span class="deprecated-badge">电压错误120V-仅供参考</span></h2>
+
+        <div class="warning-note">
+            <h4>电压错误说明</h4>
+            <p>此次电泳使用了120V而非标准的135V，导致条带未完全跑开，但可见Ly6G条带趋势，确认是Ly6G基因型。</p>
+        </div>
+
+        <div class="gel-container-new">
+            <div class="gel-container-title">槽6: 1-8E Ly6G重测 (12/26) | ⚠ 电压错误120V | Row1=阳性(375bp) / Row2=WT(305bp)</div>
+
+            <div class="gel-row-new">
+                <div class="gel-row-label">Row1<br>Ly6G-1<br>阳性375bp</div>
+                <div class="gel-wells-container">
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-wt">WT</div>
+                    <div class="gel-well gw-pos">+</div>
+                    <div class="gel-well gw-h2o">H₂O</div>
+                    <div class="gel-well gw-8e">1♀</div>
+                    <div class="gel-well gw-8e">2♀</div>
+                    <div class="gel-well gw-8e">3♀</div>
+                    <div class="gel-well gw-8e">4♀</div>
+                    <div class="gel-well gw-8e">5♀</div>
+                    <div class="gel-well gw-8e">6♀</div>
+                    <div class="gel-well gw-8e">7♀</div>
+                    <div class="gel-well gw-8e">8♀</div>
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-8e">11♂</div>
+                    <div class="gel-well gw-8e">12♂</div>
+                    <div class="gel-well gw-8e">13♂</div>
+                    <div class="gel-well gw-8e">14♂</div>
+                    <div class="gel-well gw-8e">15♂</div>
+                    <div class="gel-well gw-8e">16♂</div>
+                    <div class="gel-well gw-8e">17♂</div>
+                    <div class="gel-well gw-8e">18♂</div>
+                    <div class="gel-well gw-8e">19♂</div>
+                    <div class="gel-well gw-8e">20♂</div>
+                    <div class="gel-well gw-8e">21♂</div>
+                    <div class="gel-well gw-8e">22♂</div>
+                </div>
+            </div>
+
+            <div class="gel-row-new">
+                <div class="gel-row-label">Row2<br>Ly6G-2<br>WT 305bp</div>
+                <div class="gel-wells-container">
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-wt">WT</div>
+                    <div class="gel-well gw-pos">+</div>
+                    <div class="gel-well gw-h2o">H₂O</div>
+                    <div class="gel-well gw-8e">1♀</div>
+                    <div class="gel-well gw-8e">2♀</div>
+                    <div class="gel-well gw-8e">3♀</div>
+                    <div class="gel-well gw-8e">4♀</div>
+                    <div class="gel-well gw-8e">5♀</div>
+                    <div class="gel-well gw-8e">6♀</div>
+                    <div class="gel-well gw-8e">7♀</div>
+                    <div class="gel-well gw-8e">8♀</div>
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-8e">11♂</div>
+                    <div class="gel-well gw-8e">12♂</div>
+                    <div class="gel-well gw-8e">13♂</div>
+                    <div class="gel-well gw-8e">14♂</div>
+                    <div class="gel-well gw-8e">15♂</div>
+                    <div class="gel-well gw-8e">16♂</div>
+                    <div class="gel-well gw-8e">17♂</div>
+                    <div class="gel-well gw-8e">18♂</div>
+                    <div class="gel-well gw-8e">19♂</div>
+                    <div class="gel-well gw-8e">20♂</div>
+                    <div class="gel-well gw-8e">21♂</div>
+                    <div class="gel-well gw-8e">22♂</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="gel-pair">
+            <div>
+                <div class="gel-box">
+                    <div class="gel-box-title" style="background:#fff3e0;color:#e65100;">电泳图 - 槽6 (电压错误，仅供参考)</div>
+                    <img src="images/槽6_Ly6G_1-8E_重测.png" alt="槽6电泳图-电压错误" class="gel-photo">
+                </div>
+            </div>
+            <div class="diagram-box">
+                <div class="diagram-box-title">槽6 条带解读 - 电压错误，趋势可见</div>
+                <div class="diagram-content">
+        M   WT  +   H2O 1♀  2♀  3♀  4♀  5♀  6♀  7♀  8♀  M   11♂ 12♂ 13♂ 14♂ 15♂ 16♂ 17♂ 18♂ 19♂ 20♂ 21♂ 22♂  ← Row1
+<span style="font-weight:bold;color:#c0392b;">▸375bp</span> ·   ·   <span style="color:#f90;">▓</span>   ·   -   -   -   -   -   -   -   -   ·   -   -   -   -   -   -   -   -   -   -   -   -
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">趋势</span>   M   -   <span style="color:#f90;">~</span>   -   -   -   -   -   -   -   -   -   M   -   -   -   -   -   -   -   -   -   -   -   -
+
+        M   WT  +   H2O 1♀  2♀  3♀  4♀  5♀  6♀  7♀  8♀  M   11♂ 12♂ 13♂ 14♂ 15♂ 16♂ 17♂ 18♂ 19♂ 20♂ 21♂ 22♂  ← Row2
+<span style="font-weight:bold;color:#e74c3c;">▸305bp</span> ·   <span style="color:#f90;">▓</span>   <span style="color:#f90;">▓</span>   ·   -   -   -   -   -   -   -   -   ·   -   -   -   -   -   -   -   -   -   -   -   -
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">趋势</span>   M   <span style="color:#f90;">~</span>   <span style="color:#f90;">~</span>   -   -   -   -   -   -   -   -   -   M   -   -   -   -   -   -   -   -   -   -   -   -
+
+<span style="color:#f90;">⚠ 电压120V错误，条带未完全跑开，仅供趋势参考，最终结果见槽7</span></div>
+            </div>
+        </div>
+        </div><!-- end deprecated-section 槽6 -->
+
+        <!-- ==================== 槽7: 1-8E Ly6G最终结果 ==================== -->
+        <h2 class="section-title ly6g">槽7: 1-8E Ly6G最终结果 (12/27) | ✓ 135V正常</h2>
+
+        <div class="info-note">
+            <h4>最终结果</h4>
+            <p>修正电压至135V，位置交换已调整，此为1-8E笼位Ly6G基因型的最终判定结果。</p>
+        </div>
+
+        <div class="gel-container-new">
+            <div class="gel-container-title">槽7: 1-8E Ly6G最终结果 (12/27) | ✓ 135V正常 | Row1=阳性(375bp) / Row2=WT(305bp)</div>
+
+            <div class="gel-row-new">
+                <div class="gel-row-label">Row1<br>Ly6G-1<br>阳性375bp</div>
+                <div class="gel-wells-container">
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-wt">WT</div>
+                    <div class="gel-well gw-pos">+</div>
+                    <div class="gel-well gw-h2o">H₂O</div>
+                    <div class="gel-well gw-8e">1♀</div>
+                    <div class="gel-well gw-8e">2♀</div>
+                    <div class="gel-well gw-8e">3♀</div>
+                    <div class="gel-well gw-8e">4♀</div>
+                    <div class="gel-well gw-8e">5♀</div>
+                    <div class="gel-well gw-8e">6♀</div>
+                    <div class="gel-well gw-8e">7♀</div>
+                    <div class="gel-well gw-8e">8♀</div>
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-8e">11♂</div>
+                    <div class="gel-well gw-8e">12♂</div>
+                    <div class="gel-well gw-8e">13♂</div>
+                    <div class="gel-well gw-8e">14♂</div>
+                    <div class="gel-well gw-8e">15♂</div>
+                    <div class="gel-well gw-8e">16♂</div>
+                    <div class="gel-well gw-8e">17♂</div>
+                    <div class="gel-well gw-8e">18♂</div>
+                    <div class="gel-well gw-8e">19♂</div>
+                    <div class="gel-well gw-8e">20♂</div>
+                    <div class="gel-well gw-8e">21♂</div>
+                    <div class="gel-well gw-8e">22♂</div>
+                </div>
+            </div>
+
+            <div class="gel-row-new">
+                <div class="gel-row-label">Row2<br>Ly6G-2<br>WT 305bp</div>
+                <div class="gel-wells-container">
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-wt">WT</div>
+                    <div class="gel-well gw-pos">+</div>
+                    <div class="gel-well gw-h2o">H₂O</div>
+                    <div class="gel-well gw-8e">1♀</div>
+                    <div class="gel-well gw-8e">2♀</div>
+                    <div class="gel-well gw-8e">3♀</div>
+                    <div class="gel-well gw-8e">4♀</div>
+                    <div class="gel-well gw-8e">5♀</div>
+                    <div class="gel-well gw-8e">6♀</div>
+                    <div class="gel-well gw-8e">7♀</div>
+                    <div class="gel-well gw-8e">8♀</div>
+                    <div class="gel-well gw-m">M</div>
+                    <div class="gel-well gw-8e">11♂</div>
+                    <div class="gel-well gw-8e">12♂</div>
+                    <div class="gel-well gw-8e">13♂</div>
+                    <div class="gel-well gw-8e">14♂</div>
+                    <div class="gel-well gw-8e">15♂</div>
+                    <div class="gel-well gw-8e">16♂</div>
+                    <div class="gel-well gw-8e">17♂</div>
+                    <div class="gel-well gw-8e">18♂</div>
+                    <div class="gel-well gw-8e">19♂</div>
+                    <div class="gel-well gw-8e">20♂</div>
+                    <div class="gel-well gw-8e">21♂</div>
+                    <div class="gel-well gw-8e">22♂</div>
+                </div>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.1);padding:8px;border-radius:4px;margin-top:10px;">
+                <p style="color:#66bb6a;font-size:10px;margin:0;">✓ Ly6G判读: Row1有 + Row2有 = Ly6G+/- (杂合目标) | Row1无 + Row2有 = WT | Row1有 + Row2无 = Ly6G+/+</p>
+            </div>
+        </div>
+
+        <div class="gel-pair">
+            <div>
+                <div class="gel-box">
+                    <div class="gel-box-title" style="background:#e8f5e9;color:#2e7d32;">电泳图 - 槽7 1-8E Ly6G最终结果</div>
+                    <img src="images/槽7_Ly6G_1-8E_最终.png" alt="槽7电泳图-最终结果" class="gel-photo">
+                </div>
+            </div>
+            <div class="diagram-box">
+                <div class="diagram-box-title">槽7 Ly6G条带解读 (1-8E最终) | Ly6G-1(375bp)阳性 + Ly6G-2(305bp)WT | 100bp Ladder | ✓ 135V正常</div>
+                <div class="diagram-content">
+<span style="font-weight:bold;color:#c0392b;">Row1: Ly6G-1 (阳性375bp) | 有条带=Cre插入</span>
+        M   WT  +   H2O 1♀  2♀  3♀  4♀  5♀  6♀  7♀  8♀  M   11♂ 12♂ 13♂ 14♂ 15♂ 16♂ 17♂ 18♂ 19♂ 20♂ 21♂ 22♂
+1000bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 900bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 800bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 700bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 600bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 500bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 400bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+<span style="font-weight:bold;color:#c0392b;">▸375bp</span> ·   ·   <span style="color:#c00;">█</span>   ·   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   ·   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   ·   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   ·   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   ·   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>   ·   <span style="color:#c00;">█</span>   <span style="color:#c00;">█</span>
+ 300bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 200bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 100bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">结果</span>   M   -   <span style="color:#c00;">+</span>   -   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   -   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   -   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   M   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   -   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>   -   <span style="color:#c00;">+</span>   <span style="color:#c00;">+</span>
+
+<span style="font-weight:bold;color:#e74c3c;">Row2: Ly6G-2 (WT 305bp) | 有条带=WT位点 | 浅=杂合 深=WT</span>
+        M   WT  +   H2O 1♀  2♀  3♀  4♀  5♀  6♀  7♀  8♀  M   11♂ 12♂ 13♂ 14♂ 15♂ 16♂ 17♂ 18♂ 19♂ 20♂ 21♂ 22♂
+1000bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 900bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 800bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 700bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 600bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 500bp ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ══  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 400bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 300bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+<span style="font-weight:bold;color:#e74c3c;">▸305bp</span> ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·   <span style="color:#690;">▒</span>   <span style="color:#690;">▒</span>   <span style="color:#060;">█</span>   <span style="color:#690;">▒</span>   <span style="color:#690;">▒</span>   <span style="color:#060;">█</span>   <span style="color:#690;">▒</span>   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·   ·   <span style="color:#060;">█</span>   <span style="color:#060;">█</span>   ·
+ 200bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+ 100bp ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ─   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">结果</span>   M   <span style="color:#060;">WT</span>  <span style="color:#060;">+</span>   -   <span style="color:#690;">浅</span>  <span style="color:#690;">浅</span>  <span style="color:#060;">深</span>  <span style="color:#690;">浅</span>  <span style="color:#690;">浅</span>  <span style="color:#060;">深</span>  <span style="color:#690;">浅</span>  <span style="color:#060;">深</span>  M   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>   -   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   -   -   <span style="color:#060;">+</span>   <span style="color:#060;">+</span>   -
+<span style="color:#666;">统计: ♀ Ly6G-1+ 6只(1,2,4,5,7,8)/- 2只(3,6) | Ly6G-2 浅5只(1,2,4,5,7)/深3只(3,6,8)</span>
+<span style="color:#666;">      ♂ Ly6G-1+ 10只(11,12,13,15,16,17,18,19,21,22)/- 2只(14,20) | Ly6G-2+ 7只(11,12,14,16,17,20,21)/- 5只(13,15,18,19,22)</span></div>
+            </div>
+        </div>
+
+        <div class="info-note">
+            <h4>Ly6G-iCre判读方法 (1-8E)</h4>
+            <p>• <strong>Ly6G-1有 + Ly6G-2有</strong> = Ly6G+/- 杂合 (目标)</p>
+            <p>• <strong>Ly6G-1有 + Ly6G-2无</strong> = Ly6G+/+ 纯合</p>
+            <p>• <strong>Ly6G-1无 + Ly6G-2有</strong> = WT 野生型</p>
+        </div>
+
+        <div class="diagram-box" style="margin-top:15px;">
+            <div class="diagram-box-title">Ly6G基因型综合判读 (1-8E) | Ly6G-1 + Ly6G-2 结果汇总 | ✓ 最终结果</div>
+            <div class="diagram-content">
+<span style="font-weight:bold;color:#c0392b;">═══════════════════════════════════════════════════════════════════════════════════════════════</span>
+<span style="font-weight:bold;">1-8E笼位♀ (8只)</span>
+───────────────────────────────────────────────────────────────────────────────────────────────
+样本    1♀   2♀   3♀   4♀   5♀   6♀   7♀   8♀
+Ly6G-1  <span style="color:#c00;">+</span>    <span style="color:#c00;">+</span>    -    <span style="color:#c00;">+</span>    <span style="color:#c00;">+</span>    -    <span style="color:#c00;">+</span>    <span style="color:#c00;">+</span>
+Ly6G-2  <span style="color:#690;">浅</span>   <span style="color:#690;">浅</span>   <span style="color:#060;">深</span>   <span style="color:#690;">浅</span>   <span style="color:#690;">浅</span>   <span style="color:#060;">深</span>   <span style="color:#690;">浅</span>   <span style="color:#060;">深</span>
+───────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">基因型</span>  <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#999;">WT</span>   <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#999;">WT</span>   <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#060;font-weight:bold;">+/-</span>
+<span style="color:#666;">统计: Ly6G+/- 6只(1♀,2♀,4♀,5♀,7♀,8♀) | WT 2只(3♀,6♀)</span>
+
+<span style="font-weight:bold;color:#c0392b;">═══════════════════════════════════════════════════════════════════════════════════════════════</span>
+<span style="font-weight:bold;">1-8E笼位♂ (12只)</span>
+───────────────────────────────────────────────────────────────────────────────────────────────
+样本    11♂  12♂  13♂  14♂  15♂  16♂  17♂  18♂  19♂  20♂  21♂  22♂
+Ly6G-1  <span style="color:#c00;">+</span>    <span style="color:#c00;">+</span>    <span style="color:#c00;">+</span>    -    <span style="color:#c00;">+</span>    <span style="color:#c00;">+</span>    <span style="color:#c00;">+</span>    <span style="color:#c00;">+</span>    <span style="color:#c00;">+</span>    -    <span style="color:#c00;">+</span>    <span style="color:#c00;">+</span>
+Ly6G-2  <span style="color:#060;">+</span>    <span style="color:#060;">+</span>    -    <span style="color:#060;">+</span>    -    <span style="color:#060;">+</span>    <span style="color:#060;">+</span>    -    -    <span style="color:#060;">+</span>    <span style="color:#060;">+</span>    -
+───────────────────────────────────────────────────────────────────────────────────────────────
+<span style="font-weight:bold;">基因型</span>  <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#c00;font-weight:bold;">+/+</span>  <span style="color:#999;">WT</span>   <span style="color:#c00;font-weight:bold;">+/+</span>  <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#c00;font-weight:bold;">+/+</span>  <span style="color:#c00;font-weight:bold;">+/+</span>  <span style="color:#999;">WT</span>   <span style="color:#060;font-weight:bold;">+/-</span>  <span style="color:#c00;font-weight:bold;">+/+</span>
+<span style="color:#666;">统计: Ly6G+/- 5只(11♂,12♂,16♂,17♂,21♂) | Ly6G+/+ 5只(13♂,15♂,18♂,19♂,22♂) | WT 2只(14♂,20♂)</span>
+
+<span style="font-weight:bold;color:#c0392b;">═══════════════════════════════════════════════════════════════════════════════════════════════</span>
+<span style="font-weight:bold;color:#060;">1-8E总计: Ly6G+/- 11只 | Ly6G+/+ 5只 | WT 4只</span></div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- ==================== 详细结果表格 ==================== -->
+        <h2 class="section-title">详细结果汇总</h2>
+
+        <h3 style="color:#42a5f5;margin:15px 0 8px;font-size:13px;">1-8E笼位 (20只)</h3>
+        <p style="font-size:10px;color:#666;margin-bottom:8px;">* S100a8胶已跑但未拍照检测，因Ly6G已确认基因型 | C2C: 有=wt/无=c2c+ | iDTR/Ly6G: +/-=杂合目标</p>
+        <p style="font-size:9px;margin-bottom:8px;">图例: <span class="g-ok">■ 目标基因型</span> | <span class="g-no">■ 非目标</span> | <span class="g-bad">■ 不符合</span> | <span style="color:#f90;">■ 待定</span></p>
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th rowspan="2">样品</th>
+                    <th rowspan="2">性别</th>
+                    <th>C2C</th>
+                    <th colspan="3">iDTR</th>
+                    <th colspan="3">Ly6G</th>
+                    <th rowspan="2">备注</th>
+                </tr>
+                <tr>
+                    <th>699bp</th>
+                    <th>878bp</th>
+                    <th>487bp</th>
+                    <th>基因型</th>
+                    <th>375bp</th>
+                    <th>305bp</th>
+                    <th>基因型</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="female-row"><td>1♀<sup>(60)</sup></td><td>♀</td><td class="pos">+</td><td>-</td><td class="pos">+</td><td class="wt">WT</td><td class="pos">+</td><td class="pos">浅</td><td class="neg">+/-</td><td><span class="g-no">wt</span>/<span class="g-no">iDTR<sup>WT</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+                <tr class="female-row target-genotype"><td>2♀<sup>(60)</sup></td><td>♀</td><td>-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td class="pos">浅</td><td class="neg">+/-</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+                <tr class="female-row"><td>3♀<sup>(60)</sup></td><td>♀</td><td class="pos">+</td><td>-</td><td class="pos">+</td><td class="wt">WT</td><td>-</td><td class="pos">深</td><td class="wt">WT</td><td><span class="g-no">wt</span>/<span class="g-no">iDTR<sup>WT</sup></span>/<span class="g-no">Ly6G<sup>WT</sup></span></td></tr>
+                <tr class="female-row target-genotype"><td>4♀<sup>(60)</sup></td><td>♀</td><td>-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td class="pos">浅</td><td class="neg">+/-</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+                <tr class="female-row target-genotype"><td>5♀<sup>(60)</sup></td><td>♀</td><td>-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td class="pos">浅</td><td class="neg">+/-</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+                <tr class="female-row"><td>6♀<sup>(60)</sup></td><td>♀</td><td>-</td><td>-</td><td class="pos">+</td><td class="wt">WT</td><td>-</td><td class="pos">深</td><td class="wt">WT</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-no">iDTR<sup>WT</sup></span>/<span class="g-no">Ly6G<sup>WT</sup></span></td></tr>
+                <tr class="female-row"><td>7♀<sup>(60)</sup></td><td>♀</td><td class="pos">+</td><td>-</td><td class="pos">+</td><td class="wt">WT</td><td class="pos">+</td><td class="pos">浅</td><td class="neg">+/-</td><td><span class="g-no">wt</span>/<span class="g-no">iDTR<sup>WT</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+                <tr class="female-row target-genotype"><td>8♀<sup>(60)</sup></td><td>♀</td><td>-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td class="pos">深</td><td class="neg">+/-</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+                <tr class="male-row partial-match"><td>11♂<sup>(60)</sup></td><td>♂</td><td class="pos">+</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td><span class="g-no">wt</span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+                <tr class="male-row partial-match"><td>12♂<sup>(60)</sup></td><td>♂</td><td>-</td><td>-</td><td class="pos">+</td><td class="wt">WT</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-no">iDTR<sup>WT</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+                <tr class="male-row"><td>13♂<sup>(60)</sup></td><td>♂</td><td class="pos">+</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td>-</td><td class="pos">+/+</td><td><span class="g-no">wt</span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-bad">Ly6G<sup>+/+</sup></span></td></tr>
+                <tr class="male-row"><td>14♂<sup>(60)</sup></td><td>♂</td><td>-</td><td>-</td><td class="pos">+</td><td class="wt">WT</td><td>-</td><td class="pos">+</td><td class="wt">WT</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-no">iDTR<sup>WT</sup></span>/<span class="g-no">Ly6G<sup>WT</sup></span></td></tr>
+                <tr class="male-row"><td>15♂<sup>(60)</sup></td><td>♂</td><td class="pos">+</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td>-</td><td class="pos">+/+</td><td><span class="g-no">wt</span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-bad">Ly6G<sup>+/+</sup></span></td></tr>
+                <tr class="male-row partial-match"><td>16♂<sup>(60)</sup></td><td>♂</td><td>-</td><td>-</td><td class="pos">+</td><td class="wt">WT</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-no">iDTR<sup>WT</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+                <tr class="male-row partial-match"><td>17♂<sup>(60)</sup></td><td>♂</td><td class="pos">+</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td><span class="g-no">wt</span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+                <tr class="male-row"><td>18♂<sup>(60)</sup></td><td>♂</td><td class="pos">+</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td>-</td><td class="pos">+/+</td><td><span class="g-no">wt</span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-bad">Ly6G<sup>+/+</sup></span></td></tr>
+                <tr class="male-row"><td>19♂<sup>(60)</sup></td><td>♂</td><td class="pos">+</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td>-</td><td class="pos">+/+</td><td><span class="g-no">wt</span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-bad">Ly6G<sup>+/+</sup></span></td></tr>
+                <tr class="male-row"><td>20♂<sup>(60)</sup></td><td>♂</td><td class="pos">+</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td>-</td><td class="pos">+</td><td class="wt">WT</td><td><span class="g-no">wt</span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-no">Ly6G<sup>WT</sup></span></td></tr>
+                <tr class="male-row partial-match"><td>21♂<sup>(60)</sup></td><td>♂</td><td>-</td><td>-</td><td class="pos">+</td><td class="wt">WT</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-no">iDTR<sup>WT</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+                <tr class="male-row"><td>22♂<sup>(60)</sup></td><td>♂</td><td class="pos">+</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td>-</td><td class="pos">+/+</td><td><span class="g-no">wt</span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-bad">Ly6G<sup>+/+</sup></span></td></tr>
+            </tbody>
+        </table>
+        <p style="font-size:10px;color:#666;margin-top:5px;">统计: C2C wt 11只/c2c+ 9只 | iDTR+/- 12只/WT 8只 | Ly6G+/- 11只/+/+ 5只/WT 4只</p>
+
+        <h3 style="color:#f57c00;margin:15px 0 8px;font-size:13px;">1-6B笼位 - 成年 (11只)</h3>
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th rowspan="2">样品</th>
+                    <th rowspan="2">性别</th>
+                    <th>C2C</th>
+                    <th colspan="3">iDTR</th>
+                    <th colspan="3">Ly6G</th>
+                    <th rowspan="2">备注</th>
+                </tr>
+                <tr>
+                    <th>699bp</th>
+                    <th>878bp</th>
+                    <th>487bp</th>
+                    <th>基因型</th>
+                    <th>375bp</th>
+                    <th>305bp</th>
+                    <th>基因型</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="female-row partial-match"><td>1♀<sup>(60)</sup></td><td>♀</td><td>-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td>-</td><td class="pos">+/+</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-bad">Ly6G<sup>+/+</sup></span></td></tr>
+                <tr class="female-row partial-match"><td>2♀<sup>(60)</sup></td><td>♀</td><td class="pos">+</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td><span class="g-no">wt</span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+                <tr class="female-row partial-match"><td>3♀<sup>(60)</sup></td><td>♀</td><td>-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td>-</td><td class="pos">+/+</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-bad">Ly6G<sup>+/+</sup></span></td></tr>
+                <tr class="female-row"><td>4♀<sup>(60)</sup></td><td>♀</td><td class="pos">+</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td>-</td><td class="pos">+</td><td class="wt">WT</td><td><span class="g-no">wt</span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-no">Ly6G<sup>WT</sup></span></td></tr>
+                <tr class="female-row"><td>5♀<sup>(60)</sup></td><td>♀</td><td class="pos">+</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td>-</td><td class="pos">+/+</td><td><span class="g-no">wt</span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-bad">Ly6G<sup>+/+</sup></span></td></tr>
+                <tr class="female-row"><td>6♀<sup>(60)</sup></td><td>♀</td><td class="pos">+</td><td>-</td><td class="pos">+</td><td class="wt">WT</td><td class="pos">+</td><td>-</td><td class="pos">+/+</td><td><span class="g-no">wt</span>/<span class="g-no">iDTR<sup>WT</sup></span>/<span class="g-bad">Ly6G<sup>+/+</sup></span></td></tr>
+                <tr class="female-row target-genotype"><td>7♀<sup>(60)</sup></td><td>♀</td><td>-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+                <tr class="female-row"><td>8♀<sup>(60)</sup></td><td>♀</td><td>-</td><td>-</td><td class="pos">+</td><td class="wt">WT</td><td>-</td><td class="pos">+</td><td class="wt">WT</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-no">iDTR<sup>WT</sup></span>/<span class="g-no">Ly6G<sup>WT</sup></span></td></tr>
+                <tr class="female-row target-genotype"><td>9♀<sup>(60)</sup></td><td>♀</td><td>-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+                <tr class="male-row partial-match" style="background:#fff3e0;"><td>82♂</td><td>♂</td><td>-</td><td class="pos" style="font-weight:bold;">++</td><td>-</td><td class="pos" style="color:#c00;">+/+</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-bad">iDTR<sup>+/+</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+                <tr class="female-row target-genotype"><td>85♀</td><td>♀</td><td>-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+            </tbody>
+        </table>
+        <p style="font-size:10px;color:#666;margin-top:5px;">统计: C2C wt 4只/c2c+ 7只 | iDTR+/- 8只/+/+ 1只(82)/WT 2只 | Ly6G+/- 5只/+/+ 4只/WT 2只</p>
+
+        <h3 style="color:#ab47bc;margin:15px 0 8px;font-size:13px;">1-6B笼位 - 幼鼠 (6只)</h3>
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th rowspan="2">样品</th>
+                    <th rowspan="2">性别</th>
+                    <th>C2C</th>
+                    <th colspan="3">iDTR</th>
+                    <th colspan="3">Ly6G</th>
+                    <th rowspan="2">备注</th>
+                </tr>
+                <tr>
+                    <th>699bp</th>
+                    <th>878bp</th>
+                    <th>487bp</th>
+                    <th>基因型</th>
+                    <th>375bp</th>
+                    <th>305bp</th>
+                    <th>基因型</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="young-row partial-match" style="background:#fff8e1;"><td>1幼</td><td>?</td><td>-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td>-</td><td>-</td><td class="fail">?</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span style="color:#f90;">Ly6G<sup>?</sup></span></td></tr>
+                <tr class="young-row" style="background:#fff8e1;"><td>3幼</td><td>?</td><td>-</td><td>-</td><td class="pos">+</td><td class="wt">WT</td><td>-</td><td>-</td><td class="fail">?</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-no">iDTR<sup>WT</sup></span>/<span style="color:#f90;">Ly6G<sup>?</sup></span></td></tr>
+                <tr class="young-row partial-match"><td>4幼</td><td>?</td><td>-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td>-</td><td class="pos">+/+</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-bad">Ly6G<sup>+/+</sup></span></td></tr>
+                <tr class="young-row target-genotype"><td>5幼</td><td>?</td><td>-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+                <tr class="young-row target-genotype"><td>6幼</td><td>?</td><td>-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td><span class="g-ok">c2c<sup>+</sup></span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+                <tr class="young-row partial-match"><td>7幼</td><td>?</td><td class="pos">+</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">+/-</td><td><span class="g-no">wt</span>/<span class="g-ok">iDTR<sup>+/-</sup></span>/<span class="g-ok">Ly6G<sup>+/-</sup></span></td></tr>
+            </tbody>
+        </table>
+        <p style="font-size:10px;color:#666;margin-top:5px;">统计: C2C wt 1只/c2c+ 5只 | iDTR+/- 5只/WT 1只 | Ly6G+/- 3只/+/+ 1只/待定 2只(1幼,3幼需重测)</p>
+
+        <!-- 统计汇总 -->
+        <h3 class="section-title">统计汇总</h3>
+        <div class="summary" style="grid-template-columns: repeat(6, 1fr);">
+            <div class="summary-card">
+                <h4>总样本</h4>
+                <div class="stats">
+                    <div class="stat-item"><div class="num">37</div><div class="label">只</div></div>
+                </div>
+                <p style="font-size:8px;color:#666;margin-top:5px;">1-8E: 20只 | 1-6B: 17只</p>
+            </div>
+            <div class="summary-card" style="border-color:#4caf50;background:linear-gradient(135deg,#e8f5e9,#fff);">
+                <h4 style="color:#2e7d32;">★ 目标(3/3)</h4>
+                <div class="stats">
+                    <div class="stat-item"><div class="num" style="color:#2e7d32;font-size:20px;">9</div><div class="label">只</div></div>
+                </div>
+                <p style="font-size:7px;color:#388e3c;margin-top:5px;">c2c+/iDTR+/-/Ly6G+/-</p>
+                <p style="font-size:7px;color:#666;">1-8E: 4 | 1-6B: 5</p>
+            </div>
+            <div class="summary-card" style="border-color:#ff9800;background:linear-gradient(135deg,#fff3e0,#fff);">
+                <h4 style="color:#e65100;">◆ 次优(2/3)</h4>
+                <div class="stats">
+                    <div class="stat-item"><div class="num" style="color:#e65100;font-size:20px;">12</div><div class="label">只</div></div>
+                </div>
+                <p style="font-size:7px;color:#f57c00;margin-top:5px;">满足2/3条件</p>
+                <p style="font-size:7px;color:#666;">1-8E: 5 | 1-6B: 7</p>
+            </div>
+            <div class="summary-card" style="border-color:#16a085;">
+                <h4 style="color:#16a085;">C2C/Cg3</h4>
+                <div class="stats">
+                    <div class="stat-item"><div class="num" style="color:#060;">16</div><div class="label">wt</div></div>
+                    <div class="stat-item"><div class="num" style="color:#c00;">21</div><div class="label">c2c+</div></div>
+                </div>
+                <p style="font-size:8px;color:#666;margin-top:5px;">有条带=wt | 无条带=c2c+</p>
+            </div>
+            <div class="summary-card" style="border-color:#2980b9;">
+                <h4 style="color:#2980b9;">iDTR</h4>
+                <div class="stats">
+                    <div class="stat-item"><div class="num" style="color:#060;">25</div><div class="label">+/-</div></div>
+                    <div class="stat-item"><div class="num" style="color:#c00;">1</div><div class="label">+/+</div></div>
+                    <div class="stat-item"><div class="num" style="color:#999;">11</div><div class="label">WT</div></div>
+                </div>
+                <p style="font-size:8px;color:#666;margin-top:5px;">+/+: 82号(条带亮)</p>
+            </div>
+            <div class="summary-card" style="border-color:#c0392b;">
+                <h4 style="color:#c0392b;">Ly6G-iCre</h4>
+                <div class="stats">
+                    <div class="stat-item"><div class="num" style="color:#060;">19</div><div class="label">+/-</div></div>
+                    <div class="stat-item"><div class="num" style="color:#c00;">10</div><div class="label">+/+</div></div>
+                    <div class="stat-item"><div class="num" style="color:#999;">6</div><div class="label">WT</div></div>
+                    <div class="stat-item"><div class="num" style="color:#f90;">2</div><div class="label">待定</div></div>
+                </div>
+                <p style="font-size:8px;color:#666;margin-top:5px;">待定: 1幼,3幼需重测</p>
+            </div>
+        </div>
+        <p style="font-size:10px;color:#666;margin-top:5px;">* S100a8检测已跳过（Ly6G已确认基因型） | <span style="color:#2e7d32;font-weight:bold;">★ 目标(3/3): 9只绿框</span> | <span style="color:#e65100;font-weight:bold;">◆ 次优(2/3): 12只橙框</span></p>
+
+        <!-- 完成状态 -->
+        <div class="note" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:4px solid #4caf50;">
+            <h4 style="color:#2e7d32;">✓ 文档完成状态</h4>
+            <p style="color:#388e3c;">✓ 1. 电泳凝胶模拟图已生成 (槽1-7)</p>
+            <p style="color:#388e3c;">✓ 2. 条带解读结果已填写完成</p>
+            <p style="color:#388e3c;">✓ 3. 统计汇总数据已更新</p>
+            <p style="color:#388e3c;">✓ 4. 特殊备注已标注 (位置交换、弃用实验等)</p>
+            <p style="color:#f57c00;margin-top:8px;">⚠ 待办: 1幼、3幼需重测Ly6G (两个引物均无条带)</p>
+        </div>
+
+        <p style="text-align:center;color:#666;font-size:10px;margin-top:15px;border-top:1px solid #ccc;padding-top:10px;">
+            1-8E & 1-6B 基因型鉴定结果综合版 | C2C + iDTR + Cre(Ly6G) | 2025-12-24~27 | 100bp/1kb Ladder
+        </p>
+    </div>
+</body>
+</html>
