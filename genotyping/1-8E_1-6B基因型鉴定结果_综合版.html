@@ -306,6 +306,103 @@
             vertical-align: middle;
         }
 
+        /* 公告栏样式 */
+        .announcement-banner {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 50%, #303f9f 100%);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin: 15px 0;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(26, 35, 126, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .announcement-banner::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
+            transform: rotate(30deg);
+        }
+        .announcement-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        .announcement-icon {
+            font-size: 24px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .announcement-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffeb3b;
+        }
+        .announcement-date {
+            font-size: 11px;
+            color: #b3e5fc;
+            margin-left: auto;
+        }
+        .cage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+        }
+        .cage-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 4px solid;
+        }
+        .cage-card.pending { border-left-color: #ff9800; }
+        .cage-card.done { border-left-color: #4caf50; }
+        .cage-card.partial { border-left-color: #2196f3; }
+        .cage-card.newborn { border-left-color: #e91e63; }
+        .cage-name {
+            font-weight: bold;
+            font-size: 13px;
+            color: #fff;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .cage-status {
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: normal;
+        }
+        .status-pending { background: #ff9800; color: #000; }
+        .status-done { background: #4caf50; color: #fff; }
+        .status-partial { background: #2196f3; color: #fff; }
+        .status-newborn { background: #e91e63; color: #fff; }
+        .cage-samples {
+            font-size: 11px;
+            color: #e3f2fd;
+            line-height: 1.5;
+        }
+        .cage-samples .female { color: #f48fb1; }
+        .cage-samples .male { color: #90caf9; }
+        .cage-samples .young { color: #ce93d8; }
+        .cage-summary {
+            font-size: 10px;
+            color: #b3e5fc;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px dashed rgba(255,255,255,0.2);
+        }
+
         @media print {
             body { padding: 10px; font-size: 9px; }
             .container { max-width: 100%; }
@@ -315,6 +412,7 @@
             .results-table { font-size: 9px; }
             h1 { font-size: 16px; }
             .section-title { font-size: 12px; }
+            .announcement-banner { background: #e3f2fd !important; color: #000 !important; -webkit-print-color-adjust: exact; }
         }
     </style>
 </head>
@@ -322,6 +420,71 @@
     <div class="container">
         <h1>1-8E & 1-6B 基因型鉴定结果 (综合版)</h1>
         <p class="date">2025-12-24 ~ 27 | C2C + iDTR + Cre(Ly6G) | 1.5%胶 135V 30min | 100bp/1kb Ladder</p>
+
+        <!-- 2026-01-04 公告栏 -->
+        <div class="announcement-banner">
+            <div class="announcement-header">
+                <span class="announcement-icon">📢</span>
+                <span class="announcement-title">待鉴定笼位提醒 - Ly6G/Lyz2 基因型</span>
+                <span class="announcement-date">🗓️ 2026-01-04</span>
+            </div>
+            <div class="cage-grid">
+                <!-- 3-8D:lyz2 -->
+                <div class="cage-card pending">
+                    <div class="cage-name">
+                        🧬 3-8D:lyz2
+                        <span class="cage-status status-pending">待鉴定</span>
+                    </div>
+                    <div class="cage-samples">
+                        可能为 Ly6G/Lyz2，尚未进行基因型鉴定
+                    </div>
+                    <div class="cage-summary">⚠️ 需要安排电泳鉴定</div>
+                </div>
+
+                <!-- 1-9E -->
+                <div class="cage-card done">
+                    <div class="cage-name">
+                        🐭 1-9E
+                        <span class="cage-status status-done">已完成</span>
+                    </div>
+                    <div class="cage-samples">
+                        <span class="female">♀ 51<sup>(80)</sup>-56<sup>(80)</sup>, 17<sup>(80)</sup></span>
+                        <br>共 <strong>7只雌性</strong>
+                    </div>
+                    <div class="cage-summary">✓ 全部7只已完成鉴定</div>
+                </div>
+
+                <!-- 1-7E -->
+                <div class="cage-card partial">
+                    <div class="cage-name">
+                        🐭 1-7E
+                        <span class="cage-status status-partial">6/8 已鉴定</span>
+                    </div>
+                    <div class="cage-samples">
+                        12<sup>(90)</sup>, 15<sup>(90)</sup>, 17<sup>(90)</sup>, 18<sup>(90)</sup>, 95, 11<sup>(50)</sup>, 12<sup>(50)</sup>, 12<sup>(80,90)</sup>
+                        <br>共 <strong>8只</strong>
+                    </div>
+                    <div class="cage-summary">⏳ 6只已鉴定，2只待确认</div>
+                </div>
+
+                <!-- 1-8F -->
+                <div class="cage-card newborn">
+                    <div class="cage-name">
+                        🐭 1-8F
+                        <span class="cage-status status-newborn">含新生</span>
+                    </div>
+                    <div class="cage-samples">
+                        <span class="female">♀ 84, 85, 83</span> <span style="color:#ffcc80;">(需确认)</span><br>
+                        <span class="male">♂ 81</span><br>
+                        <span class="female">♀ 11<sup>(40)</sup>, 12<sup>(40)</sup></span> | <span class="male">♂ 13<sup>(40)</sup></span><br>
+                        <span class="young">🍼 新生幼鼠 ×7 (12.30出生)</span>
+                    </div>
+                    <div class="cage-summary">
+                        成年: <strong>7只</strong> | 幼鼠: <strong>7只</strong> (待断奶)
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- 样本信息概览 -->
         <div class="genotype-note">
